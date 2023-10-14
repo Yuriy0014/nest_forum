@@ -12,12 +12,14 @@ import {
 import { BlogCreateModel, BlogViewModel } from './models/blogs.models';
 import { BlogsRepo } from './blogs.repo';
 import { BlogsQueryRepo } from './blogs.query-repo';
+import { BlogsService } from './blogs.service';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsRepo: BlogsRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly blogsService: BlogsService,
   ) {}
 
   // @Get()
@@ -32,10 +34,18 @@ export class BlogsController {
     }
     return foundBlog;
   }
-  //
-  // @Post()
-  // createBlog(@Body() inputModel: BlogCreateModel) {}
-  //
+
+  @Post()
+  async createBlog(
+    @Body() inputModel: BlogCreateModel,
+  ): Promise<BlogViewModel> {
+    const createdBlog: BlogViewModel = await this.blogsService.createBlog(
+      inputModel,
+    );
+
+    return createdBlog;
+  }
+
   // @Delete(':id')
   // deleteBlog({ blogId }: { blogId: string }) {
   //   return;

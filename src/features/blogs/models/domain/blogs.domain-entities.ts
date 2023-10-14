@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { HydratedDocument, Model } from 'mongoose';
+import { BlogCreateModel } from '../blogs.models';
 
 @Schema()
 export class Blog {
@@ -16,19 +17,35 @@ export class Blog {
   @Prop({
     required: true,
   })
-  websiteUrl: number;
+  websiteUrl: string;
   @Prop({
     required: true,
   })
-  createdAt: number;
+  createdAt: string;
   @Prop({
     required: true,
   })
   isMembership: boolean;
-}
 
+  static createBlog(
+    dto: BlogCreateModel,
+    blogModel: BlogModelType,
+  ): BlogDocument {
+    console.log('BEFOREEEEEEEEEEE');
+    const blogInstance = new blogModel();
+    console.log('AFTEEEEEEEEEEEEER');
+    blogInstance.name = dto.name;
+    blogInstance.description = dto.description;
+    blogInstance.websiteUrl = dto.websiteUrl;
+    blogInstance._id = new mongoose.Types.ObjectId();
+    blogInstance.createdAt = new Date().toISOString();
+    blogInstance.isMembership = false;
+
+    return blogInstance;
+  }
+}
+export type BlogModelType = Model<Blog> & BlogModelStaticType;
 export const BlogSchema = SchemaFactory.createForClass(Blog);
-export const BlogModelClass = Model<Blog>;
 
 BlogSchema.methods = {
   updateBlog: function updateBlog(
@@ -41,3 +58,15 @@ BlogSchema.methods = {
     this.websiteUrl = websiteUrl;
   },
 };
+
+export type BlogModelStaticType = {
+  createBlog: (dto: BlogCreateModel, blogModel: BlogModelType) => any;
+};
+
+const blogStaticMethods: BlogModelStaticType = {
+  createBlog: Blog.createBlog,
+};
+
+BlogSchema.statics = blogStaticMethods;
+
+export type BlogDocument = HydratedDocument<Blog>;

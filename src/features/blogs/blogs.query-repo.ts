@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { createObjectIdFromSting } from '../../helpers/map-ObjectId';
 import { BlogDbModel } from './models/blogs.models';
-import { Blog, BlogModelClass } from './models/domain/blogs.domain-entities';
+import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { getBlogViewModel } from '../../helpers/map-BlogViewModel';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 export class BlogsQueryRepo {
   constructor(
     @InjectModel(Blog.name)
-    private readonly blogModel: typeof BlogModelClass,
+    private readonly blogModel: BlogModelType,
   ) {}
 
   async findBlogById(id: string) {

@@ -34,4 +34,10 @@ export class BlogsService {
     await this.blogsRepo.save(foundBlog);
     return true;
   }
+
+  async deleteBlog(blogId: string) {
+    const foundBlog = await this.blogsRepo.findBlogById(blogId);
+    if (!foundBlog) return false;
+    return this.blogsRepo.deleteBlog(foundBlog);
+  }
 }

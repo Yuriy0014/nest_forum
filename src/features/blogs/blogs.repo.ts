@@ -29,4 +29,9 @@ export class BlogsRepo {
       return null;
     }
   }
+
+  async deleteBlog(foundBlog: BlogDocument) {
+    await foundBlog.deleteOne();
+    return true;
+  }
 }

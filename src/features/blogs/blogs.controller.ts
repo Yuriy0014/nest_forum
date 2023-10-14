@@ -51,8 +51,8 @@ export class BlogsController {
   }
 
   @Delete(':id')
-  deleteBlog({ blogId }: { blogId: string }) {
-    return;
+  async deleteBlog(@Param('id') blogId: string) {
+    await this.blogsService.deleteBlog(blogId);
   }
 
   @Put(':id')
@@ -60,9 +60,6 @@ export class BlogsController {
     @Param('id') blogId: string,
     @Body() updateDTO: BlogUpdateModel,
   ) {
-    const updateStatus: boolean = await this.blogsService.updateBlog(
-      blogId,
-      updateDTO,
-    );
+    await this.blogsService.updateBlog(blogId, updateDTO);
   }
 }

@@ -50,18 +50,18 @@ export class BlogsController {
     return createdBlog;
   }
 
-  // @Delete(':id')
-  // deleteBlog({ blogId }: { blogId: string }) {
-  //   return;
-  // }
-  //
+  @Delete(':id')
+  deleteBlog({ blogId }: { blogId: string }) {
+    return;
+  }
+
   @Put(':id')
   async updateBlog(
-    @Param('id') userId: string,
+    @Param('id') blogId: string,
     @Body() updateDTO: BlogUpdateModel,
   ) {
     const updateStatus: boolean = await this.blogsService.updateBlog(
-      userId,
+      blogId,
       updateDTO,
     );
   }

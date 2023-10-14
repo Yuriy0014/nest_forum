@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogCreateModel } from './models/blogs.models';
+import { BlogCreateModel, BlogUpdateModel } from './models/blogs.models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { BlogsRepo } from './blogs.repo';
@@ -21,5 +21,17 @@ export class BlogsService {
 
     await this.blogsRepo.save(createdBlog);
     return getBlogViewModel(createdBlog);
+  }
+
+  async updateBlog(
+    userId: string,
+    updateDTO: BlogUpdateModel,
+  ): Promise<boolean> {
+    const foundBlog = await this.blogsRepo.findBlogById(userId);
+    if (!foundBlog) return false;
+
+    foundBlog.updateBlog(updateDTO);
+    await this.blogsRepo.save(foundBlog);
+    return true;
   }
 }

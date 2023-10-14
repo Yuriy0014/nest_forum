@@ -9,7 +9,11 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { BlogCreateModel, BlogViewModel } from './models/blogs.models';
+import {
+  BlogCreateModel,
+  BlogUpdateModel,
+  BlogViewModel,
+} from './models/blogs.models';
 import { BlogsRepo } from './blogs.repo';
 import { BlogsQueryRepo } from './blogs.query-repo';
 import { BlogsService } from './blogs.service';
@@ -51,6 +55,14 @@ export class BlogsController {
   //   return;
   // }
   //
-  // @Put(':id')
-  // updateBlog(@Param('id') userId: string, @Body() model: BlogCreateModel) {}
+  @Put(':id')
+  async updateBlog(
+    @Param('id') userId: string,
+    @Body() updateDTO: BlogUpdateModel,
+  ) {
+    const updateStatus: boolean = await this.blogsService.updateBlog(
+      userId,
+      updateDTO,
+    );
+  }
 }

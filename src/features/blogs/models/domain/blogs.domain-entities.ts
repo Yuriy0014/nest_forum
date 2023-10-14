@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { BlogCreateModel } from '../blogs.models';
+import { BlogCreateModel, BlogUpdateModel } from '../blogs.models';
 
 @Schema()
 export class Blog {
@@ -47,15 +47,15 @@ export class Blog {
 export type BlogModelType = Model<Blog> & BlogModelStaticType;
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 
+export type blogDBMethodsType = {
+  updateBlog: (updateDTO: BlogUpdateModel) => void;
+};
+
 BlogSchema.methods = {
-  updateBlog: function updateBlog(
-    name: string,
-    description: string,
-    websiteUrl: string,
-  ): void {
-    this.name = name;
-    this.description = description;
-    this.websiteUrl = websiteUrl;
+  updateBlog: function updateBlog(updateDTO: BlogUpdateModel): void {
+    this.name = updateDTO.name;
+    this.description = updateDTO.description;
+    this.websiteUrl = updateDTO.websiteUrl;
   },
 };
 

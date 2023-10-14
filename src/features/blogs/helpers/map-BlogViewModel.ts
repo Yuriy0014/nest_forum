@@ -1,7 +1,4 @@
-import {
-  BlogDbModel,
-  BlogViewModel,
-} from '../features/blogs/models/blogs.models';
+import { BlogDbModel, BlogViewModel } from '../models/blogs.models';
 
 export const getBlogViewModel = (blog: BlogDbModel): BlogViewModel => {
   return {

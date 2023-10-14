@@ -3,7 +3,7 @@ import { BlogCreateModel, BlogUpdateModel } from './models/blogs.models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { BlogsRepo } from './blogs.repo';
-import { getBlogViewModel } from '../../helpers/map-BlogViewModel';
+import { getBlogViewModel } from './helpers/map-BlogViewModel';
 
 @Injectable()
 export class BlogsService {

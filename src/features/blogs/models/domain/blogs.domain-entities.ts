@@ -3,7 +3,11 @@ import mongoose, { Model } from 'mongoose';
 
 @Schema()
 export class Blog {
-  _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
+  @Prop({
+    required: true,
+  })
+  name: string;
   @Prop({
     required: true,
   })
@@ -24,7 +28,7 @@ export class Blog {
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);
-export const BlogModelType = Model<Blog>;
+export const BlogModelClass = Model<Blog>;
 
 BlogSchema.methods = {
   updateBlog: function updateBlog(

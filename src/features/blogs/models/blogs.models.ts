@@ -1,10 +1,9 @@
-import { HydratedDocument } from 'mongoose';
-import { ObjectId } from 'mongodb';
-import { BlogModelType } from './domain/blogs.domain-entities';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { BlogModelClass } from './domain/blogs.domain-entities';
 
 export class BlogDbModel {
   constructor(
-    public _id: ObjectId,
+    public _id: mongoose.Types.ObjectId,
     public name: string,
     public description: string,
     public websiteUrl: string,
@@ -17,11 +16,11 @@ export class BlogDbModel {
     description: string,
     websiteUrl: string,
   ): HydratedDocument<BlogDbModel> {
-    const blogInstance = new BlogModelType();
+    const blogInstance = new BlogModelClass();
     blogInstance.name = name;
     blogInstance.description = description;
     blogInstance.websiteUrl = websiteUrl;
-    blogInstance._id = new ObjectId();
+    blogInstance._id = new mongoose.Types.ObjectId();
     blogInstance.createdAt = new Date().toISOString();
     blogInstance.isMembership = false;
 

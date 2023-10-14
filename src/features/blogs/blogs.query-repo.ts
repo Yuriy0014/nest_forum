@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { BlogDbModel } from './models/blogs.models';
 import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
-import { getBlogViewModel } from './helpers/map-BlogViewModel';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogFilterModel } from './helpers/filter';
 import { FilterQuery } from 'mongoose';
+import { MapBlogViewModel } from './helpers/map-BlogViewModel';
 
 @Injectable()
 export class BlogsQueryRepo {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
+    private readonly mapPostViewModel: MapBlogViewModel,
   ) {}
 
   async findBlogById(id: string) {
@@ -18,7 +19,7 @@ export class BlogsQueryRepo {
       .findById(id)
       .lean();
     if (foundBlog) {
-      return getBlogViewModel(foundBlog);
+      return this.mapPostViewModel.getBlogViewModel(foundBlog);
     } else {
       return null;
     }
@@ -40,7 +41,9 @@ export class BlogsQueryRepo {
       .skip((queryFilter.pageNumber - 1) * queryFilter.pageSize)
       .limit(queryFilter.pageSize);
 
-    const foundBlogs = foundBlogsMongoose.map((blog) => getBlogViewModel(blog));
+    const foundBlogs = foundBlogsMongoose.map((blog) =>
+      this.mapPostViewModel.getBlogViewModel(blog),
+    );
 
     const totalCount = await this.blogModel.countDocuments(filter);
 

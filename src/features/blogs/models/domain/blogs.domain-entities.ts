@@ -32,6 +32,7 @@ export class Blog {
     blogModel: BlogModelType,
   ): BlogDocument {
     const blogInstance = new blogModel();
+    blogInstance._id = new mongoose.Types.ObjectId();
     blogInstance.name = dto.name;
     blogInstance.description = dto.description;
     blogInstance.websiteUrl = dto.websiteUrl;

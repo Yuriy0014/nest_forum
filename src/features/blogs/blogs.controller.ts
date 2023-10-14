@@ -8,15 +8,18 @@ import {
   Body,
   HttpStatus,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import {
   BlogCreateModel,
+  BlogsWithPaginationModel,
   BlogUpdateModel,
   BlogViewModel,
 } from './models/blogs.models';
 import { BlogsRepo } from './blogs.repo';
 import { BlogsQueryRepo } from './blogs.query-repo';
 import { BlogsService } from './blogs.service';
+import { queryBlogPagination } from './helpers/filter';
 
 @Controller('blogs')
 export class BlogsController {
@@ -26,8 +29,26 @@ export class BlogsController {
     private readonly blogsService: BlogsService,
   ) {}
 
-  // @Get()
-  // async findAllBlogs(): Promise<BlogViewModel[]> {}
+  @Get()
+  async findAllBlogs(
+    @Query()
+    query: {
+      searchNameTerm?: string;
+      sortBy?: string;
+      sortDirection?: string;
+      pageNumber?: string;
+      pageSize?: string;
+    },
+  ): Promise<BlogsWithPaginationModel> {
+    const queryFilter = queryBlogPagination(query);
+    const foundBlogs: BlogsWithPaginationModel =
+      await this.blogsQueryRepo.FindAllBlog(queryFilter);
+
+    if (!foundBlogs.items.length) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    return foundBlogs;
+  }
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogViewModel> {

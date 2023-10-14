@@ -31,9 +31,7 @@ export class Blog {
     dto: BlogCreateModel,
     blogModel: BlogModelType,
   ): BlogDocument {
-    console.log('BEFOREEEEEEEEEEE');
     const blogInstance = new blogModel();
-    console.log('AFTEEEEEEEEEEEEER');
     blogInstance.name = dto.name;
     blogInstance.description = dto.description;
     blogInstance.websiteUrl = dto.websiteUrl;

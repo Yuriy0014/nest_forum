@@ -5,7 +5,9 @@ import {
   ownerTypeModel,
   usersLikesConnectionDBModel,
 } from './models/likes.models';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LikesQueryRepo {
   async findLikesByOwnerId(
     ownerType: ownerTypeModel,

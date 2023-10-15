@@ -1,11 +1,18 @@
 import mongoose from 'mongoose';
 import { likesInfoViewModel } from '../../likes/models/likes.models';
 
-export type CreateCommentModel = {
+export type CommentInputModel = {
   content: string;
 };
 
-export type UpdateCommentModel = {
+export type CommentCreateModel = {
+  content: string;
+  postId: string;
+  userId: string;
+  userLogin: string;
+};
+
+export type CommentUpdateModel = {
   content: string;
 };
 

@@ -56,7 +56,7 @@ export type postDBMethodsType = {
 };
 
 PostSchema.methods = {
-  updatepost: function updatepost(updateDTO: PostUpdateModel): void {
+  updatePost: function updatePost(updateDTO: PostUpdateModel): void {
     this.title = updateDTO.title;
     this.shortDescription = updateDTO.shortDescription;
     this.content = updateDTO.content;

@@ -19,13 +19,13 @@ export class UsersQueryRepo {
       $or: [
         {
           'accountData.login': {
-            $regex: queryFilter.searchLoginTerm ?? null,
+            $regex: queryFilter.searchLoginTerm ?? '',
             $options: 'i',
           },
         },
         {
           'accountData.email': {
-            $regex: queryFilter.searchEmailTerm ?? null,
+            $regex: queryFilter.searchEmailTerm ?? '',
             $options: 'i',
           },
         },

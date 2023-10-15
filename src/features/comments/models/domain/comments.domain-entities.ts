@@ -1,10 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import {
-  CommentCreateModel,
-  CommentInputModel,
-  CommentUpdateModel,
-} from '../comments.models';
+import { CommentCreateModel, CommentUpdateModel } from '../comments.models';
 
 @Schema()
 class CommentatorInfo {
@@ -72,8 +68,8 @@ CommentSchema.methods = {
 
 export type CommentModelStaticType = {
   createComment: (
-    dto: CommentInputModel,
-    CommentModel: CommentModelType,
+    dto: CommentCreateModel,
+    commentModel: CommentModelType,
   ) => any;
 };
 

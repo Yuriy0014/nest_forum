@@ -42,9 +42,7 @@ class EmailConfirmation {
 
 @Schema()
 class PasswordRecovery {
-  @Prop({
-    required: true,
-  })
+  @Prop()
   passwordRecoveryCode: string;
   @Prop({
     required: true,

@@ -21,8 +21,8 @@ import {
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly postsQueryRepo: UsersQueryRepo,
-    private readonly postsService: UsersService,
+    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersService: UsersService,
   ) {}
 
   @Get()
@@ -39,22 +39,28 @@ export class UsersController {
   ): Promise<UsersWithPaginationModel> {
     const queryFilter = queryUserPagination(query);
     const foundUsers: UsersWithPaginationModel =
-      await this.postsQueryRepo.FindAllUsers(queryFilter);
+      await this.usersQueryRepo.FindAllUsers(queryFilter);
 
     if (!foundUsers.items.length) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
     return foundUsers;
   }
-  //
-  // @Post()
-  // async createPost(@Body() inputModel: UserInputModel): Promise<UserViewModel> {
-  //   const createdPost: UserViewModel = await this.postsService.createPost(
-  //     inputModel,
-  //   );
-  //
-  //   return createdPost;
-  // }
+
+  @Post()
+  async createUser(@Body() inputModel: UserInputModel): Promise<any> {
+    const createdUser = await this.usersService.createUser(inputModel, true);
+    if (createdUser.data === null) {
+      throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser: UserViewModel | null =
+      await this.usersQueryRepo.findUserById(createdUser.data!);
+    if (!foundUser) {
+      throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
+    }
+    return foundUser;
+  }
   //
   // @Delete(':id')
   // async deletePost(@Param('id') PostId: string) {

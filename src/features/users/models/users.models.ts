@@ -50,7 +50,7 @@ export type UserInputModel = {
 
 export type UserCreateModel = {
   login: string;
-  passwordHash: string;
+  passwordHash: any;
   email: string;
   isAuthorSuper: boolean;
 };

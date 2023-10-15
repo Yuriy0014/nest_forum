@@ -56,4 +56,13 @@ export class UsersQueryRepo {
       items: foundUsers,
     };
   }
+
+  async findUserById(id: string) {
+    const user = await this.userModel.findById(id);
+    if (user) {
+      return this.mapUserViewModel.getUserViewModel(user);
+    } else {
+      return null;
+    }
+  }
 }

@@ -40,9 +40,12 @@ import {
   User,
   UserSchema,
 } from './features/users/models/domain/users.domain-entities';
-
+import { ConfigModule } from '@nestjs/config';
+import { EmailManager } from './infrastructure/email/email.manager';
+import { EmailAdapter } from './infrastructure/email/email.adapter';
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/nest_forum'),
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
@@ -83,6 +86,9 @@ import {
     UsersQueryRepo,
     UsersRepo,
     MapUserViewModel,
+    // Email
+    EmailManager,
+    EmailAdapter,
   ],
 })
 export class AppModule {}

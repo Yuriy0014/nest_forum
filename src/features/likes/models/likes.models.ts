@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 
 export enum likeStatus {
   None = 'None',
@@ -19,7 +19,7 @@ export type ownerTypeModel = 'Comment' | 'Post';
 
 export class likesDBModel {
   constructor(
-    public _id: ObjectId,
+    public _id: mongoose.Types.ObjectId,
     public ownerType: ownerTypeModel,
     public ownerId: string,
     public likesCount: number,
@@ -56,7 +56,7 @@ export type likeDetailsViewModel = {
 
 export class usersLikesConnectionDBModel {
   constructor(
-    public _id: ObjectId,
+    public _id: mongoose.Types.ObjectId,
     public userId: string,
     public userLogin: string,
     public addedAt: Date,

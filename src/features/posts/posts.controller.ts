@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -84,11 +85,13 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deletePost(@Param('id') PostId: string) {
     await this.postsService.deletePost(PostId);
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updatePost(
     @Param('id') PostId: string,
     @Body() updateDTO: PostUpdateModel,

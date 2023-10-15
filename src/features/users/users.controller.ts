@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -63,6 +64,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteUser(@Param('id') UserId: string) {
     const deletion_status = await this.usersService.deleteUser(UserId);
     if (!deletion_status) {

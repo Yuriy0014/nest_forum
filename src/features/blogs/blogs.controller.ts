@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -80,11 +81,13 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteBlog(@Param('id') blogId: string) {
     await this.blogsService.deleteBlog(blogId);
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updateBlog(
     @Param('id') blogId: string,
     @Body() updateDTO: BlogUpdateModel,

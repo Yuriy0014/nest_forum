@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "music-album",
+  "name": "nest_forum",
   "builds": [
     {
       "src": "src/main.ts",
@@ -10,7 +10,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/index.ts"
+      "dest": "src/main.ts"
     }
   ]
 }

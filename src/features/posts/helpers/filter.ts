@@ -7,13 +7,16 @@ export type PostFilterModel = {
   pageSize: number;
 };
 
-export const queryPostPagination = (query: any): PostFilterModel => {
+export const queryPostPagination = (
+  query: any,
+  blogId?: string,
+): PostFilterModel => {
   return {
     searchNameTerm: query.searchNameTerm ?? '',
     sortBy: query.sortBy ?? 'createdAt',
     sortDirection: query.sortDirection === 'asc' ? 'asc' : 'desc',
     pageNumber: +(query.pageNumber ?? 1),
-    blogId: query.blogId ?? '',
+    blogId: query.blogId ?? blogId ?? '',
     pageSize: +(query.pageSize ?? 10),
   };
 };

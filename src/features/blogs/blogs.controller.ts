@@ -1,13 +1,13 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Param,
   Post,
   Put,
-  Delete,
-  Param,
-  Body,
-  HttpStatus,
-  HttpException,
   Query,
 } from '@nestjs/common';
 import {
@@ -16,17 +16,25 @@ import {
   BlogUpdateModel,
   BlogViewModel,
 } from './models/blogs.models';
-import { BlogsRepo } from './blogs.repo';
 import { BlogsQueryRepo } from './blogs.query-repo';
 import { BlogsService } from './blogs.service';
 import { queryBlogPagination } from './helpers/filter';
+import {
+  PostCreateModel,
+  PostsWithPaginationModel,
+  PostViewModel,
+} from '../posts/models/posts.models';
+import { queryPostPagination } from '../posts/helpers/filter';
+import { PostsQueryRepo } from '../posts/posts.query-repo';
+import { PostsService } from '../posts/posts.service';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsRepo: BlogsRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly blogsService: BlogsService,
+    private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsService: PostsService,
   ) {}
 
   @Get()
@@ -82,5 +90,51 @@ export class BlogsController {
     @Body() updateDTO: BlogUpdateModel,
   ) {
     await this.blogsService.updateBlog(blogId, updateDTO);
+  }
+
+  ////////////////////////////
+  ////// Working with posts
+  ////////////////////////////
+  @Get(':id/posts')
+  async findAllPosts(
+    @Param('id') blogId: string,
+    @Query()
+    query: {
+      searchNameTerm?: string;
+      sortBy?: string;
+      sortDirection?: string;
+      pageNumber?: string;
+      pageSize?: string;
+      blogId?: string;
+    },
+  ): Promise<PostsWithPaginationModel> {
+    const queryFilter = queryPostPagination(query, blogId);
+    const foundPosts: PostsWithPaginationModel =
+      await this.postsQueryRepo.FindAllPost(queryFilter);
+
+    if (!foundPosts.items.length) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    return foundPosts;
+  }
+
+  @Post(':id/posts')
+  async createPost(
+    @Param('id') blogId: string,
+    @Body() inputModel: PostCreateModel,
+  ): Promise<PostViewModel> {
+    // Проверяем, что блог существует
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    inputModel.blogId = blogId;
+    const createdPost: PostViewModel = await this.postsService.createPost(
+      inputModel,
+    );
+
+    return createdPost;
   }
 }

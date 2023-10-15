@@ -46,7 +46,7 @@ export class TestingController {
     await Promise.all([
       this.blogModel.deleteMany({}),
       this.postModel.deleteMany({}),
-      this.userModel.deleteMany({}),
+      // this.userModel.deleteMany({}),
       this.likeModel.deleteMany({}),
       this.usersLikesConnectionModel.deleteMany({}),
     ]).catch((e) => {

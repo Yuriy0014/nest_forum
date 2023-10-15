@@ -32,7 +32,7 @@ export class UsersQueryRepo {
       ],
     };
     const sortFilter: any = {
-      [queryFilter.sortBy]: queryFilter.sortDirection,
+      ['accountData.' + queryFilter.sortBy]: queryFilter.sortDirection,
     };
 
     const foundUsersMongoose = await this.userModel

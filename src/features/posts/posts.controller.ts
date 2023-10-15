@@ -21,6 +21,9 @@ import {
 import { queryPostPagination } from './helpers/filter';
 import { BlogViewModel } from '../blogs/models/blogs.models';
 import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
+import { CommentsQueryRepo } from '../comments/comments.query-repo';
+import { queryCommentsWithPagination } from '../comments/helpers/filter';
+import { CommentsWithPaginationModel } from '../comments/models/comments.models';
 
 @Controller('posts')
 export class PostsController {
@@ -28,6 +31,7 @@ export class PostsController {
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsService: PostsService,
     private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly commentsQueryRepo: CommentsQueryRepo,
   ) {}
 
   @Get()
@@ -90,5 +94,40 @@ export class PostsController {
     @Body() updateDTO: PostUpdateModel,
   ) {
     await this.postsService.updatePost(PostId, updateDTO);
+  }
+
+  ///////////////////
+  // Working
+  ///////////////////
+
+  @Get(':id/comments')
+  async findCommentsForPost(
+    @Query()
+    query: {
+      searchNameTerm?: string;
+      sortBy?: string;
+      sortDirection?: string;
+      pageNumber?: string;
+      pageSize?: string;
+      blogId?: string;
+    },
+    @Param('id') id: string,
+  ): Promise<CommentsWithPaginationModel> {
+    // Проверяем, что пост существует
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(id);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    const queryFilter = queryCommentsWithPagination(query, id);
+
+    const foundPosts = await this.commentsQueryRepo.findComments(queryFilter);
+
+    if (!foundPosts.items.length) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    return foundPosts;
   }
 }

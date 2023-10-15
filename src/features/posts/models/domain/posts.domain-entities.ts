@@ -49,13 +49,13 @@ export class Post {
   }
 }
 export type postModelType = Model<Post> & postModelStaticType;
-export const postSchema = SchemaFactory.createForClass(Post);
+export const PostSchema = SchemaFactory.createForClass(Post);
 
 export type postDBMethodsType = {
   updatePost: (updateDTO: PostUpdateModel) => void;
 };
 
-postSchema.methods = {
+PostSchema.methods = {
   updatepost: function updatepost(updateDTO: PostUpdateModel): void {
     this.title = updateDTO.title;
     this.shortDescription = updateDTO.shortDescription;
@@ -76,6 +76,6 @@ const postStaticMethods: postModelStaticType = {
   createPost: Post.createPost,
 };
 
-postSchema.statics = postStaticMethods;
+PostSchema.statics = postStaticMethods;
 
 export type postDocument = HydratedDocument<Post>;

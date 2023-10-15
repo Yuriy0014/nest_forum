@@ -61,9 +61,12 @@ export class UsersController {
     }
     return foundUser;
   }
-  //
-  // @Delete(':id')
-  // async deletePost(@Param('id') PostId: string) {
-  //   await this.postsService.deletePost(PostId);
-  // }
+
+  @Delete(':id')
+  async deleteUser(@Param('id') UserId: string) {
+    const deletion_status = await this.usersService.deleteUser(UserId);
+    if (!deletion_status) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+  }
 }

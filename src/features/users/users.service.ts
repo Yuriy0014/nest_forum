@@ -52,4 +52,11 @@ export class UsersService {
       data: createdUser._id.toString(),
     };
   }
+
+  async deleteUser(UserId: string): Promise<boolean> {
+    const user = await this.usersRepo.findUserById(UserId);
+    if (!user) return false;
+
+    return await this.usersRepo.deleteUser(user);
+  }
 }

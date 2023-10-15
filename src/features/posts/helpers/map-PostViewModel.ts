@@ -5,10 +5,19 @@ import {
   likeStatus,
 } from '../../likes/models/likes.models';
 import { LikesQueryRepo } from '../../likes/likes.query-repo';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  UsersLikesConnection,
+  UsersLikesConnectionType,
+} from '../../likes/models/domain/likes.domain-entities';
 
 @Injectable()
 export class MapPostViewModel {
-  constructor(protected likesQueryRepo: LikesQueryRepo) {}
+  constructor(
+    @InjectModel(UsersLikesConnection.name)
+    private readonly usersLikesConnectionModel: UsersLikesConnectionType,
+    protected likesQueryRepo: LikesQueryRepo,
+  ) {}
 
   async getPostViewModel(
     post: PostDBModel,
@@ -26,24 +35,25 @@ export class MapPostViewModel {
       myStatus: likeStatus.None,
     };
 
-    // const likesLastThreeMongoose = await UsersLikesConnectionModelClass.find({
-    //   likedObjectId: postId,
-    //   likedObjectType: 'Post',
-    //   status: likeStatus.Like,
-    // })
-    //   .lean()
-    //   .sort({ addedAt: 'desc' })
-    //   .limit(3);
-    //
-    // const likesLastThree = likesLastThreeMongoose.map((value) => {
-    //   console.log(value);
-    //   const newItem: likeDetailsViewModel = {
-    //     addedAt: value.addedAt.toString(),
-    //     userId: value.userId,
-    //     login: value.userLogin,
-    //   };
-    //   return newItem;
-    // });
+    const likesLastThreeMongoose = await this.usersLikesConnectionModel
+      .find({
+        likedObjectId: postId,
+        likedObjectType: 'Post',
+        status: likeStatus.Like,
+      })
+      .lean()
+      .sort({ addedAt: 'desc' })
+      .limit(3);
+
+    const likesLastThree = likesLastThreeMongoose.map((value) => {
+      console.log(value);
+      const newItem: likeDetailsViewModel = {
+        addedAt: value.addedAt.toString(),
+        userId: value.userId,
+        login: value.userLogin,
+      };
+      return newItem;
+    });
 
     return {
       id: postId,
@@ -57,7 +67,7 @@ export class MapPostViewModel {
         likesCount: likesInfo.likesCount,
         dislikesCount: likesInfo.dislikesCount,
         myStatus: likesInfo.myStatus,
-        newestLikes: [],
+        newestLikes: likesLastThree,
       },
     };
   }

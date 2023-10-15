@@ -43,6 +43,12 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { EmailManager } from './infrastructure/email/email.manager';
 import { EmailAdapter } from './infrastructure/email/email.adapter';
+import {
+  Like,
+  LikeSchema,
+  UsersLikesConnection,
+  UsersLikesConnectionSchema,
+} from './features/likes/models/domain/likes.domain-entities';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -52,6 +58,8 @@ import { EmailAdapter } from './infrastructure/email/email.adapter';
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: User.name, schema: UserSchema },
+      { name: Like.name, schema: LikeSchema },
+      { name: UsersLikesConnection.name, schema: UsersLikesConnectionSchema },
     ]),
   ],
   controllers: [

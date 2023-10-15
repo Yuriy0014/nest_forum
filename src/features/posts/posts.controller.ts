@@ -87,6 +87,12 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(204)
   async deletePost(@Param('id') PostId: string) {
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(PostId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
     await this.postsService.deletePost(PostId);
   }
 
@@ -96,6 +102,12 @@ export class PostsController {
     @Param('id') PostId: string,
     @Body() updateDTO: PostUpdateModel,
   ) {
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(PostId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
     await this.postsService.updatePost(PostId, updateDTO);
   }
 

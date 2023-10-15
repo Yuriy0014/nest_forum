@@ -52,7 +52,9 @@ import {
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/nest_forum'),
+    MongooseModule.forRoot(
+      'mongodb+srv://ylogachev2019:vtR-Nxa-CWL-w4R@clusterfox18.xjanqbe.mongodb.net',
+    ),
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },

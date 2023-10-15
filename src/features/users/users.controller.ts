@@ -42,9 +42,6 @@ export class UsersController {
     const foundUsers: UsersWithPaginationModel =
       await this.usersQueryRepo.FindAllUsers(queryFilter);
 
-    if (!foundUsers.items.length) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
     return foundUsers;
   }
 

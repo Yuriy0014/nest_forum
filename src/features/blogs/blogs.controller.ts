@@ -83,6 +83,11 @@ export class BlogsController {
   @Delete(':id')
   @HttpCode(204)
   async deleteBlog(@Param('id') blogId: string) {
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
     await this.blogsService.deleteBlog(blogId);
   }
 
@@ -92,6 +97,11 @@ export class BlogsController {
     @Param('id') blogId: string,
     @Body() updateDTO: BlogUpdateModel,
   ) {
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
     await this.blogsService.updateBlog(blogId, updateDTO);
   }
 

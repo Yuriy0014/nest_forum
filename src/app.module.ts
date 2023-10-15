@@ -49,11 +49,12 @@ import {
   UsersLikesConnection,
   UsersLikesConnectionSchema,
 } from './features/likes/models/domain/likes.domain-entities';
+import * as process from 'process';
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot(),
     MongooseModule.forRoot(
-      'mongodb+srv://ylogachev2019:vtR-Nxa-CWL-w4R@clusterfox18.xjanqbe.mongodb.net',
+      process.env.MONGO_URL + '/' + process.env.MONGODBNAME,
     ),
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },

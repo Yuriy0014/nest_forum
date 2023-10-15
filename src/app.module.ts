@@ -31,6 +31,15 @@ import {
   CommentSchema,
 } from './features/comments/models/domain/comments.domain-entities';
 import { LikesQueryRepo } from './features/likes/likes.query-repo';
+import { UsersController } from './features/users/users.controller';
+import { UsersQueryRepo } from './features/users/users.query-repo';
+import { UsersService } from './features/users/users.service';
+import { UsersRepo } from './features/users/users.repo';
+import { MapUserViewModel } from './features/users/helpers/map-UserViewModel';
+import {
+  User,
+  UserSchema,
+} from './features/users/models/domain/users.domain-entities';
 
 @Module({
   imports: [
@@ -39,6 +48,7 @@ import { LikesQueryRepo } from './features/likes/likes.query-repo';
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [
@@ -47,6 +57,7 @@ import { LikesQueryRepo } from './features/likes/likes.query-repo';
     BlogsController,
     PostsController,
     CommentsController,
+    UsersController,
   ],
   providers: [
     AppService,
@@ -67,6 +78,11 @@ import { LikesQueryRepo } from './features/likes/likes.query-repo';
     MapCommentViewModel,
     // Likes
     LikesQueryRepo,
+    // Users
+    UsersService,
+    UsersQueryRepo,
+    UsersRepo,
+    MapUserViewModel,
   ],
 })
 export class AppModule {}

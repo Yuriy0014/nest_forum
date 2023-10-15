@@ -9,7 +9,7 @@ export type UserFilterModel = {
 
 export const queryUserPagination = (query: any): UserFilterModel => {
   return {
-    sortBy: query.sortBy ?? 'accountData.createdAt',
+    sortBy: query.sortBy ?? 'createdAt',
     sortDirection: query.sortDirection === 'asc' ? 'asc' : 'desc',
     pageNumber: +(query.pageNumber ?? 1),
     pageSize: +(query.pageSize ?? 10),

@@ -44,11 +44,11 @@ export class TestingController {
   @HttpCode(204)
   async deleteAll() {
     await Promise.all([
-      this.blogModel.deleteMany({}),
-      this.postModel.deleteMany({}),
-      // this.userModel.deleteMany({}),
-      this.likeModel.deleteMany({}),
-      this.usersLikesConnectionModel.deleteMany({}),
+      await this.blogModel.deleteMany({}),
+      await this.postModel.deleteMany({}),
+      await this.userModel.deleteMany({}),
+      await this.likeModel.deleteMany({}),
+      await this.usersLikesConnectionModel.deleteMany({}),
     ]).catch((e) => {
       console.log(e);
       throw new HttpException('Not Found', HttpStatus.INTERNAL_SERVER_ERROR);

@@ -3,7 +3,7 @@ import { BlogCreateModel, BlogUpdateModel } from './models/blogs.models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { BlogsRepo } from './blogs.repo';
-import { getBlogViewModel } from './helpers/map-BlogViewModel';
+import { MapBlogViewModel } from './helpers/map-BlogViewModel';
 
 @Injectable()
 export class BlogsService {
@@ -11,6 +11,7 @@ export class BlogsService {
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
     private readonly blogsRepo: BlogsRepo,
+    private readonly mapBlogViewModel: MapBlogViewModel,
   ) {}
 
   async createBlog(BlogCreateModelDTO: BlogCreateModel) {
@@ -20,7 +21,7 @@ export class BlogsService {
     );
 
     await this.blogsRepo.save(createdBlog);
-    return getBlogViewModel(createdBlog);
+    return this.mapBlogViewModel.getBlogViewModel(createdBlog);
   }
 
   async updateBlog(

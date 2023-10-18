@@ -50,6 +50,7 @@ import {
   UsersLikesConnectionSchema,
 } from './features/likes/models/domain/likes.domain-entities';
 import * as process from 'process';
+import { AuthController } from './features/auth/auth.controller';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -70,6 +71,7 @@ import * as process from 'process';
     PostsController,
     CommentsController,
     UsersController,
+    AuthController,
   ],
   providers: [
     AppService,

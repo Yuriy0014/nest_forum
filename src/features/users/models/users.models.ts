@@ -1,4 +1,12 @@
 import mongoose from 'mongoose';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UserDBModel {
   constructor(
@@ -42,15 +50,31 @@ export type UserViewModel = {
   createdAt: string;
 };
 
-export type UserInputModel = {
-  login: string;
-  password: string;
-  email: string;
-};
-
 export type UserCreateModel = {
   login: string;
   passwordHash: any;
   email: string;
   isAuthorSuper: boolean;
 };
+
+export class UserInputModel {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(10)
+  @Matches(/^[a-zA-Z0-9_-]*$/)
+  login: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
+  @MaxLength(20)
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(5)
+  @MaxLength(50)
+  @IsEmail()
+  email: string;
+}

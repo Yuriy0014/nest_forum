@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { UserFilterModel } from './helpers/filter';
-import { UserDBModel } from './models/users.models';
+import { UserDBModel, UserViewModel } from './models/users.models';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserModelType } from './models/domain/users.domain-entities';
 import { MapUserViewModel } from './helpers/map-UserViewModel';
@@ -64,5 +64,20 @@ export class UsersQueryRepo {
     } else {
       return null;
     }
+  }
+
+  async findByLoginOrEmail(
+    loginOrEmail: string,
+  ): Promise<UserViewModel | null> {
+    const user = await this.userModel.findOne({
+      $or: [
+        { 'accountData.email': loginOrEmail },
+        { 'accountData.login': loginOrEmail },
+      ],
+    });
+    if (user) {
+      return this.mapUserViewModel.getUserViewModel(user);
+    }
+    return null;
   }
 }

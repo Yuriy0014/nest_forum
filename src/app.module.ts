@@ -51,6 +51,14 @@ import {
 } from './features/likes/models/domain/likes.domain-entities';
 import * as process from 'process';
 import { AuthController } from './features/auth/auth.controller';
+import { JwtService } from './infrastructure/jwt/jwt.service';
+import { SessionsService } from './features/auth/sessions.service';
+import { SessionsRepo } from './features/auth/sessions.repo';
+import { AuthService } from './features/auth/auth.service';
+import {
+  Session,
+  SessionSchema,
+} from './features/auth/models/domain/session.domain-entities';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -62,6 +70,7 @@ import { AuthController } from './features/auth/auth.controller';
       { name: User.name, schema: UserSchema },
       { name: Like.name, schema: LikeSchema },
       { name: UsersLikesConnection.name, schema: UsersLikesConnectionSchema },
+      { name: Session.name, schema: SessionSchema },
     ]),
   ],
   controllers: [
@@ -100,6 +109,12 @@ import { AuthController } from './features/auth/auth.controller';
     // Email
     EmailManager,
     EmailAdapter,
+    // JWT
+    JwtService,
+    // Auth
+    AuthService,
+    SessionsService,
+    SessionsRepo,
   ],
 })
 export class AppModule {}

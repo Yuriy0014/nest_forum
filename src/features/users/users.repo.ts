@@ -32,4 +32,18 @@ export class UsersRepo {
     await instance.deleteOne();
     return true;
   }
+
+  async findByLoginOrEmail(loginOrEmail: string) {
+    const user = await this.userModel.findOne({
+      $or: [
+        { 'accountData.email': loginOrEmail },
+        { 'accountData.login': loginOrEmail },
+      ],
+    });
+
+    if (user) {
+      return user;
+    }
+    return null;
+  }
 }

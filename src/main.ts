@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 import process from 'process';
 
 const port = process.env.PORT || 7200;
@@ -7,6 +8,7 @@ const port = process.env.PORT || 7200;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.use(cookieParser());
   await app.listen(port);
 }
 bootstrap();

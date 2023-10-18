@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
+import { IsString } from 'class-validator';
 
-export type LoginInputDTO = {
+export class LoginInputDTO {
+  @IsString()
   loginOrEmail: string;
+
+  @IsString()
   password: string;
-};
+}
 
 /////////////////
 // Sessions

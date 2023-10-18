@@ -21,7 +21,10 @@ import {
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { SessionsService } from './sessions.service';
 import { Response } from 'express';
-import { ExistingEmailGuard } from '../../middlewares/auth.guard';
+import {
+  ExistingEmailGuard,
+  IsEmailAlreadyConfirmedGuard,
+} from '../../middlewares/auth.guard';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -45,6 +48,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
+  @UseGuards(IsEmailAlreadyConfirmedGuard)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
     const result = await this.authService.resendEmail(inputModel.email);
     if (!result) {
@@ -54,6 +58,7 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(204)
+  @UseGuards(IsEmailAlreadyConfirmedGuard)
   async confirmRegistration(
     @Body() inputModel: ConfirmationCodeInputModel,
   ): Promise<void> {

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { UsersQueryRepo } from '../features/users/users.query-repo';
+import { UsersRepo } from '../features/users/users.repo';
 
 // @Injectable()
 // export class AuthGuard implements CanActivate {
@@ -27,8 +28,6 @@ import { UsersQueryRepo } from '../features/users/users.query-repo';
 
 @Injectable()
 export class AuthGuardBase implements CanActivate {
-  // constructor(protected userService: UsersService) {}
-
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
@@ -70,5 +69,43 @@ export class ExistingEmailGuard implements CanActivate {
       ]);
     }
     return true;
+  }
+}
+
+@Injectable()
+export class IsEmailAlreadyConfirmedGuard implements CanActivate {
+  constructor(protected usersRepo: UsersRepo) {}
+
+  async canActivate(
+    context: ExecutionContext,
+    // @ts-ignore
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const req = context.switchToHttp().getRequest();
+
+    if (req.body.code) {
+      const confirmed = await this.usersRepo.findUserByConfirmationCode(
+        req.body.code,
+      );
+
+      if (confirmed!.emailConfirmation.isConfirmed) {
+        throw new BadRequestException([
+          { message: 'BAD REQUEST', field: 'login' },
+        ]);
+      }
+
+      return true;
+    }
+
+    if (req.body.email) {
+      const confirmed = await this.usersRepo.findByLoginOrEmail(req.body.email);
+
+      if (confirmed?.emailConfirmation.isConfirmed) {
+        throw new BadRequestException([
+          { message: 'BAD REQUEST', field: 'login' },
+        ]);
+      }
+
+      return true;
+    }
   }
 }

@@ -76,6 +76,14 @@ export class User {
   })
   passwordRecovery: PasswordRecovery;
 
+  canBeConfirmed(code: string): boolean {
+    return (
+      !this.emailConfirmation.isConfirmed &&
+      this.emailConfirmation.confirmationCode === code &&
+      new Date(this.emailConfirmation.expirationDate) >= new Date()
+    );
+  }
+
   static createUser(
     dto: UserCreateModel,
     userModel: UserModelType,
@@ -106,6 +114,10 @@ export class User {
 }
 export type UserModelType = Model<User> & UserModelStaticType;
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.methods = {
+  canBeConfirmed: User.prototype.canBeConfirmed,
+};
 
 export type UserModelStaticType = {
   createUser: (dto: UserCreateModel, UserModel: UserModelType) => any;

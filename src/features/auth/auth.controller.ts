@@ -12,11 +12,16 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
-import { LoginInputDTO, reqSessionDTOType } from './models/auth.models';
+import {
+  EmailResendInputModel,
+  LoginInputDTO,
+  reqSessionDTOType,
+} from './models/auth.models';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { SessionsService } from './sessions.service';
 import { Response } from 'express';
 import { ExistingEmailGuard } from '../../middlewares/auth.guard';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +29,7 @@ export class AuthController {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly sessionsService: SessionsService,
+    private readonly authService: AuthService,
   ) {}
 
   @Post('registration')
@@ -32,6 +38,15 @@ export class AuthController {
   async register(@Body() inputModel: UserInputModel): Promise<void> {
     const createdUser = await this.userService.createUser(inputModel, false);
     if (createdUser.data === null) {
+      throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('registration-email-resending')
+  @HttpCode(204)
+  async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
+    const result = await this.authService.resendEmail(inputModel.email);
+    if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }
   }

@@ -5,6 +5,7 @@ import {
   UserModelType,
 } from './models/domain/users.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class UsersRepo {
@@ -45,5 +46,28 @@ export class UsersRepo {
       return user;
     }
     return null;
+  }
+
+  async updateUserEmailConfirmationInfo(
+    _id: mongoose.Types.ObjectId,
+    user: UserDocument,
+  ) {
+    const userInstance = await this.userModel.findOne({ _id: _id });
+    if (!userInstance) return false;
+
+    await userInstance.replaceOne(user);
+
+    return true;
+  }
+
+  async findUserByConfirmationCode(code: string): Promise<UserDocument | null> {
+    const user: UserDocument | null = await this.userModel.findOne({
+      'emailConfirmation.confirmationCode': code,
+    });
+    if (user) {
+      return user;
+    } else {
+      return null;
+    }
   }
 }

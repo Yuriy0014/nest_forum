@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
-import { IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class LoginInputDTO {
   @IsString()
@@ -7,6 +13,15 @@ export class LoginInputDTO {
 
   @IsString()
   password: string;
+}
+
+export class EmailResendInputModel {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(5)
+  @MaxLength(50)
+  @IsEmail()
+  email: string;
 }
 
 /////////////////

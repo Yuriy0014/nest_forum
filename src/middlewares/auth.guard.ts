@@ -89,7 +89,7 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
 
       if (confirmed!.emailConfirmation.isConfirmed) {
         throw new BadRequestException([
-          { message: 'BAD REQUEST', field: 'login' },
+          { message: 'BAD REQUEST', field: 'code' },
         ]);
       }
 
@@ -101,7 +101,7 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
 
       if (confirmed?.emailConfirmation.isConfirmed) {
         throw new BadRequestException([
-          { message: 'BAD REQUEST', field: 'login' },
+          { message: 'BAD REQUEST', field: 'email' },
         ]);
       }
 

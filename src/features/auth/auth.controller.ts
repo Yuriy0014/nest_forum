@@ -13,6 +13,7 @@ import {
 import { UsersService } from '../users/users.service';
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
 import {
+  ConfirmationCodeInputModel,
   EmailResendInputModel,
   LoginInputDTO,
   reqSessionDTOType,
@@ -46,6 +47,17 @@ export class AuthController {
   @HttpCode(204)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
     const result = await this.authService.resendEmail(inputModel.email);
+    if (!result) {
+      throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('registration-confirmation')
+  @HttpCode(204)
+  async confirmRegistration(
+    @Body() inputModel: ConfirmationCodeInputModel,
+  ): Promise<void> {
+    const result = await this.authService.confirmEmail(inputModel.code);
     if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

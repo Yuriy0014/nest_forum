@@ -24,6 +24,12 @@ export class EmailResendInputModel {
   email: string;
 }
 
+export class ConfirmationCodeInputModel {
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+}
+
 /////////////////
 // Sessions
 ////////////////

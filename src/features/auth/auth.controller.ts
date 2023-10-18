@@ -8,6 +8,7 @@ import {
   Ip,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
@@ -15,6 +16,7 @@ import { LoginInputDTO, reqSessionDTOType } from './models/auth.models';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { SessionsService } from './sessions.service';
 import { Response } from 'express';
+import { ExistingEmailGuard } from '../../middlewares/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +28,7 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
+  @UseGuards(ExistingEmailGuard)
   async register(@Body() inputModel: UserInputModel): Promise<void> {
     const createdUser = await this.userService.createUser(inputModel, false);
     if (createdUser.data === null) {

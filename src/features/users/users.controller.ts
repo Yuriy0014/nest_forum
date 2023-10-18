@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersQueryRepo } from './users.query-repo';
 import { UsersService } from './users.service';
@@ -18,7 +19,9 @@ import {
   UsersWithPaginationModel,
   UserViewModel,
 } from './models/users.models';
+import { AuthGuardBase } from '../../middlewares/auth.guard';
 
+@UseGuards(AuthGuardBase)
 @Controller('users')
 export class UsersController {
   constructor(

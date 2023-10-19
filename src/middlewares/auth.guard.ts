@@ -87,7 +87,13 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
         req.body.code,
       );
 
-      if (confirmed!.emailConfirmation.isConfirmed) {
+      if (!confirmed) {
+        throw new BadRequestException([
+          { message: 'BAD REQUEST', field: 'code' },
+        ]);
+      }
+
+      if (confirmed.emailConfirmation.isConfirmed) {
         throw new BadRequestException([
           { message: 'BAD REQUEST', field: 'code' },
         ]);
@@ -99,7 +105,13 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
     if (req.body.email) {
       const confirmed = await this.usersRepo.findByLoginOrEmail(req.body.email);
 
-      if (confirmed?.emailConfirmation.isConfirmed) {
+      if (!confirmed) {
+        throw new BadRequestException([
+          { message: 'BAD REQUEST', field: 'email' },
+        ]);
+      }
+
+      if (confirmed.emailConfirmation.isConfirmed) {
         throw new BadRequestException([
           { message: 'BAD REQUEST', field: 'email' },
         ]);

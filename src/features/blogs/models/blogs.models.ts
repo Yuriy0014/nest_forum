@@ -19,19 +19,34 @@ export class BlogCreateModel {
   name: string;
 
   @IsString()
-  @Length(2, 15)
+  @Length(2, 500)
   @IsNotEmpty()
   description: string;
 
+  @IsNotEmpty()
+  @IsString()
   @IsUrl()
+  @Length(5, 100)
   websiteUrl: string;
 }
 
-export type BlogUpdateModel = {
+export class BlogUpdateModel {
+  @IsString()
+  @Length(2, 15)
+  @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @Length(2, 500)
+  @IsNotEmpty()
   description: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsUrl()
+  @Length(5, 100)
   websiteUrl: string;
-};
+}
 
 export type BlogViewModel = {
   id: string;

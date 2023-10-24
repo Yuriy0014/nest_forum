@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   BlogCreateModel,
@@ -28,6 +29,7 @@ import {
 import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { PostsService } from '../posts/posts.service';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -70,6 +72,7 @@ export class BlogsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   async createBlog(
     @Body() inputModel: BlogCreateModel,
   ): Promise<BlogViewModel> {
@@ -81,6 +84,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deleteBlog(@Param('id') blogId: string) {
     const foundBlog: BlogViewModel | null =
@@ -92,6 +96,7 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updateBlog(
     @Param('id') blogId: string,
@@ -132,6 +137,7 @@ export class BlogsController {
   }
 
   @Post(':id/posts')
+  @UseGuards(BasicAuthGuard)
   async createPost(
     @Param('id') blogId: string,
     @Body() inputModel: PostCreateModel,

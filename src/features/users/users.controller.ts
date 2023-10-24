@@ -19,9 +19,9 @@ import {
   UsersWithPaginationModel,
   UserViewModel,
 } from './models/users.models';
-import { AuthGuardBase } from '../../middlewares/auth.guard';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
-@UseGuards(AuthGuardBase)
+@UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(

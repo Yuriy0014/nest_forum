@@ -24,7 +24,7 @@ import { Response } from 'express';
 import {
   ExistingEmailGuard,
   IsEmailAlreadyConfirmedGuard,
-} from '../../middlewares/auth.guard';
+} from './guards/auth.guard';
 import { AuthService } from './auth.service';
 
 @Controller('auth')

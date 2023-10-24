@@ -16,7 +16,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      // Автомаически преобразует входящие данные по типам. Например id из params делает из строки
+      // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
       // числом, если указано @Params('id') userId: number
       transform: true,
       stopAtFirstError: true,

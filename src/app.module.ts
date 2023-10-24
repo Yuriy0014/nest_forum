@@ -59,10 +59,13 @@ import {
   Session,
   SessionSchema,
 } from './features/auth/models/domain/session.domain-entities';
+import { BasicStrategy } from './features/auth/strategies/basic.strategy';
+import { PassportModule } from '@nestjs/passport';
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URL!),
+    PassportModule,
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
@@ -115,6 +118,7 @@ import {
     AuthService,
     SessionsService,
     SessionsRepo,
+    BasicStrategy,
   ],
 })
 export class AppModule {}

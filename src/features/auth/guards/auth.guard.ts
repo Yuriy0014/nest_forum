@@ -6,39 +6,22 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { UsersQueryRepo } from '../features/users/users.query-repo';
-import { UsersRepo } from '../features/users/users.repo';
+import { UsersQueryRepo } from '../../users/users.query-repo';
+import { UsersRepo } from '../../users/users.repo';
 
 // @Injectable()
-// export class AuthGuard implements CanActivate {
-//   // constructor(protected userService: UsersService) {}
-//
+// export class AuthGuardBase implements CanActivate {
 //   canActivate(
 //     context: ExecutionContext,
 //   ): boolean | Promise<boolean> | Observable<boolean> {
 //     const request = context.switchToHttp().getRequest();
-//     // return validateRequest(request);
-//
-//     console.log(request.headers.authorization);
-//
-//     // throw new UnauthorizedException();
-//     return false;
+//     if (request.headers['authorization'] !== 'Basic YWRtaW46cXdlcnR5') {
+//       throw new UnauthorizedException([{ message: 'UnauthorizedException' }]);
+//     } else {
+//       return true;
+//     }
 //   }
 // }
-
-@Injectable()
-export class AuthGuardBase implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
-    if (request.headers['authorization'] !== 'Basic YWRtaW46cXdlcnR5') {
-      throw new UnauthorizedException([{ message: 'UnauthorizedException' }]);
-    } else {
-      return true;
-    }
-  }
-}
 
 @Injectable()
 export class ExistingEmailGuard implements CanActivate {

@@ -27,10 +27,7 @@ import { UsersRepo } from '../../users/users.repo';
 export class ExistingEmailGuard implements CanActivate {
   constructor(protected usersQueryRepo: UsersQueryRepo) {}
 
-  async canActivate(
-    context: ExecutionContext,
-    // @ts-ignore
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
 
     const loginExists = await this.usersQueryRepo.findByLoginOrEmail(

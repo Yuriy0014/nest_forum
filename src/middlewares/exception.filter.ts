@@ -17,6 +17,7 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     const errorResponse = {
       errorsMessages: [],
     };
+
     const responseErr: any = exception.errors;
     for (const key in responseErr) {
       const error = {
@@ -52,6 +53,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const errorResponse = {
         errorsMessages: [],
       };
+      console.log('filter', exception.getResponse());
       const responseErr: any = exception.getResponse();
       // @ts-ignore
       responseErr.message.forEach((m) => errorResponse.errorsMessages.push(m));

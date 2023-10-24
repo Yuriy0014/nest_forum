@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
 
 export class BlogDbModel {
   constructor(
@@ -11,11 +12,20 @@ export class BlogDbModel {
   ) {}
 }
 
-export type BlogCreateModel = {
+export class BlogCreateModel {
+  @IsString()
+  @Length(2, 15)
+  @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @Length(2, 15)
+  @IsNotEmpty()
   description: string;
+
+  @IsUrl()
   websiteUrl: string;
-};
+}
 
 export type BlogUpdateModel = {
   name: string;

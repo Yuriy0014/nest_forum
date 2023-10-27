@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, Length, Matches } from 'class-validator';
 
 export class BlogDbModel {
   constructor(
@@ -16,17 +16,26 @@ export class BlogCreateModel {
   @IsString()
   @Length(2, 15)
   @IsNotEmpty()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   name: string;
 
   @IsString()
   @Length(2, 500)
   @IsNotEmpty()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   description: string;
 
   @IsNotEmpty()
   @IsString()
   @IsUrl()
   @Length(5, 100)
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   websiteUrl: string;
 }
 
@@ -34,11 +43,17 @@ export class BlogUpdateModel {
   @IsString()
   @Length(2, 15)
   @IsNotEmpty()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   name: string;
 
   @IsString()
   @Length(2, 500)
   @IsNotEmpty()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   description: string;
 
   @IsNotEmpty()

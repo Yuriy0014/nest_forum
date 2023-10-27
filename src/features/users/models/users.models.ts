@@ -69,6 +69,9 @@ export class UserInputModel {
   @IsString()
   @MinLength(6)
   @MaxLength(20)
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   password: string;
 
   @IsNotEmpty()

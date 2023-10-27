@@ -3,15 +3,22 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
 export class LoginInputDTO {
   @IsString()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   loginOrEmail: string;
 
   @IsString()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   password: string;
 }
 
@@ -26,6 +33,9 @@ export class EmailResendInputModel {
 
 export class ConfirmationCodeInputModel {
   @IsNotEmpty()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
   @IsString()
   code: string;
 }

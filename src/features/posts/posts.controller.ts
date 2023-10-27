@@ -22,7 +22,6 @@ import {
   PostViewModel,
 } from './models/posts.models';
 import { queryPostPagination } from './helpers/filter';
-import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
 import { CommentsQueryRepo } from '../comments/comments.query-repo';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
 import {
@@ -46,7 +45,6 @@ export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsService: PostsService,
-    private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly commentService: CommentsService,
     private readonly mapCommentViewModel: MapCommentViewModel,

@@ -22,7 +22,6 @@ import {
   PostViewModel,
 } from './models/posts.models';
 import { queryPostPagination } from './helpers/filter';
-import { BlogViewModel } from '../blogs/models/blogs.models';
 import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
 import { CommentsQueryRepo } from '../comments/comments.query-repo';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
@@ -40,6 +39,7 @@ import {
   likesInfoViewModel,
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
+import { ExistingBlogGuard } from './guards/post.guards';
 
 @Controller('posts')
 export class PostsController {
@@ -87,15 +87,10 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(ExistingBlogGuard)
   async createPost(
     @Body() inputModel: PostCreateModel,
   ): Promise<PostViewModel> {
-    const foundBlog: BlogViewModel | null =
-      await this.blogsQueryRepo.findBlogById(inputModel.blogId);
-    if (!foundBlog) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
     const createdPost: PostViewModel = await this.postsService.createPost(
       inputModel,
     );

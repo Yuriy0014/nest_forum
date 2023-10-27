@@ -1,5 +1,6 @@
 import { extendedLikesInfoViewModel } from '../../likes/models/likes.models';
 import mongoose from 'mongoose';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class PostDBModel {
   constructor(
@@ -13,12 +14,38 @@ export class PostDBModel {
   ) {}
 }
 
-export type PostCreateModel = {
+export class PostCreateModel {
+  @IsString()
+  @Length(2, 30)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'name should not consist of whitespace characters',
+  })
   title: string;
+
+  @IsString()
+  @Length(2, 100)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'name should not consist of whitespace characters',
+  })
   shortDescription: string;
+
+  @IsString()
+  @Length(2, 1000)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'name should not consist of whitespace characters',
+  })
   content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'name should not consist of whitespace characters',
+  })
   blogId: string;
-};
+}
 
 export type PostUpdateModel = {
   id: string;

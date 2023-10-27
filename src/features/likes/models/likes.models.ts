@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export enum likeStatus {
   None = 'None',
@@ -11,9 +12,14 @@ export type likeStatusModel =
   | likeStatus.Like
   | likeStatus.Dislike;
 
-export type likeInputModel = {
+export class likeInputModel {
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'name should not consist of whitespace characters',
+  })
   likeStatus: likeStatusModel;
-};
+}
 
 export type ownerTypeModel = 'Comment' | 'Post';
 

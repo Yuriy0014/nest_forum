@@ -119,7 +119,10 @@ export class AuthController {
         );
       }
 
-      response.cookie('refreshToken', refreshToken);
+      response.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+      });
       return { accessToken: accessToken };
     }
     throw new HttpException(

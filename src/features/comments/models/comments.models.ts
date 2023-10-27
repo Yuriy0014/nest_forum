@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { likesInfoViewModel } from '../../likes/models/likes.models';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export type CommentInputModel = {
   content: string;
@@ -12,9 +13,12 @@ export type CommentCreateModel = {
   userLogin: string;
 };
 
-export type CommentUpdateModel = {
+export class CommentUpdateModel {
+  @IsString()
+  @IsNotEmpty()
+  @Length(20, 300)
   content: string;
-};
+}
 
 export class CommentDbModel {
   constructor(

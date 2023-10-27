@@ -5,6 +5,12 @@ import { Post, postModelType } from './models/domain/posts.domain-entities';
 import { PostCreateModel, PostUpdateModel } from './models/posts.models';
 import { MapPostViewModel } from './helpers/map-PostViewModel';
 import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
+import {
+  likesInfoViewModel,
+  likeStatusModel,
+} from '../likes/models/likes.models';
+import { LikeService } from '../likes/likes.service';
+import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +20,7 @@ export class PostsService {
     private readonly postsRepo: PostsRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly mapPostViewModel: MapPostViewModel,
+    private readonly likesService: LikeService,
   ) {}
 
   async createPost(PostCreateModelDTO: PostCreateModel) {
@@ -47,5 +54,22 @@ export class PostsService {
     const foundPost = await this.postsRepo.findPostById(PostId);
     if (!foundPost) return false;
     return this.postsRepo.deletePost(foundPost);
+  }
+
+  async likePost(
+    postId: string,
+    likesInfo: likesInfoViewModel,
+    newLikeStatus: likeStatusModel,
+    userId: string,
+    userLogin: string,
+  ): Promise<boolean> {
+    return await this.likesService.likeEntity(
+      LikeObjectTypeEnum.Post,
+      postId,
+      likesInfo,
+      newLikeStatus,
+      userId,
+      userLogin,
+    );
   }
 }

@@ -61,6 +61,11 @@ import {
 } from './features/auth/models/domain/session.domain-entities';
 import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
+import { LocalStrategy } from './features/auth/strategies/local.strategy';
+import { LikesRepo } from './features/likes/likes.repo';
+import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
+import { LikeService } from './features/likes/likes.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -104,6 +109,9 @@ import { PassportModule } from '@nestjs/passport';
     MapCommentViewModel,
     // Likes
     LikesQueryRepo,
+    LikesRepo,
+    MapLikeViewModel,
+    LikeService,
     // Users
     UsersService,
     UsersQueryRepo,
@@ -119,6 +127,8 @@ import { PassportModule } from '@nestjs/passport';
     SessionsService,
     SessionsRepo,
     BasicStrategy,
+    JwtStrategy,
+    LocalStrategy,
   ],
 })
 export class AppModule {}

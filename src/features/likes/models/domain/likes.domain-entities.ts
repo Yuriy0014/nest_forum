@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
 import { likeStatus } from '../likes.models';
 
-enum LikeObjectTypeEnum {
+export enum LikeObjectTypeEnum {
   Comment = 'Comment',
-  Like = 'Like',
+  Post = 'Post',
 }
 
 @Schema()
@@ -29,9 +29,39 @@ export class Like {
     required: true,
   })
   dislikesCount: number;
+
+  static createLikesInfo(
+    ownerId: string,
+    ownerType: LikeObjectTypeEnum,
+    likeModel: LikeModelType,
+  ): LikeDocument {
+    const likesInfoInstance = new likeModel();
+    likesInfoInstance._id = new mongoose.Types.ObjectId();
+    likesInfoInstance.ownerType = ownerType;
+    likesInfoInstance.ownerId = ownerId;
+    likesInfoInstance.likesCount = 0;
+    likesInfoInstance.dislikesCount = 0;
+
+    return likesInfoInstance;
+  }
 }
-export type LikeModelType = Model<Like>;
+
 export const LikeSchema = SchemaFactory.createForClass(Like);
+
+export type likeModelStaticType = {
+  createLikesInfo: (
+    ownerId: string,
+    ownerType: LikeObjectTypeEnum,
+    likeModel: LikeModelType,
+  ) => any;
+};
+
+const likeStaticMethods: likeModelStaticType = {
+  createLikesInfo: Like.createLikesInfo,
+};
+LikeSchema.statics = likeStaticMethods;
+
+export type LikeModelType = Model<Like> & likeModelStaticType;
 
 export type LikeDocument = HydratedDocument<Like>;
 

@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsQueryRepo } from './posts.query-repo';
 import { PostsService } from './posts.service';
@@ -24,7 +26,20 @@ import { BlogViewModel } from '../blogs/models/blogs.models';
 import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
 import { CommentsQueryRepo } from '../comments/comments.query-repo';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
-import { CommentsWithPaginationModel } from '../comments/models/comments.models';
+import {
+  CommentInputModel,
+  CommentsWithPaginationModel,
+  CommentViewModel,
+} from '../comments/models/comments.models';
+import { CommentsService } from '../comments/comments.service';
+import { MapCommentViewModel } from '../comments/helpers/map-CommentViewModel';
+import { UsersQueryRepo } from '../users/users.query-repo';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  likeInputModel,
+  likesInfoViewModel,
+} from '../likes/models/likes.models';
+import { LikesQueryRepo } from '../likes/likes.query-repo';
 
 @Controller('posts')
 export class PostsController {
@@ -33,6 +48,10 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
+    private readonly commentService: CommentsService,
+    private readonly mapCommentViewModel: MapCommentViewModel,
+    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly likesQueryRepo: LikesQueryRepo,
   ) {}
 
   @Get()
@@ -144,5 +163,76 @@ export class PostsController {
     }
 
     return foundPosts;
+  }
+
+  @Post(':id/comments')
+  @UseGuards(JwtAuthGuard)
+  async createCommentsForPost(
+    @Body() inputModel: CommentInputModel,
+    @Param('id') postId: string,
+    @Request() req: any,
+  ): Promise<CommentViewModel> {
+    // Проверяем, что пост существует
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(postId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.id);
+
+    const createdComment = await this.commentService.createComment(
+      postId,
+      inputModel.content,
+      req.user.id,
+      foundUser!.login,
+    );
+    return this.mapCommentViewModel.getCommentViewModel(
+      createdComment,
+      req.user.id,
+    );
+  }
+
+  ////////////////////////////
+  // working with likes
+  ////////////////////////////
+  @Put(':id/like-status')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  async sendLikeStatus(
+    @Param('id') postId: string,
+    @Body() inputModel: likeInputModel,
+    @Request() req: any,
+  ) {
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(postId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    const likesInfo: likesInfoViewModel | null =
+      await this.likesQueryRepo.findLikesByOwnerId('Post', postId, req.user.id);
+    if (!likesInfo) {
+      throw new HttpException(
+        'Internal server Error. Sorry. Unable to get likes info from DB',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.id);
+
+    const likeOperationStatus: boolean = await this.postsService.likePost(
+      req.params.id,
+      likesInfo,
+      inputModel.likeStatus,
+      req.user.id,
+      foundUser!.login,
+    );
+    if (!likeOperationStatus) {
+      throw new HttpException(
+        'Internal server Error. Something went wrong during like operation',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

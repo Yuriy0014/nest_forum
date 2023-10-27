@@ -53,7 +53,8 @@ export class Comment {
     return commentInstance;
   }
 }
-export type CommentModelType = Model<Comment> & CommentModelStaticType;
+export type CommentModelType = Model<Comment & commentDBMethodsType> &
+  CommentModelStaticType;
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 
 export type commentDBMethodsType = {

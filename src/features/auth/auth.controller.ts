@@ -26,6 +26,7 @@ import {
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
 import { AuthService } from './auth.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -69,6 +70,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   async login(
     @Body() loginDTO: LoginInputDTO,

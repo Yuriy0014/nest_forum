@@ -16,7 +16,7 @@ export class likeInputModel {
   @IsString()
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+    message: 'likeStatus should not consist of whitespace characters',
   })
   likeStatus: likeStatusModel;
 }

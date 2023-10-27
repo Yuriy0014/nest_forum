@@ -204,7 +204,11 @@ export class PostsController {
     }
 
     const likesInfo: likesInfoViewModel | null =
-      await this.likesQueryRepo.findLikesByOwnerId('Post', postId, req.user.id);
+      await this.likesQueryRepo.findLikesByOwnerId(
+        'Post',
+        postId,
+        req.user.userId,
+      );
     if (!likesInfo) {
       throw new HttpException(
         'Internal server Error. Sorry. Unable to get likes info from DB',
@@ -212,13 +216,13 @@ export class PostsController {
       );
     }
 
-    const foundUser = await this.usersQueryRepo.findUserById(req.user.id);
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
     const likeOperationStatus: boolean = await this.postsService.likePost(
       req.params.id,
       likesInfo,
       inputModel.likeStatus,
-      req.user.id,
+      req.user.userId,
       foundUser!.login,
     );
     if (!likeOperationStatus) {

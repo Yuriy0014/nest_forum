@@ -96,7 +96,7 @@ export class CommentsController {
       await this.likesQueryRepo.findLikesByOwnerId(
         'Post',
         commentId,
-        req.user.id,
+        req.user.userId,
       );
     if (!likesInfo) {
       throw new HttpException(
@@ -104,13 +104,13 @@ export class CommentsController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    const foundUser = await this.usersQueryRepo.findUserById(req.user.id);
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
     const likeOperationStatus: boolean = await this.commentsService.likeComment(
       req.params.id,
       likesInfo,
       inputModel.likeStatus,
-      req.user.id,
+      req.user.userId,
       foundUser!.login,
     );
     if (!likeOperationStatus) {

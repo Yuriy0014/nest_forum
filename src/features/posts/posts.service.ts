@@ -10,14 +10,22 @@ import {
   likeStatusModel,
 } from '../likes/models/likes.models';
 import { LikeService } from '../likes/likes.service';
-import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
+import {
+  Like,
+  LikeModelType,
+  LikeObjectTypeEnum,
+} from '../likes/models/domain/likes.domain-entities';
+import { LikesRepo } from '../likes/likes.repo';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name)
     private readonly postModel: postModelType,
+    @InjectModel(Like.name)
+    private readonly likeModel: LikeModelType,
     private readonly postsRepo: PostsRepo,
+    private readonly likesRepo: LikesRepo,
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly mapPostViewModel: MapPostViewModel,
     private readonly likesService: LikeService,
@@ -33,6 +41,14 @@ export class PostsService {
       blog!.name,
       this.postModel,
     );
+
+    const newLikesInfo = this.likeModel.createLikesInfo(
+      createdPost._id.toString(),
+      LikeObjectTypeEnum.Post,
+      this.likeModel,
+    );
+
+    await this.likesRepo.save(newLikesInfo);
 
     await this.postsRepo.save(createdPost);
     return this.mapPostViewModel.getPostViewModel(createdPost);

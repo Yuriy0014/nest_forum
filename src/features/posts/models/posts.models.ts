@@ -19,7 +19,7 @@ export class PostCreateModel {
   @Length(2, 30)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+    message: 'title should not consist of whitespace characters',
   })
   title: string;
 
@@ -27,7 +27,7 @@ export class PostCreateModel {
   @Length(2, 100)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+    message: 'shortDescription should not consist of whitespace characters',
   })
   shortDescription: string;
 
@@ -35,15 +35,10 @@ export class PostCreateModel {
   @Length(2, 1000)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+    message: 'content should not consist of whitespace characters',
   })
   content: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
-  })
   blogId: string;
 }
 

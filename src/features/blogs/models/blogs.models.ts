@@ -17,7 +17,7 @@ export class BlogCreateModel {
   @Length(2, 15)
   @IsNotEmpty()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+    message: 'name should not consist of whitespace characters',
   })
   name: string;
 
@@ -25,7 +25,7 @@ export class BlogCreateModel {
   @Length(2, 500)
   @IsNotEmpty()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+    message: 'description should not consist of whitespace characters',
   })
   description: string;
 
@@ -33,9 +33,6 @@ export class BlogCreateModel {
   @IsString()
   @IsUrl()
   @Length(5, 100)
-  @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
-  })
   websiteUrl: string;
 }
 
@@ -44,7 +41,7 @@ export class BlogUpdateModel {
   @Length(2, 15)
   @IsNotEmpty()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+    message: 'name should not consist of whitespace characters',
   })
   name: string;
 
@@ -52,7 +49,7 @@ export class BlogUpdateModel {
   @Length(2, 500)
   @IsNotEmpty()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+    message: 'name should not consist of whitespace characters',
   })
   description: string;
 

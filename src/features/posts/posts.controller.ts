@@ -16,7 +16,7 @@ import {
 import { PostsQueryRepo } from './posts.query-repo';
 import { PostsService } from './posts.service';
 import {
-  PostCreateModel,
+  PostCreateModelStandart,
   PostsWithPaginationModel,
   PostUpdateModel,
   PostViewModel,
@@ -94,7 +94,7 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createPost(
-    @Body() inputModel: PostCreateModel,
+    @Body() inputModel: PostCreateModelStandart,
   ): Promise<PostViewModel> {
     const createdPost: PostViewModel = await this.postsService.createPost(
       inputModel,

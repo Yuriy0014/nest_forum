@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { PostCreateModel, PostUpdateModel } from '../posts.models';
+import { PostCreateModelStandart, PostUpdateModel } from '../posts.models';
 
 @Schema()
 export class Post {
@@ -32,7 +32,7 @@ export class Post {
   createdAt: string;
 
   static createPost(
-    dto: PostCreateModel,
+    dto: PostCreateModelStandart,
     blogName: string,
     postModel: postModelType,
   ): postDocument {
@@ -66,7 +66,7 @@ PostSchema.methods = {
 
 export type postModelStaticType = {
   createPost: (
-    dto: PostCreateModel,
+    dto: PostCreateModelStandart,
     blogName: string,
     postModel: postModelType,
   ) => any;

@@ -15,7 +15,7 @@ export class PostDBModel {
   ) {}
 }
 
-export class PostCreateModel {
+export class PostCreateModelBase {
   @IsString()
   @Length(2, 30)
   @IsNotEmpty()
@@ -39,7 +39,13 @@ export class PostCreateModel {
     message: 'content should not consist of whitespace characters',
   })
   content: string;
+}
 
+export class PostCreateModelFromBlog extends PostCreateModelBase {
+  blogId: string;
+}
+
+export class PostCreateModelStandart extends PostCreateModelBase {
   @ExistingBlog()
   blogId: string;
 }

@@ -23,7 +23,7 @@ import { BlogsQueryRepo } from './blogs.query-repo';
 import { BlogsService } from './blogs.service';
 import { queryBlogPagination } from './helpers/filter';
 import {
-  PostCreateModel,
+  PostCreateModelFromBlog,
   PostsWithPaginationModel,
   PostViewModel,
 } from '../posts/models/posts.models';
@@ -144,7 +144,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   async createPost(
     @Param('id') blogId: string,
-    @Body() inputModel: PostCreateModel,
+    @Body() inputModel: PostCreateModelFromBlog,
   ): Promise<PostViewModel> {
     // Проверяем, что блог существует
     const foundBlog: BlogViewModel | null =

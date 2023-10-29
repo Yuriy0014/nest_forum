@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsRepo } from './posts.repo';
 import { Post, postModelType } from './models/domain/posts.domain-entities';
-import { PostCreateModel, PostUpdateModel } from './models/posts.models';
+import {
+  PostCreateModelStandart,
+  PostUpdateModel,
+} from './models/posts.models';
 import { MapPostViewModel } from './helpers/map-PostViewModel';
 import { BlogsQueryRepo } from '../blogs/blogs.query-repo';
 import {
@@ -31,7 +34,7 @@ export class PostsService {
     private readonly likesService: LikeService,
   ) {}
 
-  async createPost(PostCreateModelDTO: PostCreateModel) {
+  async createPost(PostCreateModelDTO: PostCreateModelStandart) {
     const blog = await this.blogsQueryRepo.findBlogById(
       PostCreateModelDTO.blogId,
     );

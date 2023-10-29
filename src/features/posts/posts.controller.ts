@@ -186,7 +186,7 @@ export class PostsController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    const foundUser = await this.usersQueryRepo.findUserById(req.user.id);
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
     const createdComment = await this.commentService.createComment(
       postId,

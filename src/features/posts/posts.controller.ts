@@ -39,6 +39,7 @@ import {
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard, ExistingBlogGuard } from './guards/post.guards';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -91,6 +92,7 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   @UseGuards(ExistingBlogGuard)
   async createPost(
     @Body() inputModel: PostCreateModel,
@@ -115,6 +117,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updatePost(
     @Param('id') PostId: string,
@@ -130,10 +133,11 @@ export class PostsController {
   }
 
   ///////////////////
-  // Working
+  // Working with comments
   ///////////////////
 
   @Get(':id/comments')
+  @UseGuards(CheckUserIdGuard)
   async findCommentsForPost(
     @Query()
     query: {
@@ -145,6 +149,7 @@ export class PostsController {
       blogId?: string;
     },
     @Param('id') id: string,
+    @Request() req: any,
   ): Promise<CommentsWithPaginationModel> {
     // Проверяем, что пост существует
     const foundPost: PostViewModel | null =
@@ -155,7 +160,10 @@ export class PostsController {
 
     const queryFilter = queryCommentsWithPagination(query, id);
 
-    const foundPosts = await this.commentsQueryRepo.findComments(queryFilter);
+    const foundPosts = await this.commentsQueryRepo.findComments(
+      queryFilter,
+      req.userId,
+    );
 
     if (!foundPosts.items.length) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);

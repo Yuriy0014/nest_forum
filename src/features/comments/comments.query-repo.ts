@@ -25,7 +25,7 @@ export class CommentsQueryRepo {
     }
   }
 
-  async findComments(queryFilter: CommentsFilterModel) {
+  async findComments(queryFilter: CommentsFilterModel, userId?: string) {
     const findFilter: FilterQuery<CommentDbModel> = {
       postId: queryFilter.postId,
     };
@@ -48,7 +48,7 @@ export class CommentsQueryRepo {
     const foundCommentsFunction = (commArr: CommentDbModel[]) => {
       const promises = commArr.map(
         async (value) =>
-          await this.mapCommentViewModel.getCommentViewModel(value),
+          await this.mapCommentViewModel.getCommentViewModel(value, userId),
       );
       return Promise.all(promises);
     };

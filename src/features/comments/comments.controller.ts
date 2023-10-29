@@ -21,7 +21,7 @@ import {
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { UsersQueryRepo } from '../users/users.query-repo';
-import { CheckOwnerGuard, CheckUserIdGuard } from './guards/comments.guards';
+import { CheckUserIdGuard } from './guards/comments.guards';
 
 @Controller('comments')
 export class CommentsController {
@@ -48,16 +48,19 @@ export class CommentsController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
-  @UseGuards(CheckOwnerGuard)
   @HttpCode(204)
   async updateComment(
     @Param('id') commentId: string,
     @Body() updateDTO: CommentUpdateModel,
+    @Request() req: any,
   ) {
     const foundComment: CommentViewModel | null =
       await this.commentsQueryRepo.findCommentById(commentId);
     if (!foundComment) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    if (foundComment.commentatorInfo.userId !== req.user.userId) {
+      throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
     const result = this.commentsService.updateComment(commentId, updateDTO);
     if (!result) {
@@ -67,7 +70,6 @@ export class CommentsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @UseGuards(CheckOwnerGuard)
   @HttpCode(204)
   async deleteComment(@Param('id') commentId: string, @Request() req: any) {
     const foundComment: CommentViewModel | null =

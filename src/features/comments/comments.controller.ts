@@ -92,14 +92,14 @@ export class CommentsController {
     @Request() req: any,
   ) {
     const foundComment: CommentViewModel | null =
-      await this.commentsQueryRepo.findCommentById(commentId);
+      await this.commentsQueryRepo.findCommentById(commentId, req.user.userId);
     if (!foundComment) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
     const likesInfo: likesInfoViewModel | null =
       await this.likesQueryRepo.findLikesByOwnerId(
-        'Post',
+        'Comment',
         commentId,
         req.user.userId,
       );

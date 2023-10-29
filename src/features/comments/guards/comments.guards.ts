@@ -41,7 +41,7 @@ export class CheckOwnerGuard implements CanActivate {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    if (foundComment.commentatorInfo.userId !== req.params.id) {
+    if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access forbidden', HttpStatus.FORBIDDEN);
     }
     return true;

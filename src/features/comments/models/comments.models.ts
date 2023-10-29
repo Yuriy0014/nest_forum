@@ -1,10 +1,15 @@
 import mongoose from 'mongoose';
 import { likesInfoViewModel } from '../../likes/models/likes.models';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
-export type CommentInputModel = {
+export class CommentInputModel {
+  @IsString()
+  @Length(20, 200)
+  @Matches(/.*\S+.*/, {
+    message: 'title should not consist of whitespace characters',
+  })
   content: string;
-};
+}
 
 export type CommentCreateModel = {
   content: string;

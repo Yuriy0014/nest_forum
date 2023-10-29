@@ -38,7 +38,7 @@ import {
   likesInfoViewModel,
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
-import { ExistingBlogGuard } from './guards/post.guards';
+import { CheckUserIdGuard, ExistingBlogGuard } from './guards/post.guards';
 
 @Controller('posts')
 export class PostsController {
@@ -75,9 +75,13 @@ export class PostsController {
   }
 
   @Get(':id')
-  async findPost(@Param('id') id: string): Promise<PostViewModel> {
+  @UseGuards(CheckUserIdGuard)
+  async findPost(
+    @Param('id') id: string,
+    @Request() req: any,
+  ): Promise<PostViewModel> {
     const foundPost: PostViewModel | null =
-      await this.postsQueryRepo.findPostById(id);
+      await this.postsQueryRepo.findPostById(id, req.userId);
     if (!foundPost) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

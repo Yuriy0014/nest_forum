@@ -21,6 +21,7 @@ import {
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { UsersQueryRepo } from '../users/users.query-repo';
+import { CheckUserIdGuard } from './guards/comments.guards';
 
 @Controller('comments')
 export class CommentsController {
@@ -32,9 +33,13 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
-  async findComment(@Param('id') id: string): Promise<CommentViewModel> {
+  @UseGuards(CheckUserIdGuard)
+  async findComment(
+    @Param('id') id: string,
+    @Request() req: any,
+  ): Promise<CommentViewModel> {
     const foundComment: CommentViewModel | null =
-      await this.commentsQueryRepo.findCommentById(id);
+      await this.commentsQueryRepo.findCommentById(id, req.userId);
     if (!foundComment) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

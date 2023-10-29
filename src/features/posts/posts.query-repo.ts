@@ -14,12 +14,12 @@ export class PostsQueryRepo {
     private readonly mapPostViewModel: MapPostViewModel,
   ) {}
 
-  async findPostById(id: string) {
+  async findPostById(id: string, userId?: string) {
     const foundPost: PostDBModel | null = await this.postModel
       .findById(id)
       .lean();
     if (foundPost) {
-      return this.mapPostViewModel.getPostViewModel(foundPost);
+      return this.mapPostViewModel.getPostViewModel(foundPost, userId);
     } else {
       return null;
     }

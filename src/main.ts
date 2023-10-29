@@ -20,7 +20,7 @@ async function bootstrap() {
       // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
       // числом, если указано @Params('id') userId: number
       transform: true,
-      // stopAtFirstError: true,
+      stopAtFirstError: true,
       exceptionFactory: (errors) => {
         const errorsForResponse = [];
 
@@ -40,6 +40,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
+  // Эта строка нужна чтобы работал DI в  custom validator декораторе
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(port);
 }

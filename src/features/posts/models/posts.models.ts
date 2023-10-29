@@ -50,13 +50,34 @@ export class PostCreateModelStandart extends PostCreateModelBase {
   blogId: string;
 }
 
-export type PostUpdateModel = {
-  id: string;
+export class PostUpdateModel {
+  @IsString()
+  @Length(2, 30)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'title should not consist of whitespace characters',
+  })
   title: string;
+
+  @IsString()
+  @Length(2, 100)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'shortDescription should not consist of whitespace characters',
+  })
   shortDescription: string;
+
+  @IsString()
+  @Length(2, 1000)
+  @IsNotEmpty()
+  @Matches(/.*\S+.*/, {
+    message: 'content should not consist of whitespace characters',
+  })
   content: string;
+
+  @ExistingBlog()
   blogId: string;
-};
+}
 
 export type PostViewModel = {
   id: string;

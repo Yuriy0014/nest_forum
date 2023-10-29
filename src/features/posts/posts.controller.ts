@@ -104,6 +104,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deletePost(@Param('id') PostId: string) {
     const foundPost: PostViewModel | null =

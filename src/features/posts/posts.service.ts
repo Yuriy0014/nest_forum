@@ -58,10 +58,10 @@ export class PostsService {
   }
 
   async updatePost(
-    userId: string,
+    postId: string,
     updateDTO: PostUpdateModel,
   ): Promise<boolean> {
-    const foundPost = await this.postsRepo.findPostById(userId);
+    const foundPost = await this.postsRepo.findPostById(postId);
     if (!foundPost) return false;
 
     foundPost.updatePost(updateDTO);

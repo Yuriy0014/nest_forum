@@ -47,8 +47,10 @@ export class Comment {
     commentInstance._id = new mongoose.Types.ObjectId();
     commentInstance.postId = dto.postId;
     commentInstance.content = dto.content;
-    commentInstance.commentatorInfo.userId = dto.userId;
-    commentInstance.commentatorInfo.userLogin = dto.userLogin;
+    commentInstance.commentatorInfo = {
+      userId: dto.userId,
+      userLogin: dto.userLogin,
+    };
     commentInstance.createdAt = new Date().toISOString();
     return commentInstance;
   }

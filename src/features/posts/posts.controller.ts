@@ -191,12 +191,12 @@ export class PostsController {
     const createdComment = await this.commentService.createComment(
       postId,
       inputModel.content,
-      req.user.id,
+      req.user.userId,
       foundUser!.login,
     );
     return this.mapCommentViewModel.getCommentViewModel(
       createdComment,
-      req.user.id,
+      req.user.userId,
     );
   }
 

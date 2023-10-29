@@ -53,6 +53,7 @@ export class PostsController {
   ) {}
 
   @Get()
+  @UseGuards(CheckUserIdGuard)
   async findAllPosts(
     @Query()
     query: {
@@ -63,10 +64,11 @@ export class PostsController {
       pageSize?: string;
       blogId?: string;
     },
+    @Request() req: any,
   ): Promise<PostsWithPaginationModel> {
     const queryFilter = queryPostPagination(query);
     const foundPosts: PostsWithPaginationModel =
-      await this.postsQueryRepo.FindAllPost(queryFilter);
+      await this.postsQueryRepo.FindAllPost(queryFilter, req.userId);
 
     if (!foundPosts.items.length) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);

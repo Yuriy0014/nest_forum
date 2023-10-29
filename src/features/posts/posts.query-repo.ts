@@ -25,7 +25,7 @@ export class PostsQueryRepo {
     }
   }
 
-  async FindAllPost(queryFilter: PostFilterModel) {
+  async FindAllPost(queryFilter: PostFilterModel, userId?: string) {
     const findFilter: FilterQuery<PostDBModel> =
       queryFilter.blogId === '' ? {} : { blogId: queryFilter.blogId };
     const sortFilter: any =
@@ -43,7 +43,8 @@ export class PostsQueryRepo {
     /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises
     const foundPostsFunction = (postArr: PostDBModel[]) => {
       const promises = postArr.map(
-        async (value) => await this.mapPostViewModel.getPostViewModel(value),
+        async (value) =>
+          await this.mapPostViewModel.getPostViewModel(value, userId),
       );
       return Promise.all(promises);
     };

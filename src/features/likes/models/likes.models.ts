@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export enum likeStatus {
   None = 'None',
@@ -18,6 +18,7 @@ export class likeInputModel {
   @Matches(/.*\S+.*/, {
     message: 'likeStatus should not consist of whitespace characters',
   })
+  @IsEnum(likeStatus)
   likeStatus: likeStatusModel;
 }
 

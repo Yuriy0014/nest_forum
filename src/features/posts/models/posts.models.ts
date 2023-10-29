@@ -1,6 +1,7 @@
 import { extendedLikesInfoViewModel } from '../../likes/models/likes.models';
 import mongoose from 'mongoose';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { ExistingBlog } from '../guards/CustomDoesBlogExist';
 
 export class PostDBModel {
   constructor(
@@ -39,6 +40,7 @@ export class PostCreateModel {
   })
   content: string;
 
+  @ExistingBlog()
   blogId: string;
 }
 

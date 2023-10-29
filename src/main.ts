@@ -7,6 +7,7 @@ import {
   ErrorExceptionFilter,
   HttpExceptionFilter,
 } from './middlewares/exception.filter';
+import { useContainer } from 'class-validator';
 
 const port = process.env.PORT || 7200;
 
@@ -19,7 +20,7 @@ async function bootstrap() {
       // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
       // числом, если указано @Params('id') userId: number
       transform: true,
-      stopAtFirstError: true,
+      // stopAtFirstError: true,
       exceptionFactory: (errors) => {
         const errorsForResponse = [];
 
@@ -39,6 +40,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(port);
 }
 bootstrap();

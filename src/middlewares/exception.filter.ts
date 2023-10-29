@@ -55,9 +55,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
       };
       console.log('filter', exception.getResponse());
       const responseErr: any = exception.getResponse();
-      // @ts-ignore
-      responseErr.message.forEach((m) => errorResponse.errorsMessages.push(m));
 
+      if (typeof responseErr === 'string') {
+        // @ts-ignore
+        errorResponse.errorsMessages.push(responseErr);
+      } else {
+        responseErr.message.forEach((m) =>
+          // @ts-ignore
+          errorResponse.errorsMessages.push(m),
+        );
+      }
       response.status(status).json(errorResponse);
     } else {
       response.status(status).json({

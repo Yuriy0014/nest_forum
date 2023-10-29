@@ -38,7 +38,7 @@ import {
   likesInfoViewModel,
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
-import { CheckUserIdGuard, ExistingBlogGuard } from './guards/post.guards';
+import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @Controller('posts')
@@ -93,7 +93,6 @@ export class PostsController {
 
   @Post()
   @UseGuards(BasicAuthGuard)
-  @UseGuards(ExistingBlogGuard)
   async createPost(
     @Body() inputModel: PostCreateModel,
   ): Promise<PostViewModel> {

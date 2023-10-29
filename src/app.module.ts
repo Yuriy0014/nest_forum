@@ -66,6 +66,7 @@ import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { LikesRepo } from './features/likes/likes.repo';
 import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
 import { LikeService } from './features/likes/likes.service';
+import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -129,6 +130,8 @@ import { LikeService } from './features/likes/likes.service';
     BasicStrategy,
     JwtStrategy,
     LocalStrategy,
+    ///
+    ExistingBlogConstraint,
   ],
 })
 export class AppModule {}

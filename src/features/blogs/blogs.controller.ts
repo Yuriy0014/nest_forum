@@ -31,6 +31,7 @@ import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { PostsService } from '../posts/posts.service';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { CheckUserIdGuard } from '../posts/guards/post.guards';
 
 @Controller('blogs')
 export class BlogsController {
@@ -115,6 +116,7 @@ export class BlogsController {
   ////// Working with posts
   ////////////////////////////
   @Get(':id/posts')
+  @UseGuards(CheckUserIdGuard)
   async findAllPosts(
     @Param('id') blogId: string,
     @Query()

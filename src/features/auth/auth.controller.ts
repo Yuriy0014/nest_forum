@@ -30,6 +30,7 @@ import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailCommand } from './use-cases/ConfirmEmailUseCase';
 import { RegisterSessionCommand } from './use-cases/RegisterSessionUseCase';
 import { ResendEmailCommand } from './use-cases/ResendEmailUseCase';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -80,6 +81,68 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   async login(
+    @Body() loginDTO: LoginInputDTO,
+    @Headers() loginHeaders: any,
+    @Ip() IP: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<any> {
+    const user: UserViewModel | null = await this.commandCus.execute(
+      new CheckCredentialsCommand(loginDTO),
+    );
+
+    if (user) {
+      const accessToken = await this.jwtService.createJWT(user);
+      const deviceId = (+new Date()).toString();
+      const refreshToken = await this.jwtService.createJWTRefresh(
+        user,
+        deviceId,
+      );
+
+      // Подготавливаем данные для записи в таблицу сессий
+      const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+        refreshToken,
+      );
+      if (RFTokenInfo === null) {
+        throw new HttpException('RFToken not provided', HttpStatus.BAD_REQUEST);
+      }
+      const loginIp = IP || loginHeaders['x-forwarded-for'] || 'IP undefined';
+      const deviceName: string =
+        loginHeaders['user-agent'] || 'deviceName undefined';
+
+      // Фиксируем сессию
+      const sessionDTO: reqSessionDTOType = {
+        loginIp: loginIp,
+        refreshTokenIssuedAt: RFTokenInfo.iat,
+        deviceName: deviceName,
+        userId: user.id,
+        deviceId,
+      };
+      const sessionRegInfo = await this.commandCus.execute(
+        new RegisterSessionCommand(sessionDTO),
+      );
+      if (sessionRegInfo === null) {
+        throw new HttpException(
+          'Не удалось залогиниться. Попроубуйте позднее',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      response.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+      });
+      return { accessToken: accessToken };
+    }
+    throw new HttpException(
+      'Не удалось залогиниться. Попроубуйте позднее',
+      HttpStatus.UNAUTHORIZED,
+    );
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async logout(
     @Body() loginDTO: LoginInputDTO,
     @Headers() loginHeaders: any,
     @Ip() IP: string,

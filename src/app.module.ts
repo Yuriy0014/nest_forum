@@ -70,6 +70,7 @@ import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase'
 import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
 import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase';
 import { CreatePostUseCase } from './features/posts/use-cases/CreatePostUseCase';
+import { UpdatePostUseCase } from './features/posts/use-cases/UpdatePostUseCase';
 
 const useCases = [
   ///Blogs
@@ -78,6 +79,7 @@ const useCases = [
   DeleteBlogUseCase,
   ///Posts
   CreatePostUseCase,
+  UpdatePostUseCase,
 ];
 @Module({
   imports: [

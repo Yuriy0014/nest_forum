@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostsRepo } from './posts.repo';
 import { Post } from './models/domain/posts.domain-entities';
-import { PostUpdateModel } from './models/posts.models';
 import {
   likesInfoViewModel,
   likeStatusModel,
@@ -21,18 +20,6 @@ export class PostsService {
     private readonly postsRepo: PostsRepo,
     private readonly likesService: LikeService,
   ) {}
-
-  async updatePost(
-    postId: string,
-    updateDTO: PostUpdateModel,
-  ): Promise<boolean> {
-    const foundPost = await this.postsRepo.findPostById(postId);
-    if (!foundPost) return false;
-
-    foundPost.updatePost(updateDTO);
-    await this.postsRepo.save(foundPost);
-    return true;
-  }
 
   async deletePost(PostId: string) {
     const foundPost = await this.postsRepo.findPostById(PostId);

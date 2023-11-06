@@ -41,6 +41,7 @@ import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CreatePostUseCase } from './use-cases/CreatePostUseCase';
+import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -53,6 +54,7 @@ export class PostsController {
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly createPostUseCase: CreatePostUseCase,
+    private readonly updatePostUseCase: UpdatePostUseCase,
   ) {}
 
   @Get()
@@ -131,7 +133,7 @@ export class PostsController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    await this.postsService.updatePost(PostId, updateDTO);
+    await this.updatePostUseCase.execute(PostId, updateDTO);
   }
 
   ///////////////////

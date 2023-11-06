@@ -42,6 +42,7 @@ import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CreatePostUseCase } from './use-cases/CreatePostUseCase';
 import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
+import { DeletePostUseCase } from './use-cases/DeletePostUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -55,6 +56,7 @@ export class PostsController {
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly createPostUseCase: CreatePostUseCase,
     private readonly updatePostUseCase: UpdatePostUseCase,
+    private readonly deletePostUseCase: DeletePostUseCase,
   ) {}
 
   @Get()
@@ -117,7 +119,7 @@ export class PostsController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    await this.postsService.deletePost(PostId);
+    await this.deletePostUseCase.execute(PostId);
   }
 
   @Put(':id')

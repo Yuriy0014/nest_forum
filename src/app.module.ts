@@ -71,6 +71,7 @@ import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase'
 import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase';
 import { CreatePostUseCase } from './features/posts/use-cases/CreatePostUseCase';
 import { UpdatePostUseCase } from './features/posts/use-cases/UpdatePostUseCase';
+import { DeletePostUseCase } from './features/posts/use-cases/DeletePostUseCase';
 
 const useCases = [
   ///Blogs
@@ -80,6 +81,7 @@ const useCases = [
   ///Posts
   CreatePostUseCase,
   UpdatePostUseCase,
+  DeletePostUseCase,
 ];
 @Module({
   imports: [

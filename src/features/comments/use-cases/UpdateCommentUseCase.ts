@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   Comment,
   commentDBMethodsType,
@@ -6,21 +5,25 @@ import {
 import { CommentsRepo } from '../comments.repo';
 import { CommentUpdateModel } from '../models/comments.models';
 import { HydratedDocument } from 'mongoose';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class UpdateCommentUseCase {
+export class UpdateCommentCommand {
+  constructor(public commentId: string, public updateDTO: CommentUpdateModel) {}
+}
+
+@CommandHandler(UpdateCommentCommand)
+export class UpdateCommentUseCase
+  implements ICommandHandler<UpdateCommentCommand>
+{
   constructor(private readonly commentsRepo: CommentsRepo) {}
 
-  async execute(
-    commentId: string,
-    updateDTO: CommentUpdateModel,
-  ): Promise<boolean> {
+  async execute(command: UpdateCommentCommand): Promise<boolean> {
     const foundComment: HydratedDocument<Comment, commentDBMethodsType> | null =
-      await this.commentsRepo.findCommentById(commentId);
+      await this.commentsRepo.findCommentById(command.commentId);
     if (!foundComment) {
       return false;
     }
-    foundComment.updateComment(updateDTO);
+    foundComment.updateComment(command.updateDTO);
     await this.commentsRepo.save(foundComment);
     return true;
   }

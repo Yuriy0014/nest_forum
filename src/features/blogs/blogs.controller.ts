@@ -32,7 +32,6 @@ import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
 import { DeleteBlogCommand } from './use-cases/DeleteBlogUseCase';
-import { CreatePostUseCase } from '../posts/use-cases/CreatePostUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateBlogCommand } from './use-cases/UpdateBlogUseCase';
 
@@ -41,7 +40,6 @@ export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly createPostUseCase: CreatePostUseCase,
     private commandBus: CommandBus,
   ) {}
 
@@ -157,7 +155,7 @@ export class BlogsController {
     }
 
     inputModel.blogId = blogId;
-    const createdPost: PostViewModel = await this.createPostUseCase.execute(
+    const createdPost: PostViewModel = await this.commandBus.execute(
       inputModel,
     );
 

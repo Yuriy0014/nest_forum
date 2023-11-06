@@ -38,12 +38,12 @@ import {
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { CreatePostUseCase } from './use-cases/CreatePostUseCase';
 import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
 import { DeletePostUseCase } from './use-cases/DeletePostUseCase';
 import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { CreateCommentUseCase } from '../comments/use-cases/CreateCommentUseCase';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('posts')
 export class PostsController {
@@ -53,11 +53,11 @@ export class PostsController {
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
-    private readonly createPostUseCase: CreatePostUseCase,
     private readonly updatePostUseCase: UpdatePostUseCase,
     private readonly deletePostUseCase: DeletePostUseCase,
     private readonly likeOperationUseCase: LikeOperationUseCase,
     private readonly createCommentUseCase: CreateCommentUseCase,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -103,7 +103,7 @@ export class PostsController {
   async createPost(
     @Body() inputModel: PostCreateModelStandart,
   ): Promise<PostViewModel> {
-    const createdPost: PostViewModel = await this.createPostUseCase.execute(
+    const createdPost: PostViewModel = await this.commandBus.execute(
       inputModel,
     );
 

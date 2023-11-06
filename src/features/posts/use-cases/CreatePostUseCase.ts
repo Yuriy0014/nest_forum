@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, postModelType } from '../models/domain/posts.domain-entities';
 import {
@@ -11,9 +10,14 @@ import { LikesRepo } from '../../likes/likes.repo';
 import { BlogsQueryRepo } from '../../blogs/blogs.query-repo';
 import { MapPostViewModel } from '../helpers/map-PostViewModel';
 import { PostCreateModelStandart } from '../models/posts.models';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class CreatePostUseCase {
+export class CreatePostCommand {
+  constructor(public PostCreateModelDTO: PostCreateModelStandart) {}
+}
+
+@CommandHandler(CreatePostCommand)
+export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
     @InjectModel(Post.name)
     private readonly postModel: postModelType,
@@ -25,13 +29,13 @@ export class CreatePostUseCase {
     private readonly mapPostViewModel: MapPostViewModel,
   ) {}
 
-  async execute(PostCreateModelDTO: PostCreateModelStandart) {
+  async execute(command: CreatePostCommand) {
     const blog = await this.blogsQueryRepo.findBlogById(
-      PostCreateModelDTO.blogId,
+      command.PostCreateModelDTO.blogId,
     );
 
     const createdPost = this.postModel.createPost(
-      PostCreateModelDTO,
+      command.PostCreateModelDTO,
       blog!.name,
       this.postModel,
     );

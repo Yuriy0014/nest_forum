@@ -24,28 +24,31 @@ import {
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './use-cases/RegisterSessionUseCase';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../users/use-cases/CreateUserUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly createUserUseCase: CreateUserUseCase,
     private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly resendEmailUseCase: ResendEmailUseCase,
     private readonly registerSessionUseCase: RegisterSessionUseCase,
+    private readonly commandCus: CommandBus,
   ) {}
 
   @Post('registration')
   @HttpCode(204)
   @UseGuards(ExistingEmailGuard)
   async register(@Body() inputModel: UserInputModel): Promise<void> {
-    const createdUser = await this.createUserUseCase.execute(inputModel, false);
+    const createdUser = await this.commandCus.execute(
+      new CreateUserCommand(inputModel, false),
+    );
     if (createdUser.data === null) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

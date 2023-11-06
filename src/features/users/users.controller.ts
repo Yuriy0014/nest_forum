@@ -19,16 +19,17 @@ import {
   UserViewModel,
 } from './models/users.models';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { CreateUserUseCase } from './use-cases/CreateUserUseCase';
 import { DeleteUserUseCase } from './use-cases/DeleteUserUseCase';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from './use-cases/CreateUserUseCase';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly createUserUseCase: CreateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -52,7 +53,9 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() inputModel: UserInputModel): Promise<any> {
-    const createdUser = await this.createUserUseCase.execute(inputModel, true);
+    const createdUser = await this.commandBus.execute(
+      new CreateUserCommand(inputModel, true),
+    );
     if (createdUser.data === null) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

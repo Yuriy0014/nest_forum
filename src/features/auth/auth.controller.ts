@@ -10,7 +10,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
 import {
   ConfirmationCodeInputModel,
@@ -28,15 +27,16 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
+import { CheckCredentialsUseCase } from '../users/use-cases/CheckCredentialsUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly sessionsService: SessionsService,
     private readonly authService: AuthService,
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
   ) {}
 
   @Post('registration')
@@ -80,9 +80,8 @@ export class AuthController {
     @Ip() IP: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    const user: UserViewModel | null = await this.userService.checkCredentials(
-      loginDTO,
-    );
+    const user: UserViewModel | null =
+      await this.checkCredentialsUseCase.execute(loginDTO);
 
     if (user) {
       const accessToken = await this.jwtService.createJWT(user);

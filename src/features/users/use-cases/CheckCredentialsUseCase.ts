@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { UserViewModel } from './models/users.models';
+import { UsersRepo } from '../users.repo';
+import { MapUserViewModel } from '../helpers/map-UserViewModel';
+import { LoginInputDTO } from '../../auth/models/auth.models';
+import { UserViewModel } from '../models/users.models';
 import bcrypt from 'bcrypt';
-import { UsersRepo } from './users.repo';
-import { LoginInputDTO } from '../auth/models/auth.models';
-import { MapUserViewModel } from './helpers/map-UserViewModel';
 
 @Injectable()
-export class UsersService {
+export class CheckCredentialsUseCase {
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly mapUserViewModel: MapUserViewModel,
   ) {}
 
-  async checkCredentials(
-    loginDTO: LoginInputDTO,
-  ): Promise<UserViewModel | null> {
+  async execute(loginDTO: LoginInputDTO): Promise<UserViewModel | null> {
     const user = await this.usersRepo.findByLoginOrEmail(loginDTO.loginOrEmail);
     if (!user) return null;
 

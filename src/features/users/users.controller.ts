@@ -12,7 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersQueryRepo } from './users.query-repo';
-import { UsersService } from './users.service';
 import { queryUserPagination } from './helpers/filter';
 import {
   UserInputModel,
@@ -28,7 +27,6 @@ import { DeleteUserUseCase } from './use-cases/DeleteUserUseCase';
 export class UsersController {
   constructor(
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly usersService: UsersService,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}

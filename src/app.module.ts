@@ -30,7 +30,6 @@ import {
 import { LikesQueryRepo } from './features/likes/likes.query-repo';
 import { UsersController } from './features/users/users.controller';
 import { UsersQueryRepo } from './features/users/users.query-repo';
-import { UsersService } from './features/users/users.service';
 import { UsersRepo } from './features/users/users.repo';
 import { MapUserViewModel } from './features/users/helpers/map-UserViewModel';
 import {
@@ -75,6 +74,7 @@ import { UpdateCommentUseCase } from './features/comments/use-cases/UpdateCommen
 import { DeleteCommentUseCase } from './features/comments/use-cases/DeleteCommentUseCase';
 import { CreateUserUseCase } from './features/users/use-cases/CreateUserUseCase';
 import { DeleteUserUseCase } from './features/users/use-cases/DeleteUserUseCase';
+import { CheckCredentialsUseCase } from './features/users/use-cases/CheckCredentialsUseCase';
 
 const useCases = [
   ///Blogs
@@ -94,6 +94,7 @@ const useCases = [
   // Users
   CreateUserUseCase,
   DeleteUserUseCase,
+  CheckCredentialsUseCase,
 ];
 @Module({
   imports: [
@@ -138,7 +139,6 @@ const useCases = [
     LikesRepo,
     MapLikeViewModel,
     // Users
-    UsersService,
     UsersQueryRepo,
     UsersRepo,
     MapUserViewModel,

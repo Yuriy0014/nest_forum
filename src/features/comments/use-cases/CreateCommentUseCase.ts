@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Comment,
@@ -12,9 +11,21 @@ import {
 } from '../../likes/models/domain/likes.domain-entities';
 import { CommentsRepo } from '../comments.repo';
 import { LikesRepo } from '../../likes/likes.repo';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class CreateCommentUseCase {
+export class CreateCommentCommand {
+  constructor(
+    public postId: string,
+    public content: string,
+    public userId: string,
+    public userLogin: string,
+  ) {}
+}
+
+@CommandHandler(CreateCommentCommand)
+export class CreateCommentUseCase
+  implements ICommandHandler<CreateCommentCommand>
+{
   constructor(
     @InjectModel(Comment.name)
     private readonly commentModel: CommentModelType,
@@ -24,13 +35,13 @@ export class CreateCommentUseCase {
     private readonly likesRepo: LikesRepo,
   ) {}
 
-  async execute(
-    postId: string,
-    content: string,
-    userId: string,
-    userLogin: string,
-  ): Promise<CommentDocument> {
-    const createCommentDTO = { postId, content, userId, userLogin };
+  async execute(command: CreateCommentCommand): Promise<CommentDocument> {
+    const createCommentDTO = {
+      postId: command.postId,
+      content: command.content,
+      userId: command.userId,
+      userLogin: command.userLogin,
+    };
 
     const newComment = this.commentModel.createComment(
       createCommentDTO,

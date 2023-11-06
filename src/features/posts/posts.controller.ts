@@ -40,10 +40,10 @@ import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
-import { CreateCommentUseCase } from '../comments/use-cases/CreateCommentUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeletePostCommand } from './use-cases/DeletePostUseCase';
 import { UpdatePostComand } from './use-cases/UpdatePostUseCase';
+import { CreateCommentCommand } from '../comments/use-cases/CreateCommentUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -53,7 +53,6 @@ export class PostsController {
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
-    private readonly createCommentUseCase: CreateCommentUseCase,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -192,11 +191,13 @@ export class PostsController {
 
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const createdComment = await this.createCommentUseCase.execute(
-      postId,
-      inputModel.content,
-      req.user.userId,
-      foundUser!.login,
+    const createdComment = await this.commandBus.execute(
+      new CreateCommentCommand(
+        postId,
+        inputModel.content,
+        req.user.userId,
+        foundUser!.login,
+      ),
     );
     return this.mapCommentViewModel.getCommentViewModel(
       createdComment,

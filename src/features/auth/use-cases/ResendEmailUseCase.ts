@@ -1,19 +1,22 @@
-import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { UsersRepo } from '../../users/users.repo';
 import { EmailManager } from '../../../infrastructure/email/email.manager';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class ResendEmailUseCase {
+export class ResendEmailCommand {
+  constructor(public email: string) {}
+}
+
+@CommandHandler(ResendEmailCommand)
+export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly emailManager: EmailManager,
   ) {}
-  s;
-  async execute(email: string): Promise<boolean> {
-    if (email === undefined) return false;
-    const user = await this.usersRepo.findByLoginOrEmail(email);
+  async execute(command: ResendEmailCommand): Promise<boolean> {
+    if (command.email === undefined) return false;
+    const user = await this.usersRepo.findByLoginOrEmail(command.email);
     if (!user) return false;
     if (user.emailConfirmation.isConfirmed) return false;
 

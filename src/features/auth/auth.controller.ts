@@ -24,18 +24,17 @@ import {
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailCommand } from './use-cases/ConfirmEmailUseCase';
 import { RegisterSessionCommand } from './use-cases/RegisterSessionUseCase';
+import { ResendEmailCommand } from './use-cases/ResendEmailUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly resendEmailUseCase: ResendEmailUseCase,
     private readonly commandCus: CommandBus,
   ) {}
 
@@ -55,7 +54,9 @@ export class AuthController {
   @HttpCode(204)
   @UseGuards(IsEmailAlreadyConfirmedGuard)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
-    const result = await this.resendEmailUseCase.execute(inputModel.email);
+    const result = await this.commandCus.execute(
+      new ResendEmailCommand(inputModel.email),
+    );
     if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

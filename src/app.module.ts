@@ -67,6 +67,9 @@ import { LikesRepo } from './features/likes/likes.repo';
 import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
 import { LikeService } from './features/likes/likes.service';
 import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
+import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
+
+const useCases = [CreateBlogUseCase];
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -132,6 +135,8 @@ import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogEx
     LocalStrategy,
     ///
     ExistingBlogConstraint,
+    /// UseCases
+    ...useCases,
   ],
 })
 export class AppModule {}

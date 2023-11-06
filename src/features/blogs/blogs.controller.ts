@@ -32,7 +32,7 @@ import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { PostsService } from '../posts/posts.service';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
-
+import { CreateBlogUseCase } from './use-cases/CreateBlogUseCase';
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -40,6 +40,7 @@ export class BlogsController {
     private readonly blogsService: BlogsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsService: PostsService,
+    private readonly createBlogUseCase: CreateBlogUseCase,
   ) {}
 
   @Get()
@@ -78,7 +79,7 @@ export class BlogsController {
   async createBlog(
     @Body() inputModel: BlogCreateModel,
   ): Promise<BlogViewModel> {
-    const createdBlog: BlogViewModel = await this.blogsService.createBlog(
+    const createdBlog: BlogViewModel = await this.createBlogUseCase.execute(
       inputModel,
     );
 

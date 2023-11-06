@@ -69,8 +69,16 @@ import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogEx
 import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
 import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase';
+import { CreatePostUseCase } from './features/posts/use-cases/CreatePostUseCase';
 
-const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
+const useCases = [
+  ///Blogs
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
+  ///Posts
+  CreatePostUseCase,
+];
 @Module({
   imports: [
     ConfigModule.forRoot(),

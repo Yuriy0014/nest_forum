@@ -40,6 +40,7 @@ import {
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { CreatePostUseCase } from './use-cases/CreatePostUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -51,6 +52,7 @@ export class PostsController {
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
+    private readonly createPostUseCase: CreatePostUseCase,
   ) {}
 
   @Get()
@@ -96,7 +98,7 @@ export class PostsController {
   async createPost(
     @Body() inputModel: PostCreateModelStandart,
   ): Promise<PostViewModel> {
-    const createdPost: PostViewModel = await this.postsService.createPost(
+    const createdPost: PostViewModel = await this.createPostUseCase.execute(
       inputModel,
     );
 

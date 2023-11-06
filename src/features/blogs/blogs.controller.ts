@@ -28,21 +28,22 @@ import {
 } from '../posts/models/posts.models';
 import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
-import { PostsService } from '../posts/posts.service';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogUseCase } from './use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './use-cases/UpdateBlogUseCase';
 import { DeleteBlogUseCase } from './use-cases/DeleteBlogUseCase';
+import { CreatePostUseCase } from '../posts/use-cases/CreatePostUseCase';
+
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly postsService: PostsService,
     private readonly createBlogUseCase: CreateBlogUseCase,
     private readonly updateBlogUseCase: UpdateBlogUseCase,
     private readonly deleteBlogUseCase: DeleteBlogUseCase,
+    private readonly createPostUseCase: CreatePostUseCase,
   ) {}
 
   @Get()
@@ -157,7 +158,7 @@ export class BlogsController {
     }
 
     inputModel.blogId = blogId;
-    const createdPost: PostViewModel = await this.postsService.createPost(
+    const createdPost: PostViewModel = await this.createPostUseCase.execute(
       inputModel,
     );
 

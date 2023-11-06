@@ -1,25 +1,35 @@
-import { Injectable } from '@nestjs/common';
 import { UsersRepo } from '../../users/users.repo';
 import { MapUserViewModel } from '../../users/helpers/map-UserViewModel';
 import { LoginInputDTO } from '../models/auth.models';
 import { UserViewModel } from '../../users/models/users.models';
 import bcrypt from 'bcrypt';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class CheckCredentialsUseCase {
+export class CheckCredentialsCommand {
+  constructor(public loginDTO: LoginInputDTO) {}
+}
+
+@CommandHandler(CheckCredentialsCommand)
+export class CheckCredentialsUseCase
+  implements ICommandHandler<CheckCredentialsCommand>
+{
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly mapUserViewModel: MapUserViewModel,
   ) {}
 
-  async execute(loginDTO: LoginInputDTO): Promise<UserViewModel | null> {
-    const user = await this.usersRepo.findByLoginOrEmail(loginDTO.loginOrEmail);
+  async execute(
+    command: CheckCredentialsCommand,
+  ): Promise<UserViewModel | null> {
+    const user = await this.usersRepo.findByLoginOrEmail(
+      command.loginDTO.loginOrEmail,
+    );
     if (!user) return null;
 
     const passHash = user.accountData.password;
 
     const result = await bcrypt
-      .compare(loginDTO.password, passHash)
+      .compare(command.loginDTO.password, passHash)
       .then(function (result) {
         return result;
       });

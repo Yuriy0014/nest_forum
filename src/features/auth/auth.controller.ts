@@ -24,18 +24,17 @@ import {
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './use-cases/RegisterSessionUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../users/use-cases/CreateUserUseCase';
+import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly resendEmailUseCase: ResendEmailUseCase,
     private readonly registerSessionUseCase: RegisterSessionUseCase,
@@ -85,8 +84,9 @@ export class AuthController {
     @Ip() IP: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    const user: UserViewModel | null =
-      await this.checkCredentialsUseCase.execute(loginDTO);
+    const user: UserViewModel | null = await this.commandCus.execute(
+      new CheckCredentialsCommand(loginDTO),
+    );
 
     if (user) {
       const accessToken = await this.jwtService.createJWT(user);

@@ -20,6 +20,7 @@ import {
   UserViewModel,
 } from './models/users.models';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { CreateUserUseCase } from './use-cases/CreateUserUseCase';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
@@ -27,6 +28,7 @@ export class UsersController {
   constructor(
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly usersService: UsersService,
+    private readonly createUserUseCase: CreateUserUseCase,
   ) {}
 
   @Get()
@@ -50,7 +52,7 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() inputModel: UserInputModel): Promise<any> {
-    const createdUser = await this.usersService.createUser(inputModel, true);
+    const createdUser = await this.createUserUseCase.execute(inputModel, true);
     if (createdUser.data === null) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

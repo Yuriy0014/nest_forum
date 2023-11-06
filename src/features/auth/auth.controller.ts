@@ -27,6 +27,7 @@ import {
 } from './guards/auth.guard';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
 
 @Controller('auth')
 export class AuthController {
@@ -35,13 +36,14 @@ export class AuthController {
     private readonly jwtService: JwtService,
     private readonly sessionsService: SessionsService,
     private readonly authService: AuthService,
+    private readonly createUserUseCase: CreateUserUseCase,
   ) {}
 
   @Post('registration')
   @HttpCode(204)
   @UseGuards(ExistingEmailGuard)
   async register(@Body() inputModel: UserInputModel): Promise<void> {
-    const createdUser = await this.userService.createUser(inputModel, false);
+    const createdUser = await this.createUserUseCase.execute(inputModel, false);
     if (createdUser.data === null) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

@@ -73,6 +73,7 @@ import { LikeOperationUseCase } from './features/likes/use-cases/LikeOperationUs
 import { CreateCommentUseCase } from './features/comments/use-cases/CreateCommentUseCase';
 import { UpdateCommentUseCase } from './features/comments/use-cases/UpdateCommentUseCase';
 import { DeleteCommentUseCase } from './features/comments/use-cases/DeleteCommentUseCase';
+import { CreateUserUseCase } from './features/users/use-cases/CreateUserUseCase';
 
 const useCases = [
   ///Blogs
@@ -89,6 +90,8 @@ const useCases = [
   CreateCommentUseCase,
   UpdateCommentUseCase,
   DeleteCommentUseCase,
+  // Users
+  CreateUserUseCase,
 ];
 @Module({
   imports: [

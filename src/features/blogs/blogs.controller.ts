@@ -32,7 +32,7 @@ import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './use-cases/UpdateBlogUseCase';
-import { DeleteBlogUseCase } from './use-cases/DeleteBlogUseCase';
+import { DeleteBlogCommand } from './use-cases/DeleteBlogUseCase';
 import { CreatePostUseCase } from '../posts/use-cases/CreatePostUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 
@@ -42,7 +42,6 @@ export class BlogsController {
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly updateBlogUseCase: UpdateBlogUseCase,
-    private readonly deleteBlogUseCase: DeleteBlogUseCase,
     private readonly createPostUseCase: CreatePostUseCase,
     private commandBus: CommandBus,
   ) {}
@@ -99,7 +98,7 @@ export class BlogsController {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.deleteBlogUseCase.execute(blogId);
+    await this.commandBus.execute(new DeleteBlogCommand(blogId));
   }
 
   @Put(':id')

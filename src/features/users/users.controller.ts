@@ -19,7 +19,7 @@ import {
   UserViewModel,
 } from './models/users.models';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { DeleteUserUseCase } from './use-cases/DeleteUserUseCase';
+import { DeleteUserCommand } from './use-cases/DeleteUserUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from './use-cases/CreateUserUseCase';
 
@@ -28,7 +28,6 @@ import { CreateUserCommand } from './use-cases/CreateUserUseCase';
 export class UsersController {
   constructor(
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly deleteUserUseCase: DeleteUserUseCase,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -71,7 +70,9 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(204)
   async deleteUser(@Param('id') UserId: string) {
-    const deletion_status = await this.deleteUserUseCase.execute(UserId);
+    const deletion_status = await this.commandBus.execute(
+      new DeleteUserCommand(UserId),
+    );
     if (!deletion_status) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

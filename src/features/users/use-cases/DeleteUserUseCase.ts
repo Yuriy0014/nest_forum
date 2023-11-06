@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import { UsersRepo } from '../users.repo';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class DeleteUserUseCase {
+export class DeleteUserCommand {
+  constructor(public userId: string) {}
+}
+
+@CommandHandler(DeleteUserCommand)
+export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersRepo: UsersRepo) {}
 
-  async execute(UserId: string): Promise<boolean> {
-    const user = await this.usersRepo.findUserById(UserId);
+  async execute(command: DeleteUserCommand): Promise<boolean> {
+    const user = await this.usersRepo.findUserById(command.userId);
     if (!user) return false;
 
     return await this.usersRepo.deleteUser(user);

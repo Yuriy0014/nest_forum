@@ -20,7 +20,6 @@ import {
   BlogViewModel,
 } from './models/blogs.models';
 import { BlogsQueryRepo } from './blogs.query-repo';
-import { BlogsService } from './blogs.service';
 import { queryBlogPagination } from './helpers/filter';
 import {
   PostCreateModelFromBlog,
@@ -33,14 +32,17 @@ import { PostsService } from '../posts/posts.service';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogUseCase } from './use-cases/CreateBlogUseCase';
+import { UpdateBlogUseCase } from './use-cases/UpdateBlogUseCase';
+import { DeleteBlogUseCase } from './use-cases/DeleteBlogUseCase';
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepo,
-    private readonly blogsService: BlogsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly postsService: PostsService,
     private readonly createBlogUseCase: CreateBlogUseCase,
+    private readonly updateBlogUseCase: UpdateBlogUseCase,
+    private readonly deleteBlogUseCase: DeleteBlogUseCase,
   ) {}
 
   @Get()
@@ -95,7 +97,7 @@ export class BlogsController {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.blogsService.deleteBlog(blogId);
+    await this.deleteBlogUseCase.execute(blogId);
   }
 
   @Put(':id')
@@ -110,7 +112,7 @@ export class BlogsController {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.blogsService.updateBlog(blogId, updateDTO);
+    await this.updateBlogUseCase.execute(blogId, updateDTO);
   }
 
   ////////////////////////////

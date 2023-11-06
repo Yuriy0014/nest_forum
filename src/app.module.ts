@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BlogsController } from './features/blogs/blogs.controller';
-import { BlogsService } from './features/blogs/blogs.service';
 import { BlogsRepo } from './features/blogs/blogs.repo';
 import { BlogsQueryRepo } from './features/blogs/blogs.query-repo';
 import {
@@ -68,8 +67,10 @@ import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
 import { LikeService } from './features/likes/likes.service';
 import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
 import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
+import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
+import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase';
 
-const useCases = [CreateBlogUseCase];
+const useCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -97,7 +98,6 @@ const useCases = [CreateBlogUseCase];
   providers: [
     AppService,
     // Blogs
-    BlogsService,
     BlogsRepo,
     BlogsQueryRepo,
     MapBlogViewModel,

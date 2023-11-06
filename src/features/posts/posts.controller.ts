@@ -44,6 +44,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { DeletePostCommand } from './use-cases/DeletePostUseCase';
 import { UpdatePostComand } from './use-cases/UpdatePostUseCase';
 import { CreateCommentCommand } from '../comments/use-cases/CreateCommentUseCase';
+import { CreatePostCommand } from './use-cases/CreatePostUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -100,7 +101,7 @@ export class PostsController {
     @Body() inputModel: PostCreateModelStandart,
   ): Promise<PostViewModel> {
     const createdPost: PostViewModel = await this.commandBus.execute(
-      inputModel,
+      new CreatePostCommand(inputModel),
     );
 
     return createdPost;

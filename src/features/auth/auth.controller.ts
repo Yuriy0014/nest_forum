@@ -24,21 +24,21 @@ import {
   ExistingEmailGuard,
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
-import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
+import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
     private readonly sessionsService: SessionsService,
-    private readonly authService: AuthService,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
+    private readonly resendEmailUseCase: ResendEmailUseCase,
   ) {}
 
   @Post('registration')
@@ -55,7 +55,7 @@ export class AuthController {
   @HttpCode(204)
   @UseGuards(IsEmailAlreadyConfirmedGuard)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
-    const result = await this.authService.resendEmail(inputModel.email);
+    const result = await this.resendEmailUseCase.execute(inputModel.email);
     if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

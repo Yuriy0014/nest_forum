@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
-import { UsersRepo } from '../users/users.repo';
-import { EmailManager } from '../../infrastructure/email/email.manager';
-import { MapUserViewModel } from '../users/helpers/map-UserViewModel';
+import { UsersRepo } from '../../users/users.repo';
+import { EmailManager } from '../../../infrastructure/email/email.manager';
 
 @Injectable()
-export class AuthService {
+export class ResendEmailUseCase {
   constructor(
     private readonly usersRepo: UsersRepo,
     private readonly emailManager: EmailManager,
   ) {}
-
-  async resendEmail(email: string): Promise<boolean> {
+  s;
+  async execute(email: string): Promise<boolean> {
     if (email === undefined) return false;
     const user = await this.usersRepo.findByLoginOrEmail(email);
     if (!user) return false;

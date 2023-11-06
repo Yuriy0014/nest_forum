@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
 import { PostsRepo } from '../posts.repo';
 import { PostUpdateModel } from '../models/posts.models';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class UpdatePostUseCase {
+export class UpdatePostComand {
+  constructor(public postId: string, public updateDTO: PostUpdateModel) {}
+}
+
+@CommandHandler(UpdatePostComand)
+export class UpdatePostUseCase implements ICommandHandler<UpdatePostComand> {
   constructor(private readonly postsRepo: PostsRepo) {}
 
-  async execute(postId: string, updateDTO: PostUpdateModel): Promise<boolean> {
-    const foundPost = await this.postsRepo.findPostById(postId);
+  async execute(command: UpdatePostComand): Promise<boolean> {
+    const foundPost = await this.postsRepo.findPostById(command.postId);
     if (!foundPost) return false;
 
-    foundPost.updatePost(updateDTO);
+    foundPost.updatePost(command.updateDTO);
     await this.postsRepo.save(foundPost);
     return true;
   }

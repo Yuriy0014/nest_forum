@@ -38,12 +38,12 @@ import {
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
 import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { CreateCommentUseCase } from '../comments/use-cases/CreateCommentUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeletePostCommand } from './use-cases/DeletePostUseCase';
+import { UpdatePostComand } from './use-cases/UpdatePostUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -53,7 +53,6 @@ export class PostsController {
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
-    private readonly updatePostUseCase: UpdatePostUseCase,
     private readonly likeOperationUseCase: LikeOperationUseCase,
     private readonly createCommentUseCase: CreateCommentUseCase,
     private readonly commandBus: CommandBus,
@@ -135,7 +134,7 @@ export class PostsController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    await this.updatePostUseCase.execute(PostId, updateDTO);
+    await this.commandBus.execute(new UpdatePostComand(PostId, updateDTO));
   }
 
   ///////////////////

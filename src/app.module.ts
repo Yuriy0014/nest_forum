@@ -77,6 +77,9 @@ import { ConfirmEmailUseCase } from './features/auth/use-cases/ConfirmEmailUseCa
 import { ResendEmailUseCase } from './features/auth/use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './features/auth/use-cases/RegisterSessionUseCase';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DeleteSessionCommand } from './features/auth/use-cases/DeleteSessionUseCase';
+import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
+import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
 
 const useCases = [
   ///Blogs
@@ -101,6 +104,7 @@ const useCases = [
   ConfirmEmailUseCase,
   ResendEmailUseCase,
   RegisterSessionUseCase,
+  DeleteSessionCommand,
 ];
 @Module({
   imports: [
@@ -156,9 +160,11 @@ const useCases = [
     JwtService,
     // Auth
     SessionsRepo,
+    SessionsQueryRepo,
     BasicStrategy,
     JwtStrategy,
     LocalStrategy,
+    MapSessionViewModel,
     ///
     ExistingBlogConstraint,
     /// UseCases

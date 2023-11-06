@@ -6,7 +6,9 @@ import {
   HttpException,
   HttpStatus,
   Ip,
+  NotFoundException,
   Post,
+  Request,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import { Response } from 'express';
 import {
   ExistingEmailGuard,
   IsEmailAlreadyConfirmedGuard,
+  VerifyRefreshTokenGuard,
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
@@ -30,20 +33,21 @@ import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailCommand } from './use-cases/ConfirmEmailUseCase';
 import { RegisterSessionCommand } from './use-cases/RegisterSessionUseCase';
 import { ResendEmailCommand } from './use-cases/ResendEmailUseCase';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { DeleteSessionCommand } from './use-cases/DeleteSessionUseCase';
+import { CheckUserIdGuard } from '../comments/guards/comments.guards';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly commandCus: CommandBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Post('registration')
   @HttpCode(204)
   @UseGuards(ExistingEmailGuard)
   async register(@Body() inputModel: UserInputModel): Promise<void> {
-    const createdUser = await this.commandCus.execute(
+    const createdUser = await this.commandBus.execute(
       new CreateUserCommand(inputModel, false),
     );
     if (createdUser.data === null) {
@@ -55,7 +59,7 @@ export class AuthController {
   @HttpCode(204)
   @UseGuards(IsEmailAlreadyConfirmedGuard)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
-    const result = await this.commandCus.execute(
+    const result = await this.commandBus.execute(
       new ResendEmailCommand(inputModel.email),
     );
     if (!result) {
@@ -69,7 +73,7 @@ export class AuthController {
   async confirmRegistration(
     @Body() inputModel: ConfirmationCodeInputModel,
   ): Promise<void> {
-    const result = await this.commandCus.execute(
+    const result = await this.commandBus.execute(
       new ConfirmEmailCommand(inputModel.code),
     );
     if (!result) {
@@ -86,7 +90,7 @@ export class AuthController {
     @Ip() IP: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<any> {
-    const user: UserViewModel | null = await this.commandCus.execute(
+    const user: UserViewModel | null = await this.commandBus.execute(
       new CheckCredentialsCommand(loginDTO),
     );
 
@@ -117,7 +121,7 @@ export class AuthController {
         userId: user.id,
         deviceId,
       };
-      const sessionRegInfo = await this.commandCus.execute(
+      const sessionRegInfo = await this.commandBus.execute(
         new RegisterSessionCommand(sessionDTO),
       );
       if (sessionRegInfo === null) {
@@ -140,64 +144,26 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
-  async logout(
-    @Body() loginDTO: LoginInputDTO,
-    @Headers() loginHeaders: any,
-    @Ip() IP: string,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<any> {
-    const user: UserViewModel | null = await this.commandCus.execute(
-      new CheckCredentialsCommand(loginDTO),
+  @UseGuards(CheckUserIdGuard)
+  @UseGuards(VerifyRefreshTokenGuard)
+  async logout(@Request() req: any): Promise<any> {
+    const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+      req.cookies.refreshToken,
     );
-
-    if (user) {
-      const accessToken = await this.jwtService.createJWT(user);
-      const deviceId = (+new Date()).toString();
-      const refreshToken = await this.jwtService.createJWTRefresh(
-        user,
-        deviceId,
+    if (RFTokenInfo === null) {
+      throw new HttpException(
+        'Не удалось вылогиниться. Попроубуйте позднее',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
-
-      // Подготавливаем данные для записи в таблицу сессий
-      const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
-        refreshToken,
-      );
-      if (RFTokenInfo === null) {
-        throw new HttpException('RFToken not provided', HttpStatus.BAD_REQUEST);
-      }
-      const loginIp = IP || loginHeaders['x-forwarded-for'] || 'IP undefined';
-      const deviceName: string =
-        loginHeaders['user-agent'] || 'deviceName undefined';
-
-      // Фиксируем сессию
-      const sessionDTO: reqSessionDTOType = {
-        loginIp: loginIp,
-        refreshTokenIssuedAt: RFTokenInfo.iat,
-        deviceName: deviceName,
-        userId: user.id,
-        deviceId,
-      };
-      const sessionRegInfo = await this.commandCus.execute(
-        new RegisterSessionCommand(sessionDTO),
-      );
-      if (sessionRegInfo === null) {
-        throw new HttpException(
-          'Не удалось залогиниться. Попроубуйте позднее',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-
-      response.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-      });
-      return { accessToken: accessToken };
     }
-    throw new HttpException(
-      'Не удалось залогиниться. Попроубуйте позднее',
-      HttpStatus.UNAUTHORIZED,
+
+    // Удаляем запись с текущей сессией из БД
+    const deletionStatus = await this.commandBus.execute(
+      new DeleteSessionCommand(RFTokenInfo.iat, req.userId),
     );
+
+    if (!deletionStatus) {
+      throw new NotFoundException();
+    }
   }
 }

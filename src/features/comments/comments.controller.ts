@@ -8,8 +8,8 @@ import {
   HttpStatus,
   Param,
   Put,
-  UseGuards,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentsQueryRepo } from './comments.query-repo';
 import { CommentUpdateModel, CommentViewModel } from './models/comments.models';
@@ -21,10 +21,11 @@ import {
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { UsersQueryRepo } from '../users/users.query-repo';
 import { CheckUserIdGuard } from './guards/comments.guards';
-import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
+import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { UpdateCommentUseCase } from './use-cases/UpdateCommentUseCase';
 import { DeleteCommentUseCase } from './use-cases/DeleteCommentUseCase';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('comments')
 export class CommentsController {
@@ -32,9 +33,9 @@ export class CommentsController {
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
-    private readonly likeOperationUseCase: LikeOperationUseCase,
     private readonly updateCommentUseCase: UpdateCommentUseCase,
     private readonly deleteCommentUseCase: DeleteCommentUseCase,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get(':id')
@@ -120,15 +121,16 @@ export class CommentsController {
     }
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const likeOperationStatus: boolean =
-      await this.likeOperationUseCase.execute(
+    const likeOperationStatus: boolean = await this.commandBus.execute(
+      new LikeOperationCommand(
         LikeObjectTypeEnum.Comment,
         req.params.id,
         likesInfo,
         inputModel.likeStatus,
         req.user.userId,
         foundUser!.login,
-      );
+      ),
+    );
     if (!likeOperationStatus) {
       throw new HttpException(
         'Internal server Error. Something went wrong during like operation',

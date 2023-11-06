@@ -38,7 +38,7 @@ import {
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
+import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { CreateCommentUseCase } from '../comments/use-cases/CreateCommentUseCase';
 import { CommandBus } from '@nestjs/cqrs';
@@ -53,7 +53,6 @@ export class PostsController {
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
-    private readonly likeOperationUseCase: LikeOperationUseCase,
     private readonly createCommentUseCase: CreateCommentUseCase,
     private readonly commandBus: CommandBus,
   ) {}
@@ -237,15 +236,16 @@ export class PostsController {
 
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const likeOperationStatus: boolean =
-      await this.likeOperationUseCase.execute(
+    const likeOperationStatus: boolean = await this.commandBus.execute(
+      new LikeOperationCommand(
         LikeObjectTypeEnum.Post,
         req.params.id,
         likesInfo,
         inputModel.likeStatus,
         req.user.userId,
         foundUser!.login,
-      );
+      ),
+    );
     if (!likeOperationStatus) {
       throw new HttpException(
         'Internal server Error. Something went wrong during like operation',

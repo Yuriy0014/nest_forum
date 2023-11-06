@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { LikesRepo } from '../likes.repo';
 import { LikeObjectTypeEnum } from '../models/domain/likes.domain-entities';
 import {
@@ -6,36 +5,43 @@ import {
   likeStatus,
   likeStatusModel,
 } from '../models/likes.models';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class LikeOperationUseCase {
+export class LikeOperationCommand {
+  constructor(
+    public entityType: LikeObjectTypeEnum,
+    public entityId: string,
+    public likesInfo: likesInfoViewModel,
+    public newLikeStatus: likeStatusModel,
+    public userId: string,
+    public userLogin: string,
+  ) {}
+}
+
+@CommandHandler(LikeOperationCommand)
+export class LikeOperationUseCase
+  implements ICommandHandler<LikeOperationCommand>
+{
   constructor(private readonly likesRepo: LikesRepo) {}
 
-  async execute(
-    entityType: LikeObjectTypeEnum,
-    entityId: string,
-    likesInfo: likesInfoViewModel,
-    newLikeStatus: likeStatusModel,
-    userId: string,
-    userLogin: string,
-  ): Promise<boolean> {
-    const savedLikeStatus = likesInfo.myStatus;
+  async execute(command: LikeOperationCommand): Promise<boolean> {
+    const savedLikeStatus = command.likesInfo.myStatus;
     let result = true;
     if (savedLikeStatus === likeStatus.None) {
-      if (newLikeStatus === likeStatus.Like) {
+      if (command.newLikeStatus === likeStatus.Like) {
         result = await this.likesRepo.Like(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
         );
       }
-      if (newLikeStatus === likeStatus.Dislike) {
+      if (command.newLikeStatus === likeStatus.Dislike) {
         result = await this.likesRepo.Dislike(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
         );
       }
     }
@@ -45,27 +51,27 @@ export class LikeOperationUseCase {
       // if(newLikeStatus === likeStatus.Like) {
       //     await likesRepo.Reset(entityType, req.params.id, req.user!.id,likeStatus.Like)
       // }
-      if (newLikeStatus === likeStatus.Dislike) {
+      if (command.newLikeStatus === likeStatus.Dislike) {
         await this.likesRepo.Reset(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
           likeStatus.Like,
         );
         result = await this.likesRepo.Dislike(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
         );
       }
-      if (newLikeStatus === likeStatus.None) {
+      if (command.newLikeStatus === likeStatus.None) {
         result = await this.likesRepo.Reset(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
           likeStatus.Like,
         );
       }
@@ -76,27 +82,27 @@ export class LikeOperationUseCase {
       // if(newLikeStatus === likeStatus.Dislike) {
       //     await likesRepo.Reset(entityType, req.params.id, req.user!.id,likeStatus.Like)
       // }
-      if (newLikeStatus === likeStatus.Like) {
+      if (command.newLikeStatus === likeStatus.Like) {
         await this.likesRepo.Reset(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
           likeStatus.Dislike,
         );
         result = await this.likesRepo.Like(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
         );
       }
-      if (newLikeStatus === likeStatus.None) {
+      if (command.newLikeStatus === likeStatus.None) {
         result = await this.likesRepo.Reset(
-          entityType,
-          entityId,
-          userId,
-          userLogin,
+          command.entityType,
+          command.entityId,
+          command.userId,
+          command.userLogin,
           likeStatus.Dislike,
         );
       }

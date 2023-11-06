@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
 import { CommentsRepo } from '../comments.repo';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class DeleteCommentUseCase {
+export class DeleteCommentCommand {
+  constructor(public commentId: string) {}
+}
+
+@CommandHandler(DeleteCommentCommand)
+export class DeleteCommentUseCase
+  implements ICommandHandler<DeleteCommentCommand>
+{
   constructor(private readonly commentsRepo: CommentsRepo) {}
 
-  async execute(commentId: string): Promise<boolean> {
-    const foundComment = await this.commentsRepo.findCommentById(commentId);
+  async execute(command: DeleteCommentCommand): Promise<boolean> {
+    const foundComment = await this.commentsRepo.findCommentById(
+      command.commentId,
+    );
     if (!foundComment) return false;
     return this.commentsRepo.deleteComment(foundComment);
   }

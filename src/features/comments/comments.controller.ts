@@ -24,8 +24,8 @@ import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { UpdateCommentUseCase } from './use-cases/UpdateCommentUseCase';
-import { DeleteCommentUseCase } from './use-cases/DeleteCommentUseCase';
 import { CommandBus } from '@nestjs/cqrs';
+import { DeleteCommentCommand } from './use-cases/DeleteCommentUseCase';
 
 @Controller('comments')
 export class CommentsController {
@@ -34,7 +34,6 @@ export class CommentsController {
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly updateCommentUseCase: UpdateCommentUseCase,
-    private readonly deleteCommentUseCase: DeleteCommentUseCase,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -86,7 +85,7 @@ export class CommentsController {
     if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
-    await this.deleteCommentUseCase.execute(commentId);
+    await this.commandBus.execute(new DeleteCommentCommand(commentId));
   }
 
   ////////////////////////////

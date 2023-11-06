@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Session,
@@ -6,9 +5,16 @@ import {
 } from '../models/domain/session.domain-entities';
 import { SessionsRepo } from '../sessions.repo';
 import { reqSessionDTOType, SessionViewModel } from '../models/auth.models';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class RegisterSessionUseCase {
+export class RegisterSessionCommand {
+  constructor(public sessionDTO: reqSessionDTOType) {}
+}
+
+@CommandHandler(RegisterSessionCommand)
+export class RegisterSessionUseCase
+  implements ICommandHandler<RegisterSessionCommand>
+{
   constructor(
     @InjectModel(Session.name)
     private readonly sessionModel: SessionModelType,
@@ -16,10 +22,10 @@ export class RegisterSessionUseCase {
   ) {}
 
   async execute(
-    sessionDTO: reqSessionDTOType,
+    command: RegisterSessionCommand,
   ): Promise<SessionViewModel | null> {
     const createdSession = this.sessionModel.createSession(
-      sessionDTO,
+      command.sessionDTO,
       this.sessionModel,
     );
 

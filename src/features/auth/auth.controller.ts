@@ -25,18 +25,17 @@ import {
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
-import { RegisterSessionUseCase } from './use-cases/RegisterSessionUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailCommand } from './use-cases/ConfirmEmailUseCase';
+import { RegisterSessionCommand } from './use-cases/RegisterSessionUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
     private readonly resendEmailUseCase: ResendEmailUseCase,
-    private readonly registerSessionUseCase: RegisterSessionUseCase,
     private readonly commandCus: CommandBus,
   ) {}
 
@@ -116,8 +115,8 @@ export class AuthController {
         userId: user.id,
         deviceId,
       };
-      const sessionRegInfo = await this.registerSessionUseCase.execute(
-        sessionDTO,
+      const sessionRegInfo = await this.commandCus.execute(
+        new RegisterSessionCommand(sessionDTO),
       );
       if (sessionRegInfo === null) {
         throw new HttpException(

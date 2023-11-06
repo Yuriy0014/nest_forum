@@ -11,7 +11,6 @@ import {
 } from './features/blogs/models/domain/blogs.domain-entities';
 import { MapBlogViewModel } from './features/blogs/helpers/map-BlogViewModel';
 import { PostsController } from './features/posts/posts.controller';
-import { PostsService } from './features/posts/posts.service';
 import { PostsRepo } from './features/posts/posts.repo';
 import { PostsQueryRepo } from './features/posts/posts.query-repo';
 import { MapPostViewModel } from './features/posts/helpers/map-PostViewModel';
@@ -64,7 +63,6 @@ import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { LikesRepo } from './features/likes/likes.repo';
 import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
-import { LikeService } from './features/likes/likes.service';
 import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
 import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
@@ -72,6 +70,7 @@ import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase'
 import { CreatePostUseCase } from './features/posts/use-cases/CreatePostUseCase';
 import { UpdatePostUseCase } from './features/posts/use-cases/UpdatePostUseCase';
 import { DeletePostUseCase } from './features/posts/use-cases/DeletePostUseCase';
+import { LikeOperationUseCase } from './features/likes/use-cases/LikeOperationUseCase';
 
 const useCases = [
   ///Blogs
@@ -82,6 +81,8 @@ const useCases = [
   CreatePostUseCase,
   UpdatePostUseCase,
   DeletePostUseCase,
+  ///Likes
+  LikeOperationUseCase,
 ];
 @Module({
   imports: [
@@ -114,7 +115,6 @@ const useCases = [
     BlogsQueryRepo,
     MapBlogViewModel,
     // Posts
-    PostsService,
     PostsRepo,
     PostsQueryRepo,
     MapPostViewModel,
@@ -127,7 +127,6 @@ const useCases = [
     LikesQueryRepo,
     LikesRepo,
     MapLikeViewModel,
-    LikeService,
     // Users
     UsersService,
     UsersQueryRepo,

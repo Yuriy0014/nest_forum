@@ -15,11 +15,6 @@ import {
   LikeObjectTypeEnum,
 } from '../likes/models/domain/likes.domain-entities';
 import { LikesRepo } from '../likes/likes.repo';
-import {
-  likesInfoViewModel,
-  likeStatusModel,
-} from '../likes/models/likes.models';
-import { LikeService } from '../likes/likes.service';
 
 @Injectable()
 export class CommentsService {
@@ -30,7 +25,6 @@ export class CommentsService {
     private readonly likeModel: LikeModelType,
     private readonly commentsRepo: CommentsRepo,
     private readonly likesRepo: LikesRepo,
-    private readonly likesService: LikeService,
   ) {}
 
   async updateComment(
@@ -76,22 +70,5 @@ export class CommentsService {
     await this.likesRepo.save(newLikesInfo);
 
     return newComment;
-  }
-
-  async likeComment(
-    commentId: string,
-    likesInfo: likesInfoViewModel,
-    newLikeStatus: likeStatusModel,
-    userId: string,
-    userLogin: string,
-  ): Promise<boolean> {
-    return await this.likesService.likeEntity(
-      LikeObjectTypeEnum.Comment,
-      commentId,
-      likesInfo,
-      newLikeStatus,
-      userId,
-      userLogin,
-    );
   }
 }

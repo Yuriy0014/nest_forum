@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { LikesRepo } from './likes.repo';
-import { LikeObjectTypeEnum } from './models/domain/likes.domain-entities';
+import { LikesRepo } from '../likes.repo';
+import { LikeObjectTypeEnum } from '../models/domain/likes.domain-entities';
 import {
   likesInfoViewModel,
   likeStatus,
   likeStatusModel,
-} from './models/likes.models';
+} from '../models/likes.models';
 
 @Injectable()
-export class LikeService {
+export class LikeOperationUseCase {
   constructor(private readonly likesRepo: LikesRepo) {}
 
-  async likeEntity(
+  async execute(
     entityType: LikeObjectTypeEnum,
     entityId: string,
     likesInfo: likesInfoViewModel,

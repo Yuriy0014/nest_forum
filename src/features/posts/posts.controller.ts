@@ -14,7 +14,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsQueryRepo } from './posts.query-repo';
-import { PostsService } from './posts.service';
 import {
   PostCreateModelStandart,
   PostsWithPaginationModel,
@@ -43,12 +42,13 @@ import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CreatePostUseCase } from './use-cases/CreatePostUseCase';
 import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
 import { DeletePostUseCase } from './use-cases/DeletePostUseCase';
+import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
+import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly postsService: PostsService,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly commentService: CommentsService,
     private readonly mapCommentViewModel: MapCommentViewModel,
@@ -57,6 +57,7 @@ export class PostsController {
     private readonly createPostUseCase: CreatePostUseCase,
     private readonly updatePostUseCase: UpdatePostUseCase,
     private readonly deletePostUseCase: DeletePostUseCase,
+    private readonly likeOperationUseCase: LikeOperationUseCase,
   ) {}
 
   @Get()
@@ -238,13 +239,15 @@ export class PostsController {
 
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const likeOperationStatus: boolean = await this.postsService.likePost(
-      req.params.id,
-      likesInfo,
-      inputModel.likeStatus,
-      req.user.userId,
-      foundUser!.login,
-    );
+    const likeOperationStatus: boolean =
+      await this.likeOperationUseCase.execute(
+        LikeObjectTypeEnum.Post,
+        req.params.id,
+        likesInfo,
+        inputModel.likeStatus,
+        req.user.userId,
+        foundUser!.login,
+      );
     if (!likeOperationStatus) {
       throw new HttpException(
         'Internal server Error. Something went wrong during like operation',

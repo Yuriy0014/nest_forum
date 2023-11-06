@@ -34,6 +34,7 @@ import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
 import { DeleteBlogCommand } from './use-cases/DeleteBlogUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateBlogCommand } from './use-cases/UpdateBlogUseCase';
+import { CreatePostCommand } from '../posts/use-cases/CreatePostUseCase';
 
 @Controller('blogs')
 export class BlogsController {
@@ -156,7 +157,7 @@ export class BlogsController {
 
     inputModel.blogId = blogId;
     const createdPost: PostViewModel = await this.commandBus.execute(
-      inputModel,
+      new CreatePostCommand(inputModel),
     );
 
     return createdPost;

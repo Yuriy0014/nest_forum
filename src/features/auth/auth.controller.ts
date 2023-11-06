@@ -18,7 +18,6 @@ import {
   reqSessionDTOType,
 } from './models/auth.models';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
-import { SessionsService } from './sessions.service';
 import { Response } from 'express';
 import {
   ExistingEmailGuard,
@@ -29,16 +28,17 @@ import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
+import { RegisterSessionUseCase } from './use-cases/RegisterSessionUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly sessionsService: SessionsService,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
     private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly resendEmailUseCase: ResendEmailUseCase,
+    private readonly registerSessionUseCase: RegisterSessionUseCase,
   ) {}
 
   @Post('registration')
@@ -112,7 +112,7 @@ export class AuthController {
         userId: user.id,
         deviceId,
       };
-      const sessionRegInfo = await this.sessionsService.registerSession(
+      const sessionRegInfo = await this.registerSessionUseCase.execute(
         sessionDTO,
       );
       if (sessionRegInfo === null) {

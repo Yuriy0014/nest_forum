@@ -48,7 +48,6 @@ import {
 import * as process from 'process';
 import { AuthController } from './features/auth/auth.controller';
 import { JwtService } from './infrastructure/jwt/jwt.service';
-import { SessionsService } from './features/auth/sessions.service';
 import { SessionsRepo } from './features/auth/sessions.repo';
 import {
   Session,
@@ -76,6 +75,7 @@ import { DeleteUserUseCase } from './features/users/use-cases/DeleteUserUseCase'
 import { CheckCredentialsUseCase } from './features/auth/use-cases/CheckCredentialsUseCase';
 import { ConfirmEmailUseCase } from './features/auth/use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './features/auth/use-cases/ResendEmailUseCase';
+import { RegisterSessionUseCase } from './features/auth/use-cases/RegisterSessionUseCase';
 
 const useCases = [
   ///Blogs
@@ -99,6 +99,7 @@ const useCases = [
   CheckCredentialsUseCase,
   ConfirmEmailUseCase,
   ResendEmailUseCase,
+  RegisterSessionUseCase,
 ];
 @Module({
   imports: [
@@ -152,7 +153,6 @@ const useCases = [
     // JWT
     JwtService,
     // Auth
-    SessionsService,
     SessionsRepo,
     BasicStrategy,
     JwtStrategy,

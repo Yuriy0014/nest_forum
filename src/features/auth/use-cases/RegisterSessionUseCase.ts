@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { reqSessionDTOType, SessionViewModel } from './models/auth.models';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Session,
   SessionModelType,
-} from './models/domain/session.domain-entities';
-import { SessionsRepo } from './sessions.repo';
+} from '../models/domain/session.domain-entities';
+import { SessionsRepo } from '../sessions.repo';
+import { reqSessionDTOType, SessionViewModel } from '../models/auth.models';
 
 @Injectable()
-export class SessionsService {
+export class RegisterSessionUseCase {
   constructor(
     @InjectModel(Session.name)
     private readonly sessionModel: SessionModelType,
     private readonly sessionRepo: SessionsRepo,
   ) {}
 
-  async registerSession(
+  async execute(
     sessionDTO: reqSessionDTOType,
   ): Promise<SessionViewModel | null> {
     const createdSession = this.sessionModel.createSession(

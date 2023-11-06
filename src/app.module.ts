@@ -76,6 +76,7 @@ import { CheckCredentialsUseCase } from './features/auth/use-cases/CheckCredenti
 import { ConfirmEmailUseCase } from './features/auth/use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './features/auth/use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './features/auth/use-cases/RegisterSessionUseCase';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const useCases = [
   ///Blogs
@@ -115,6 +116,7 @@ const useCases = [
       { name: UsersLikesConnection.name, schema: UsersLikesConnectionSchema },
       { name: Session.name, schema: SessionSchema },
     ]),
+    CqrsModule,
   ],
   controllers: [
     AppController,

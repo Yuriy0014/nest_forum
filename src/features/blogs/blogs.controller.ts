@@ -30,20 +30,21 @@ import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
-import { CreateBlogUseCase } from './use-cases/CreateBlogUseCase';
+import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './use-cases/UpdateBlogUseCase';
 import { DeleteBlogUseCase } from './use-cases/DeleteBlogUseCase';
 import { CreatePostUseCase } from '../posts/use-cases/CreatePostUseCase';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly createBlogUseCase: CreateBlogUseCase,
     private readonly updateBlogUseCase: UpdateBlogUseCase,
     private readonly deleteBlogUseCase: DeleteBlogUseCase,
     private readonly createPostUseCase: CreatePostUseCase,
+    private commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -82,8 +83,8 @@ export class BlogsController {
   async createBlog(
     @Body() inputModel: BlogCreateModel,
   ): Promise<BlogViewModel> {
-    const createdBlog: BlogViewModel = await this.createBlogUseCase.execute(
-      inputModel,
+    const createdBlog: BlogViewModel = await this.commandBus.execute(
+      new CreateBlogCommand(inputModel),
     );
 
     return createdBlog;

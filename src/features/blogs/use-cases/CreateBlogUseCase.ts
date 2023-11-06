@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from '../models/domain/blogs.domain-entities';
 import { BlogsRepo } from '../blogs.repo';
 import { MapBlogViewModel } from '../helpers/map-BlogViewModel';
 import { BlogCreateModel } from '../models/blogs.models';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
-export class CreateBlogUseCase {
+export class CreateBlogCommand {
+  constructor(public BlogCreateModelDTO: BlogCreateModel) {}
+}
+
+@CommandHandler(CreateBlogCommand)
+export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
@@ -14,9 +18,9 @@ export class CreateBlogUseCase {
     private readonly mapBlogViewModel: MapBlogViewModel,
   ) {}
 
-  async execute(BlogCreateModelDTO: BlogCreateModel) {
+  async execute(command: CreateBlogCommand) {
     const createdBlog = this.blogModel.createBlog(
-      BlogCreateModelDTO,
+      command.BlogCreateModelDTO,
       this.blogModel,
     );
 

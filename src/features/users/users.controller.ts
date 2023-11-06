@@ -21,6 +21,7 @@ import {
 } from './models/users.models';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CreateUserUseCase } from './use-cases/CreateUserUseCase';
+import { DeleteUserUseCase } from './use-cases/DeleteUserUseCase';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
@@ -29,6 +30,7 @@ export class UsersController {
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly usersService: UsersService,
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
   @Get()
@@ -68,7 +70,7 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(204)
   async deleteUser(@Param('id') UserId: string) {
-    const deletion_status = await this.usersService.deleteUser(UserId);
+    const deletion_status = await this.deleteUserUseCase.execute(UserId);
     if (!deletion_status) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

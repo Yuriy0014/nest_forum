@@ -31,17 +31,16 @@ import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
-import { UpdateBlogUseCase } from './use-cases/UpdateBlogUseCase';
 import { DeleteBlogCommand } from './use-cases/DeleteBlogUseCase';
 import { CreatePostUseCase } from '../posts/use-cases/CreatePostUseCase';
 import { CommandBus } from '@nestjs/cqrs';
+import { UpdateBlogCommand } from './use-cases/UpdateBlogUseCase';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepo,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private readonly updateBlogUseCase: UpdateBlogUseCase,
     private readonly createPostUseCase: CreatePostUseCase,
     private commandBus: CommandBus,
   ) {}
@@ -113,7 +112,7 @@ export class BlogsController {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.updateBlogUseCase.execute(blogId, updateDTO);
+    await this.commandBus.execute(new UpdateBlogCommand(blogId, updateDTO));
   }
 
   ////////////////////////////

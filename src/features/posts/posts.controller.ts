@@ -44,6 +44,7 @@ import { UpdatePostUseCase } from './use-cases/UpdatePostUseCase';
 import { DeletePostUseCase } from './use-cases/DeletePostUseCase';
 import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
+import { CreateCommentUseCase } from '../comments/use-cases/CreateCommentUseCase';
 
 @Controller('posts')
 export class PostsController {
@@ -58,6 +59,7 @@ export class PostsController {
     private readonly updatePostUseCase: UpdatePostUseCase,
     private readonly deletePostUseCase: DeletePostUseCase,
     private readonly likeOperationUseCase: LikeOperationUseCase,
+    private readonly createCommentUseCase: CreateCommentUseCase,
   ) {}
 
   @Get()
@@ -195,7 +197,7 @@ export class PostsController {
 
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const createdComment = await this.commentService.createComment(
+    const createdComment = await this.createCommentUseCase.execute(
       postId,
       inputModel.content,
       req.user.userId,

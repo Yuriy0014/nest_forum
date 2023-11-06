@@ -24,6 +24,7 @@ import { UsersQueryRepo } from '../users/users.query-repo';
 import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
+import { UpdateCommentUseCase } from './use-cases/UpdateCommentUseCase';
 
 @Controller('comments')
 export class CommentsController {
@@ -33,6 +34,7 @@ export class CommentsController {
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likeOperationUseCase: LikeOperationUseCase,
+    private readonly updateCommentUseCase: UpdateCommentUseCase,
   ) {}
 
   @Get(':id')
@@ -65,7 +67,7 @@ export class CommentsController {
     if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
-    const result = this.commentsService.updateComment(commentId, updateDTO);
+    const result = this.updateCommentUseCase.execute(commentId, updateDTO);
     if (!result) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }

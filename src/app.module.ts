@@ -72,6 +72,7 @@ import { UpdatePostUseCase } from './features/posts/use-cases/UpdatePostUseCase'
 import { DeletePostUseCase } from './features/posts/use-cases/DeletePostUseCase';
 import { LikeOperationUseCase } from './features/likes/use-cases/LikeOperationUseCase';
 import { CreateCommentUseCase } from './features/comments/use-cases/CreateCommentUseCase';
+import { UpdateCommentUseCase } from './features/comments/use-cases/UpdateCommentUseCase';
 
 const useCases = [
   ///Blogs
@@ -86,6 +87,7 @@ const useCases = [
   LikeOperationUseCase,
   //Comments
   CreateCommentUseCase,
+  UpdateCommentUseCase,
 ];
 @Module({
   imports: [

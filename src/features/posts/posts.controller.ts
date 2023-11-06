@@ -28,7 +28,6 @@ import {
   CommentsWithPaginationModel,
   CommentViewModel,
 } from '../comments/models/comments.models';
-import { CommentsService } from '../comments/comments.service';
 import { MapCommentViewModel } from '../comments/helpers/map-CommentViewModel';
 import { UsersQueryRepo } from '../users/users.query-repo';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -51,7 +50,6 @@ export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly commentService: CommentsService,
     private readonly mapCommentViewModel: MapCommentViewModel,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,

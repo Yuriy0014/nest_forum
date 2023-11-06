@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { CommentsQueryRepo } from './comments.query-repo';
 import { CommentUpdateModel, CommentViewModel } from './models/comments.models';
-import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
@@ -25,16 +24,17 @@ import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationUseCase } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { UpdateCommentUseCase } from './use-cases/UpdateCommentUseCase';
+import { DeleteCommentUseCase } from './use-cases/DeleteCommentUseCase';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly commentsService: CommentsService,
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly usersQueryRepo: UsersQueryRepo,
     private readonly likeOperationUseCase: LikeOperationUseCase,
     private readonly updateCommentUseCase: UpdateCommentUseCase,
+    private readonly deleteCommentUseCase: DeleteCommentUseCase,
   ) {}
 
   @Get(':id')
@@ -85,7 +85,7 @@ export class CommentsController {
     if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
-    await this.commentsService.deleteComment(commentId);
+    await this.deleteCommentUseCase.execute(commentId);
   }
 
   ////////////////////////////

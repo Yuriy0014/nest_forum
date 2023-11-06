@@ -16,7 +16,6 @@ import { PostsQueryRepo } from './features/posts/posts.query-repo';
 import { MapPostViewModel } from './features/posts/helpers/map-PostViewModel';
 import { TestingController } from './features/testing/testing.controller';
 import { CommentsController } from './features/comments/comments.controller';
-import { CommentsService } from './features/comments/comments.service';
 import { CommentsRepo } from './features/comments/comments.repo';
 import { CommentsQueryRepo } from './features/comments/comments.query-repo';
 import { MapCommentViewModel } from './features/comments/helpers/map-CommentViewModel';
@@ -73,6 +72,7 @@ import { DeletePostUseCase } from './features/posts/use-cases/DeletePostUseCase'
 import { LikeOperationUseCase } from './features/likes/use-cases/LikeOperationUseCase';
 import { CreateCommentUseCase } from './features/comments/use-cases/CreateCommentUseCase';
 import { UpdateCommentUseCase } from './features/comments/use-cases/UpdateCommentUseCase';
+import { DeleteCommentUseCase } from './features/comments/use-cases/DeleteCommentUseCase';
 
 const useCases = [
   ///Blogs
@@ -88,6 +88,7 @@ const useCases = [
   //Comments
   CreateCommentUseCase,
   UpdateCommentUseCase,
+  DeleteCommentUseCase,
 ];
 @Module({
   imports: [
@@ -124,7 +125,6 @@ const useCases = [
     PostsQueryRepo,
     MapPostViewModel,
     // Comments
-    CommentsService,
     CommentsRepo,
     CommentsQueryRepo,
     MapCommentViewModel,

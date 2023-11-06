@@ -75,6 +75,7 @@ import { DeleteCommentUseCase } from './features/comments/use-cases/DeleteCommen
 import { CreateUserUseCase } from './features/users/use-cases/CreateUserUseCase';
 import { DeleteUserUseCase } from './features/users/use-cases/DeleteUserUseCase';
 import { CheckCredentialsUseCase } from './features/auth/use-cases/CheckCredentialsUseCase';
+import { ConfirmEmailUseCase } from './features/auth/use-cases/ConfirmEmailUseCase';
 
 const useCases = [
   ///Blogs
@@ -94,8 +95,9 @@ const useCases = [
   // Users
   CreateUserUseCase,
   DeleteUserUseCase,
-  CheckCredentialsUseCase,
   // Auth
+  CheckCredentialsUseCase,
+  ConfirmEmailUseCase,
 ];
 @Module({
   imports: [

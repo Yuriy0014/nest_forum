@@ -9,23 +9,8 @@ import { MapUserViewModel } from '../users/helpers/map-UserViewModel';
 export class AuthService {
   constructor(
     private readonly usersRepo: UsersRepo,
-    private readonly mapUserViewModel: MapUserViewModel,
     private readonly emailManager: EmailManager,
   ) {}
-
-  async confirmEmail(code: string | undefined): Promise<boolean> {
-    if (code === undefined) return false;
-
-    const user = await this.usersRepo.findUserByConfirmationCode(code);
-    if (!user) return false;
-    if (user.canBeConfirmed(code)) {
-      user.emailConfirmation.isConfirmed = true;
-      await this.usersRepo.save(user);
-      return true;
-    }
-
-    return false;
-  }
 
   async resendEmail(email: string): Promise<boolean> {
     if (email === undefined) return false;

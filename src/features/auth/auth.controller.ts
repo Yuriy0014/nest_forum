@@ -28,6 +28,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
+import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
 
 @Controller('auth')
 export class AuthController {
@@ -37,6 +38,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly checkCredentialsUseCase: CheckCredentialsUseCase,
+    private readonly confirmEmailUseCase: ConfirmEmailUseCase,
   ) {}
 
   @Post('registration')
@@ -65,7 +67,7 @@ export class AuthController {
   async confirmRegistration(
     @Body() inputModel: ConfirmationCodeInputModel,
   ): Promise<void> {
-    const result = await this.authService.confirmEmail(inputModel.code);
+    const result = await this.confirmEmailUseCase.execute(inputModel.code);
     if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

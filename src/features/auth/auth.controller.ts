@@ -24,18 +24,17 @@ import {
   IsEmailAlreadyConfirmedGuard,
 } from './guards/auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { ConfirmEmailUseCase } from './use-cases/ConfirmEmailUseCase';
 import { ResendEmailUseCase } from './use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './use-cases/RegisterSessionUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../users/use-cases/CreateUserUseCase';
 import { CheckCredentialsCommand } from './use-cases/CheckCredentialsUseCase';
+import { ConfirmEmailCommand } from './use-cases/ConfirmEmailUseCase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly confirmEmailUseCase: ConfirmEmailUseCase,
     private readonly resendEmailUseCase: ResendEmailUseCase,
     private readonly registerSessionUseCase: RegisterSessionUseCase,
     private readonly commandCus: CommandBus,
@@ -69,7 +68,9 @@ export class AuthController {
   async confirmRegistration(
     @Body() inputModel: ConfirmationCodeInputModel,
   ): Promise<void> {
-    const result = await this.confirmEmailUseCase.execute(inputModel.code);
+    const result = await this.commandCus.execute(
+      new ConfirmEmailCommand(inputModel.code),
+    );
     if (!result) {
       throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
     }

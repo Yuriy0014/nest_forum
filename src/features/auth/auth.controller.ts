@@ -27,7 +27,7 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CreateUserUseCase } from '../users/use-cases/CreateUserUseCase';
-import { CheckCredentialsUseCase } from '../users/use-cases/CheckCredentialsUseCase';
+import { CheckCredentialsUseCase } from './use-cases/CheckCredentialsUseCase';
 
 @Controller('auth')
 export class AuthController {

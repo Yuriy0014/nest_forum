@@ -3,8 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { UsersRepo } from '../users/users.repo';
 import { EmailManager } from '../../infrastructure/email/email.manager';
-import { UserViewModel } from '../users/models/users.models';
-import bcrypt from 'bcrypt';
 import { MapUserViewModel } from '../users/helpers/map-UserViewModel';
 
 @Injectable()
@@ -58,26 +56,5 @@ export class AuthService {
       return false;
     }
     return true;
-  }
-
-  async checkCredentials(
-    loginOrEmail: string,
-    password: string,
-  ): Promise<UserViewModel | null> {
-    const user = await this.usersRepo.findByLoginOrEmail(loginOrEmail);
-    if (!user) return null;
-
-    const passHash = user.accountData.password;
-
-    const result = await bcrypt
-      .compare(password, passHash)
-      .then(function (result) {
-        return result;
-      });
-
-    if (result) {
-      return this.mapUserViewModel.getUserViewModel(user);
-    }
-    return null;
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepo } from '../users.repo';
-import { MapUserViewModel } from '../helpers/map-UserViewModel';
-import { LoginInputDTO } from '../../auth/models/auth.models';
-import { UserViewModel } from '../models/users.models';
+import { UsersRepo } from '../../users/users.repo';
+import { MapUserViewModel } from '../../users/helpers/map-UserViewModel';
+import { LoginInputDTO } from '../models/auth.models';
+import { UserViewModel } from '../../users/models/users.models';
 import bcrypt from 'bcrypt';
 
 @Injectable()

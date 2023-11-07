@@ -4,8 +4,10 @@ import { SessionDBModel, SessionViewModel } from '../models/auth.models';
 @Injectable()
 export class MapSessionViewModel {
   getSessionViewModel(session: SessionDBModel): SessionViewModel {
+    const ip = session.ip.length > 1 ? session.ip : session.ip[0];
+
     return {
-      ip: session.ip,
+      ip: ip,
       title: session.title,
       lastActiveDate: session.lastActiveDate,
       deviceId: session.deviceId,

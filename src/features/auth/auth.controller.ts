@@ -156,6 +156,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(204)
   @UseGuards(CheckUserIdGuard)
   @UseGuards(VerifyRefreshTokenGuard)
   async logout(@Request() req: any): Promise<any> {
@@ -277,7 +278,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async getInfoAboutMyself(@Request() req: any): Promise<any> {
-    const foundUser = await this.usersQueryRepo.findUserById(req.userId);
+    const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
     if (!foundUser) {
       throw new UnauthorizedException();

@@ -35,11 +35,14 @@ import { RegisterSessionCommand } from './use-cases/RegisterSessionUseCase';
 import { ResendEmailCommand } from './use-cases/ResendEmailUseCase';
 import { DeleteSessionCommand } from './use-cases/DeleteSessionUseCase';
 import { CheckUserIdGuard } from '../comments/guards/comments.guards';
+import { UpdateSessionCommand } from './use-cases/UpdateSessionUseCase';
+import { UsersQueryRepo } from '../users/users.query-repo';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly usersQueryRepo: UsersQueryRepo,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -165,5 +168,81 @@ export class AuthController {
     if (!deletionStatus) {
       throw new NotFoundException();
     }
+  }
+
+  @Post('refresh-token')
+  @UseGuards(CheckUserIdGuard)
+  @UseGuards(VerifyRefreshTokenGuard)
+  async updateTokens(
+    @Headers() loginHeaders: any,
+    @Ip() IP: string,
+    @Res({ passthrough: true }) response: Response,
+    @Request() req: any,
+  ): Promise<any> {
+    const foundUser = await this.usersQueryRepo.findUserById(req.userId);
+
+    if (!foundUser) {
+      throw new HttpException(
+        'Не удалось залогиниться. Попроубуйте позднее',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const accessTokenNew = await this.jwtService.createJWT(foundUser);
+
+    // Получаем данные о текущем токене
+    const CurrentRFTokenInfo = await this.jwtService.getInfoFromRFToken(
+      req.cookies.refreshToken,
+    );
+    if (!CurrentRFTokenInfo) {
+      throw new HttpException(
+        'Не удалось залогиниться. Попроубуйте позднее',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // Генерируем новый RT
+    const refreshTokenNew = await this.jwtService.createJWTRefresh(
+      foundUser,
+      CurrentRFTokenInfo.deviceId,
+    );
+
+    // Подготавливаем данные для записи в таблицу сессий
+    const FRTokenInfo = await this.jwtService.getInfoFromRFToken(
+      refreshTokenNew,
+    );
+    if (FRTokenInfo === null) {
+      throw new HttpException(
+        'Не удалось залогиниться. Попроубуйте позднее',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    const loginIp = IP || loginHeaders['x-forwarded-for'] || 'IP undefined';
+    const deviceName: string =
+      loginHeaders['user-agent'] || 'deviceName undefined';
+
+    // Обновляем запись в списке сессий
+    const sessionRegInfoNew = await this.commandBus.execute(
+      new UpdateSessionCommand(
+        CurrentRFTokenInfo.iat,
+        CurrentRFTokenInfo.deviceId,
+        loginIp,
+        FRTokenInfo.iat,
+        deviceName,
+        req.userId,
+      ),
+    );
+    if (!sessionRegInfoNew) {
+      throw new HttpException(
+        'Не удалось залогиниться. Попроубуйте позднее',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    response.cookie('refreshToken', refreshTokenNew, {
+      httpOnly: true,
+      secure: true,
+    });
+    return { accessToken: accessTokenNew };
   }
 }

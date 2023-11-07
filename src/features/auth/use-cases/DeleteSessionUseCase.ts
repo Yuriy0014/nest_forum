@@ -10,7 +10,7 @@ export class DeleteSessionCommand {
 }
 
 @CommandHandler(DeleteSessionCommand)
-export class RegisterSessionUseCase
+export class DeleteSessionUseCase
   implements ICommandHandler<DeleteSessionCommand>
 {
   constructor(

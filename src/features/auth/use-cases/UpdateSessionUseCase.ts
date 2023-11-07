@@ -15,7 +15,7 @@ export class UpdateSessionCommand {
 }
 
 @CommandHandler(UpdateSessionCommand)
-export class RegisterSessionUseCase
+export class UpdateSessionUseCase
   implements ICommandHandler<UpdateSessionCommand>
 {
   constructor(private readonly sessionsRepo: SessionsRepo) {}

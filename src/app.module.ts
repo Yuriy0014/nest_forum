@@ -77,12 +77,13 @@ import { ConfirmEmailUseCase } from './features/auth/use-cases/ConfirmEmailUseCa
 import { ResendEmailUseCase } from './features/auth/use-cases/ResendEmailUseCase';
 import { RegisterSessionUseCase } from './features/auth/use-cases/RegisterSessionUseCase';
 import { CqrsModule } from '@nestjs/cqrs';
-import { DeleteSessionCommand } from './features/auth/use-cases/DeleteSessionUseCase';
+import { DeleteSessionUseCase } from './features/auth/use-cases/DeleteSessionUseCase';
 import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
 import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
-import { RecoveryPasswordCommand } from './features/auth/use-cases/RecoveryPasswordUseCase';
-import { UpdatePasswordCommand } from './features/auth/use-cases/UpdatePasswordUseCase';
+import { RecoveryPasswordUseCase } from './features/auth/use-cases/RecoveryPasswordUseCase';
+import { UpdatePasswordUseCase } from './features/auth/use-cases/UpdatePasswordUseCase';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { UpdateSessionUseCase } from './features/auth/use-cases/UpdateSessionUseCase';
 
 const useCases = [
   ///Blogs
@@ -107,9 +108,10 @@ const useCases = [
   ConfirmEmailUseCase,
   ResendEmailUseCase,
   RegisterSessionUseCase,
-  DeleteSessionCommand,
-  RecoveryPasswordCommand,
-  UpdatePasswordCommand,
+  DeleteSessionUseCase,
+  RecoveryPasswordUseCase,
+  UpdatePasswordUseCase,
+  UpdateSessionUseCase,
 ];
 
 @Module({

@@ -9,7 +9,7 @@ export class RecoveryPasswordCommand {
 }
 
 @CommandHandler(RecoveryPasswordCommand)
-export class ResendEmailUseCase
+export class RecoveryPasswordUseCase
   implements ICommandHandler<RecoveryPasswordCommand>
 {
   constructor(

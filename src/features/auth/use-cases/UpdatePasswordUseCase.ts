@@ -7,7 +7,7 @@ export class UpdatePasswordCommand {
 }
 
 @CommandHandler(UpdatePasswordCommand)
-export class RegisterSessionUseCase
+export class UpdatePasswordUseCase
   implements ICommandHandler<UpdatePasswordCommand>
 {
   constructor(private readonly usersRepo: UsersRepo) {}

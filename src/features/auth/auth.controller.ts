@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpException,
@@ -10,6 +11,7 @@ import {
   Post,
   Request,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
@@ -37,6 +39,7 @@ import { DeleteSessionCommand } from './use-cases/DeleteSessionUseCase';
 import { CheckUserIdGuard } from '../comments/guards/comments.guards';
 import { UpdateSessionCommand } from './use-cases/UpdateSessionUseCase';
 import { UsersQueryRepo } from '../users/users.query-repo';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -244,5 +247,21 @@ export class AuthController {
       secure: true,
     });
     return { accessToken: accessTokenNew };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getInfoAboutMyself(@Request() req: any): Promise<any> {
+    const foundUser = await this.usersQueryRepo.findUserById(req.userId);
+
+    if (!foundUser) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      email: foundUser.email,
+      login: foundUser.login,
+      userId: foundUser.id,
+    };
   }
 }

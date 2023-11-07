@@ -19,13 +19,18 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     };
 
     const responseErr: any = exception.errors;
-    for (const key in responseErr) {
-      const error = {
-        message: responseErr[key].message,
-        field: key,
-      };
+    if (typeof responseErr === 'string') {
       // @ts-ignore
-      errorResponse.errorsMessages.push(error);
+      errorResponse.errorsMessages.push(responseErr);
+    } else {
+      for (const key in responseErr) {
+        const error = {
+          message: responseErr[key].message,
+          field: key,
+        };
+        // @ts-ignore
+        errorResponse.errorsMessages.push(error);
+      }
     }
     response.status(HttpStatus.BAD_REQUEST).json(errorResponse);
 
@@ -71,6 +76,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode: status,
         timestamp: new Date().toISOString(),
         path: request.url,
+        responseErr: exception.getResponse(),
       });
     }
   }

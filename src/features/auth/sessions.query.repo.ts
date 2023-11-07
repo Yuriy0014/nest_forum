@@ -20,7 +20,7 @@ export class SessionsQueryRepo {
       .find({ userId: userId })
       .lean();
     return foundSessions.map((session) =>
-      this.mapSessionViewModel.getCommentViewModel(session),
+      this.mapSessionViewModel.getSessionViewModel(session),
     );
   }
 
@@ -30,7 +30,7 @@ export class SessionsQueryRepo {
       deviceId: deviceId,
     });
     if (foundSession) {
-      return this.mapSessionViewModel.getCommentViewModel(foundSession);
+      return this.mapSessionViewModel.getSessionViewModel(foundSession);
     } else {
       return null;
     }

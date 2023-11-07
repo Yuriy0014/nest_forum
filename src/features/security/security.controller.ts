@@ -1,0 +1,93 @@
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Request,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtService } from '../../infrastructure/jwt/jwt.service';
+import { SessionsQueryRepo } from '../auth/sessions.query.repo';
+import { VerifyRefreshTokenGuard } from '../auth/guards/auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { DeleteAllSessionsCommand } from './use-cases/DeleteAllSessionsUseCase';
+import { DeleteDeviceSessionsCommand } from './use-cases/DeleteDeviceSessionsUseCase';
+
+@Controller('security')
+export class SecurityController {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly sessionsQueryRepo: SessionsQueryRepo,
+    private readonly commandBus: CommandBus,
+  ) {}
+
+  @Get()
+  @UseGuards(VerifyRefreshTokenGuard)
+  async findAllSessions(@Request() req: any) {
+    const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+      req.cookies.refreshToken,
+    );
+    if (RFTokenInfo === null) {
+      throw new UnauthorizedException();
+    }
+    return await this.sessionsQueryRepo.FindAllSessions(RFTokenInfo.userId);
+  }
+
+  @Delete()
+  @UseGuards(VerifyRefreshTokenGuard)
+  async terminateAllSessions(@Request() req: any) {
+    const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+      req.cookies.refreshToken,
+    );
+    if (RFTokenInfo === null) {
+      throw new UnauthorizedException();
+    }
+
+    const status = await this.commandBus.execute(
+      new DeleteAllSessionsCommand(RFTokenInfo.iat, RFTokenInfo.deviceId),
+    );
+
+    if (!status) {
+      throw new HttpException(
+        'При попытке отключения сессий произошла ошибка. Попробуй еще раз',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete(':deviceId')
+  @UseGuards(VerifyRefreshTokenGuard)
+  async terminateDeviceSessions(@Request() req: any, @Param('id') id: string) {
+    const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+      req.cookies.refreshToken,
+    );
+    if (RFTokenInfo === null) {
+      throw new UnauthorizedException();
+    }
+
+    const ownerOfDeletedSession =
+      await this.sessionsQueryRepo.findUserIdByDeviceId(id);
+    if (ownerOfDeletedSession === null) {
+      throw new NotFoundException();
+    }
+
+    if (RFTokenInfo.userId !== ownerOfDeletedSession) {
+      throw new HttpException(
+        'Вы не являетесь владельцем сессии, которую пытаетесь удалить',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const deleteStatus: boolean = await this.commandBus.execute(
+      new DeleteDeviceSessionsCommand(req.params.deviceId),
+    );
+
+    if (!deleteStatus) {
+      throw new NotFoundException();
+    }
+  }
+}

@@ -84,6 +84,8 @@ import { RecoveryPasswordUseCase } from './features/auth/use-cases/RecoveryPassw
 import { UpdatePasswordUseCase } from './features/auth/use-cases/UpdatePasswordUseCase';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UpdateSessionUseCase } from './features/auth/use-cases/UpdateSessionUseCase';
+import { DeleteAllSessionsUseCase } from './features/security/use-cases/DeleteAllSessionsUseCase';
+import { DeleteDeviceSessionsUseCase } from './features/security/use-cases/DeleteDeviceSessionsUseCase';
 
 const useCases = [
   ///Blogs
@@ -112,6 +114,9 @@ const useCases = [
   RecoveryPasswordUseCase,
   UpdatePasswordUseCase,
   UpdateSessionUseCase,
+  // Security
+  DeleteAllSessionsUseCase,
+  DeleteDeviceSessionsUseCase,
 ];
 
 @Module({

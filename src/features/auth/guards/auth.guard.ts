@@ -102,10 +102,7 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
 
 @Injectable()
 export class VerifyRefreshTokenGuard implements CanActivate {
-  constructor(
-    protected usersQueryRepo: UsersQueryRepo,
-    protected sessionsQueryRepo: SessionsQueryRepo,
-  ) {}
+  constructor(protected sessionsQueryRepo: SessionsQueryRepo) {}
 
   private catchTokenError(err: any) {
     if (err instanceof TokenExpiredError) {

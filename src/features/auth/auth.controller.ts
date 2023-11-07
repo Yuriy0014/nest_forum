@@ -94,7 +94,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard, ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, LocalAuthGuard)
   @HttpCode(200)
   async login(
     @Body() loginDTO: LoginInputDTO,

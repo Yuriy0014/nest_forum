@@ -17,6 +17,7 @@ import {
 import { UserInputModel, UserViewModel } from '../users/models/users.models';
 import {
   ConfirmationCodeInputModel,
+  EmailForPasswordRecoveryInputModel,
   EmailResendInputModel,
   LoginInputDTO,
   reqSessionDTOType,
@@ -40,6 +41,7 @@ import { CheckUserIdGuard } from '../comments/guards/comments.guards';
 import { UpdateSessionCommand } from './use-cases/UpdateSessionUseCase';
 import { UsersQueryRepo } from '../users/users.query-repo';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RecoveryPasswordCommand } from './use-cases/RecoveryPasswordUseCase';
 
 @Controller('auth')
 export class AuthController {
@@ -247,6 +249,15 @@ export class AuthController {
       secure: true,
     });
     return { accessToken: accessTokenNew };
+  }
+
+  @Post('password-recovery')
+  @UseGuards(CheckUserIdGuard)
+  @UseGuards(VerifyRefreshTokenGuard)
+  async passwordRecovery(
+    @Body() inputDTO: EmailForPasswordRecoveryInputModel,
+  ): Promise<any> {
+    await this.commandBus.execute(new RecoveryPasswordCommand(inputDTO.email));
   }
 
   @Get('me')

@@ -31,6 +31,15 @@ export class EmailResendInputModel {
   email: string;
 }
 
+export class EmailForPasswordRecoveryInputModel {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(5)
+  @MaxLength(50)
+  @IsEmail()
+  email: string;
+}
+
 export class ConfirmationCodeInputModel {
   @IsNotEmpty()
   @Matches(/^\S+$/, {

@@ -70,4 +70,19 @@ export class UsersRepo {
       return null;
     }
   }
+
+  async addPassRecoveryCode(
+    id: string,
+    passwordRecoveryCode: string,
+  ): Promise<boolean> {
+    const userInstance = await this.userModel.findById({ _id: id });
+    if (!userInstance) return false;
+
+    userInstance.passwordRecovery.passwordRecoveryCode = passwordRecoveryCode;
+    userInstance.passwordRecovery.active = true;
+
+    await userInstance.save();
+
+    return true;
+  }
 }

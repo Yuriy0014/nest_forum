@@ -80,6 +80,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteSessionCommand } from './features/auth/use-cases/DeleteSessionUseCase';
 import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
 import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
+import { RecoveryPasswordCommand } from './features/auth/use-cases/RecoveryPasswordUseCase';
 
 const useCases = [
   ///Blogs
@@ -105,6 +106,7 @@ const useCases = [
   ResendEmailUseCase,
   RegisterSessionUseCase,
   DeleteSessionCommand,
+  RecoveryPasswordCommand,
 ];
 @Module({
   imports: [

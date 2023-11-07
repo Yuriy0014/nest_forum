@@ -86,6 +86,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UpdateSessionUseCase } from './features/auth/use-cases/UpdateSessionUseCase';
 import { DeleteAllSessionsUseCase } from './features/security/use-cases/DeleteAllSessionsUseCase';
 import { DeleteDeviceSessionsUseCase } from './features/security/use-cases/DeleteDeviceSessionsUseCase';
+import { SecurityController } from './features/security/security.controller';
 
 const useCases = [
   ///Blogs
@@ -149,6 +150,7 @@ const useCases = [
     CommentsController,
     UsersController,
     AuthController,
+    SecurityController,
   ],
   providers: [
     AppService,

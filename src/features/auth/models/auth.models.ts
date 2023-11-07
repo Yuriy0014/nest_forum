@@ -49,6 +49,22 @@ export class ConfirmationCodeInputModel {
   code: string;
 }
 
+export class NewPasswordInputModel {
+  @IsString()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
+  @MinLength(6)
+  @MaxLength(20)
+  newPassword: string;
+
+  @IsString()
+  @Matches(/^\S+$/, {
+    message: 'Title should not consist of whitespace characters',
+  })
+  recoveryCode: string;
+}
+
 /////////////////
 // Sessions
 ////////////////

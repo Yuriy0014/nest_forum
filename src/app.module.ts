@@ -81,6 +81,7 @@ import { DeleteSessionCommand } from './features/auth/use-cases/DeleteSessionUse
 import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
 import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
 import { RecoveryPasswordCommand } from './features/auth/use-cases/RecoveryPasswordUseCase';
+import { UpdatePasswordCommand } from './features/auth/use-cases/UpdatePasswordUseCase';
 
 const useCases = [
   ///Blogs
@@ -107,6 +108,7 @@ const useCases = [
   RegisterSessionUseCase,
   DeleteSessionCommand,
   RecoveryPasswordCommand,
+  UpdatePasswordCommand,
 ];
 @Module({
   imports: [

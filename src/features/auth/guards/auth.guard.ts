@@ -9,6 +9,7 @@ import { UsersQueryRepo } from '../../users/users.query-repo';
 import { UsersRepo } from '../../users/users.repo';
 import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import { SessionsQueryRepo } from '../sessions.query.repo';
+import { UserDBModel } from '../../users/models/users.models';
 
 // @Injectable()
 // export class AuthGuardBase implements CanActivate {
@@ -155,5 +156,56 @@ export class VerifyRefreshTokenGuard implements CanActivate {
       this.catchTokenError(e);
       return false;
     }
+  }
+}
+
+@Injectable()
+export class IsCodeCorrectForPassRecoveryGuard implements CanActivate {
+  constructor(
+    protected usersRepo: UsersRepo,
+    protected sessionsQueryRepo: SessionsQueryRepo,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const user: UserDBModel | null =
+      await this.usersRepo.findUserByPassRecoveryCode(req.body.recoveryCode);
+
+    if (req.body.recoveryCode === '' || !user) {
+      throw new BadRequestException([
+        {
+          message: 'Confirmation code is incorrecttttttttttt',
+          field: 'recoveryCode',
+        },
+      ]);
+    }
+
+    if (!user!.passwordRecovery!.active) {
+      throw new BadRequestException([
+        {
+          message: 'Confirmation code has been already used',
+          field: 'recoveryCode',
+        },
+      ]);
+    }
+
+    // Check that the token is up-to-date
+    try {
+      jwt.verify(req.body.recoveryCode, process.env.JWT_SECRET!);
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        throw new BadRequestException({
+          message: 'Code has expired!',
+          field: 'newPassword',
+        });
+      }
+
+      throw new BadRequestException({
+        message: 'Code is incorrect! Try repeat a bit later',
+        field: 'newPassword',
+      });
+    }
+    req.userId = user._id.toString();
+    return true;
   }
 }

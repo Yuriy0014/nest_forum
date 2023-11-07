@@ -85,4 +85,15 @@ export class UsersRepo {
 
     return true;
   }
+
+  async findUserByPassRecoveryCode(recoveryCode: string) {
+    const user = await this.userModel.findOne({
+      'passwordRecovery.passwordRecoveryCode': recoveryCode,
+    });
+    if (user) {
+      return user;
+    } else {
+      return null;
+    }
+  }
 }

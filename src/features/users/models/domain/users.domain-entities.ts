@@ -84,6 +84,11 @@ export class User {
     );
   }
 
+  updatePass(passHash: string): void {
+    this.accountData.password = passHash;
+    this.passwordRecovery.active = false;
+  }
+
   static createUser(
     dto: UserCreateModel,
     userModel: UserModelType,
@@ -117,6 +122,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.methods = {
   canBeConfirmed: User.prototype.canBeConfirmed,
+  updatePass: User.prototype.updatePass,
 };
 
 export type UserModelStaticType = {

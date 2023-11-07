@@ -20,12 +20,14 @@ import {
   EmailForPasswordRecoveryInputModel,
   EmailResendInputModel,
   LoginInputDTO,
+  NewPasswordInputModel,
   reqSessionDTOType,
 } from './models/auth.models';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { Response } from 'express';
 import {
   ExistingEmailGuard,
+  IsCodeCorrectForPassRecoveryGuard,
   IsEmailAlreadyConfirmedGuard,
   VerifyRefreshTokenGuard,
 } from './guards/auth.guard';
@@ -42,6 +44,7 @@ import { UpdateSessionCommand } from './use-cases/UpdateSessionUseCase';
 import { UsersQueryRepo } from '../users/users.query-repo';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RecoveryPasswordCommand } from './use-cases/RecoveryPasswordUseCase';
+import { UpdatePasswordCommand } from './use-cases/UpdatePasswordUseCase';
 
 @Controller('auth')
 export class AuthController {
@@ -252,12 +255,21 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  @UseGuards(CheckUserIdGuard)
-  @UseGuards(VerifyRefreshTokenGuard)
   async passwordRecovery(
     @Body() inputDTO: EmailForPasswordRecoveryInputModel,
   ): Promise<any> {
     await this.commandBus.execute(new RecoveryPasswordCommand(inputDTO.email));
+  }
+
+  @Post('new-password')
+  @UseGuards(IsCodeCorrectForPassRecoveryGuard)
+  async newPassword(
+    @Body() inputDTO: NewPasswordInputModel,
+    @Request() req: any,
+  ): Promise<any> {
+    await this.commandBus.execute(
+      new UpdatePasswordCommand(inputDTO.newPassword, req.userId),
+    );
   }
 
   @Get('me')

@@ -18,11 +18,11 @@ export class ErrorExceptionFilter implements ExceptionFilter {
       errorsMessages: [],
     };
 
-    const responseErr: any = exception.errors;
-    if (typeof responseErr === 'string') {
+    if (typeof exception.message === 'string') {
       // @ts-ignore
-      errorResponse.errorsMessages.push(responseErr);
+      errorResponse.errorsMessages.push(exception.message);
     } else {
+      const responseErr: any = exception.errors;
       for (const key in responseErr) {
         const error = {
           message: responseErr[key].message,

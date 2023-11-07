@@ -82,6 +82,7 @@ import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
 import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
 import { RecoveryPasswordCommand } from './features/auth/use-cases/RecoveryPasswordUseCase';
 import { UpdatePasswordCommand } from './features/auth/use-cases/UpdatePasswordUseCase';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const useCases = [
   ///Blogs
@@ -110,8 +111,15 @@ const useCases = [
   RecoveryPasswordCommand,
   UpdatePasswordCommand,
 ];
+
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000,
+        limit: 5,
+      },
+    ]),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URL!),
     PassportModule,

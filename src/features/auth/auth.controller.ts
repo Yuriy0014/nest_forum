@@ -45,6 +45,7 @@ import { UsersQueryRepo } from '../users/users.query-repo';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RecoveryPasswordCommand } from './use-cases/RecoveryPasswordUseCase';
 import { UpdatePasswordCommand } from './use-cases/UpdatePasswordUseCase';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -56,7 +57,7 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
-  @UseGuards(ExistingEmailGuard)
+  @UseGuards(ThrottlerGuard, ExistingEmailGuard)
   async register(@Body() inputModel: UserInputModel): Promise<void> {
     const createdUser = await this.commandBus.execute(
       new CreateUserCommand(inputModel, false),
@@ -68,7 +69,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
-  @UseGuards(IsEmailAlreadyConfirmedGuard)
+  @UseGuards(ThrottlerGuard, IsEmailAlreadyConfirmedGuard)
   async emailResend(@Body() inputModel: EmailResendInputModel): Promise<void> {
     const result = await this.commandBus.execute(
       new ResendEmailCommand(inputModel.email),
@@ -80,7 +81,7 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(204)
-  @UseGuards(IsEmailAlreadyConfirmedGuard)
+  @UseGuards(ThrottlerGuard, IsEmailAlreadyConfirmedGuard)
   async confirmRegistration(
     @Body() inputModel: ConfirmationCodeInputModel,
   ): Promise<void> {
@@ -93,7 +94,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard, ThrottlerGuard)
   @HttpCode(200)
   async login(
     @Body() loginDTO: LoginInputDTO,
@@ -255,6 +256,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @UseGuards(ThrottlerGuard)
   async passwordRecovery(
     @Body() inputDTO: EmailForPasswordRecoveryInputModel,
   ): Promise<any> {
@@ -262,7 +264,7 @@ export class AuthController {
   }
 
   @Post('new-password')
-  @UseGuards(IsCodeCorrectForPassRecoveryGuard)
+  @UseGuards(ThrottlerGuard, IsCodeCorrectForPassRecoveryGuard)
   async newPassword(
     @Body() inputDTO: NewPasswordInputModel,
     @Request() req: any,

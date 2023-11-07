@@ -2,6 +2,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   NotFoundException,
@@ -38,6 +39,7 @@ export class SecurityController {
   }
 
   @Delete('devices')
+  @HttpCode(204)
   @UseGuards(VerifyRefreshTokenGuard)
   async terminateAllSessions(@Request() req: any) {
     const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
@@ -60,6 +62,7 @@ export class SecurityController {
   }
 
   @Delete('devices/:deviceId')
+  @HttpCode(204)
   @UseGuards(VerifyRefreshTokenGuard)
   async terminateDeviceSessions(
     @Request() req: any,

@@ -28,7 +28,7 @@ export class JwtService {
     deviceId: string,
   ): Promise<string> {
     return jwt.sign({ userId: user.id, deviceId: deviceId }, this.JWT_SECRET, {
-      expiresIn: '2000s',
+      expiresIn: '20s',
     });
   }
 

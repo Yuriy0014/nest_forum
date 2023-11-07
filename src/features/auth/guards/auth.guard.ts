@@ -150,7 +150,7 @@ export class VerifyRefreshTokenGuard implements CanActivate {
         ]);
       }
 
-      req.user = await this.usersQueryRepo.findUserById(result.userId);
+      req.userId = result.userId;
       return true;
     } catch (e) {
       this.catchTokenError(e);

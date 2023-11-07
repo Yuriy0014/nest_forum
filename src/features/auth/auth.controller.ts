@@ -180,7 +180,6 @@ export class AuthController {
   }
 
   @Post('refresh-token')
-  @UseGuards(CheckUserIdGuard)
   @UseGuards(VerifyRefreshTokenGuard)
   async updateTokens(
     @Headers() loginHeaders: any,

@@ -24,6 +24,10 @@ import {
   UsersLikesConnection,
   UsersLikesConnectionType,
 } from '../likes/models/domain/likes.domain-entities';
+import {
+  Session,
+  SessionModelType,
+} from '../auth/models/domain/session.domain-entities';
 
 @Controller('testing')
 export class TestingController {
@@ -36,6 +40,8 @@ export class TestingController {
     private readonly userModel: UserModelType,
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
+    @InjectModel(Session.name)
+    private readonly sessionModel: SessionModelType,
     @InjectModel(UsersLikesConnection.name)
     private readonly usersLikesConnectionModel: UsersLikesConnectionType,
   ) {}
@@ -48,6 +54,7 @@ export class TestingController {
       this.postModel.deleteMany({}),
       this.userModel.deleteMany({}),
       this.likeModel.deleteMany({}),
+      this.sessionModel.deleteMany({}),
       this.usersLikesConnectionModel.deleteMany({}),
     ]).catch((e) => {
       console.log(e);

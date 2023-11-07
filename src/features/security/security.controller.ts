@@ -25,7 +25,7 @@ export class SecurityController {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Get()
+  @Get('devices')
   @UseGuards(VerifyRefreshTokenGuard)
   async findAllSessions(@Request() req: any) {
     const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
@@ -37,7 +37,7 @@ export class SecurityController {
     return await this.sessionsQueryRepo.FindAllSessions(RFTokenInfo.userId);
   }
 
-  @Delete()
+  @Delete('devices')
   @UseGuards(VerifyRefreshTokenGuard)
   async terminateAllSessions(@Request() req: any) {
     const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
@@ -59,7 +59,7 @@ export class SecurityController {
     }
   }
 
-  @Delete(':deviceId')
+  @Delete('devices/:deviceId')
   @UseGuards(VerifyRefreshTokenGuard)
   async terminateDeviceSessions(@Request() req: any, @Param('id') id: string) {
     const RFTokenInfo = await this.jwtService.getInfoFromRFToken(

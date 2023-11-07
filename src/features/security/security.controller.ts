@@ -61,7 +61,10 @@ export class SecurityController {
 
   @Delete('devices/:deviceId')
   @UseGuards(VerifyRefreshTokenGuard)
-  async terminateDeviceSessions(@Request() req: any, @Param('id') id: string) {
+  async terminateDeviceSessions(
+    @Request() req: any,
+    @Param('deviceId') id: string,
+  ) {
     const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
       req.cookies.refreshToken,
     );

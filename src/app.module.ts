@@ -139,10 +139,10 @@ const useCases = [
     MongooseModule.forRoot(process.env.MONGO_URL!),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'ep-plain-flower-56967518.us-east-2.aws.neon.tech',
       port: 5432,
-      username: 'nodejs',
-      password: 'nodejs',
+      username: process.env.PG_NAME,
+      password: process.env.PG_PASS,
       database: 'blog_nest',
       autoLoadEntities: false,
       synchronize: false,

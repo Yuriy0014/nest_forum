@@ -94,6 +94,7 @@ import { UsersRepoSQL } from './features/users/users.repo-sql';
 import { SessionsRepoSQL } from './features/auth/sessions.repo-sql';
 import { SessionsQueryRepoSQL } from './features/auth/sessions.query.repo-sql';
 import { MapSessionViewModelSQL } from './features/auth/helpers/map-SessionViewModel-SQL';
+import { UserObjectFromRawData } from './features/users/helpers/map-rawsql-to-object';
 
 const useCases = [
   ///Blogs
@@ -146,6 +147,12 @@ const useCases = [
       database: 'blog_nest',
       autoLoadEntities: false,
       synchronize: false,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false, // Временное решение, можно убрать после установки SSL-сертификата
+        },
+        sslmode: 'require', // Это добавит необходимую опцию
+      },
     }),
     PassportModule,
     MongooseModule.forFeature([
@@ -194,6 +201,7 @@ const useCases = [
     UsersRepoSQL,
     MapUserViewModel,
     MapUserViewModelSQL,
+    UserObjectFromRawData,
     // Email
     EmailManager,
     EmailAdapter,

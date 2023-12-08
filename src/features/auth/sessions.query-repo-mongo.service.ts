@@ -4,15 +4,15 @@ import {
   SessionModelType,
 } from './models/domain/session.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
-import { SessionViewModel } from './models/auth.models';
-import { MapSessionViewModel } from './helpers/map-SessionViewModel';
+import { SessionViewModel } from './models/auth.models-mongo';
+import { MapSessionViewModelMongo } from './helpers/map-SessionViewModel-mongo';
 
 @Injectable()
-export class SessionsQueryRepo {
+export class SessionsQueryRepoMongo {
   constructor(
     @InjectModel(Session.name)
     private readonly sessionModel: SessionModelType,
-    private readonly mapSessionViewModel: MapSessionViewModel,
+    private readonly mapSessionViewModel: MapSessionViewModelMongo,
   ) {}
 
   async FindAllSessions(userId: string): Promise<Array<SessionViewModel>> {

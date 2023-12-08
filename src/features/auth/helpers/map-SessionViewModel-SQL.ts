@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { SessionDBModel, SessionViewModel } from '../models/auth.models';
+import {
+  SessionDBModel,
+  SessionViewModel,
+} from '../../users/models/users.models.sql';
 
 @Injectable()
-export class MapSessionViewModel {
+export class MapSessionViewModelSQL {
   getSessionViewModel(session: SessionDBModel): SessionViewModel {
-    const ip = session.ip.length > 1 ? session.ip : session.ip[0];
-
     return {
-      ip: ip,
+      ip: session.ip,
       title: session.title,
       lastActiveDate: session.lastActiveDate,
       deviceId: session.deviceId,

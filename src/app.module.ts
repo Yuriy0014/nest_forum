@@ -29,8 +29,7 @@ import {
 } from './features/comments/models/domain/comments.domain-entities';
 import { LikesQueryRepo } from './features/likes/likes.query-repo';
 import { UsersController } from './features/users/users.controller';
-import { UsersQueryRepo } from './features/users/users.query-repo';
-import { UsersRepo } from './features/users/users.repo';
+import { UsersRepoMongo } from './features/users/users.repo-mongo';
 import { MapUserViewModel } from './features/users/helpers/map-UserViewModel';
 import {
   User,
@@ -48,7 +47,7 @@ import {
 import * as process from 'process';
 import { AuthController } from './features/auth/auth.controller';
 import { JwtService } from './infrastructure/jwt/jwt.service';
-import { SessionsRepo } from './features/auth/sessions.repo';
+import { SessionsRepoMongo } from './features/auth/sessions.repo-mongo.service';
 import {
   Session,
   SessionSchema,
@@ -78,8 +77,8 @@ import { ResendEmailUseCase } from './features/auth/use-cases/ResendEmailUseCase
 import { RegisterSessionUseCase } from './features/auth/use-cases/RegisterSessionUseCase';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteSessionUseCase } from './features/auth/use-cases/DeleteSessionUseCase';
-import { SessionsQueryRepo } from './features/auth/sessions.query.repo';
-import { MapSessionViewModel } from './features/auth/helpers/map-SessionViewModel';
+import { SessionsQueryRepoMongo } from './features/auth/sessions.query-repo-mongo.service';
+import { MapSessionViewModelMongo } from './features/auth/helpers/map-SessionViewModel-mongo';
 import { RecoveryPasswordUseCase } from './features/auth/use-cases/RecoveryPasswordUseCase';
 import { UpdatePasswordUseCase } from './features/auth/use-cases/UpdatePasswordUseCase';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -87,6 +86,14 @@ import { UpdateSessionUseCase } from './features/auth/use-cases/UpdateSessionUse
 import { DeleteAllSessionsUseCase } from './features/security/use-cases/DeleteAllSessionsUseCase';
 import { DeleteDeviceSessionsUseCase } from './features/security/use-cases/DeleteDeviceSessionsUseCase';
 import { SecurityController } from './features/security/security.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MapUserViewModelSQL } from './features/users/helpers/map-UserViewModel.sql';
+import { UsersQueryRepoMongo } from './features/users/users.query-repo-mongo';
+import { UsersQueryRepoSQL } from './features/users/users.query-repo-sql';
+import { UsersRepoSQL } from './features/users/users.repo-sql';
+import { SessionsRepoSQL } from './features/auth/sessions.repo-sql';
+import { SessionsQueryRepoSQL } from './features/auth/sessions.query.repo-sql';
+import { MapSessionViewModelSQL } from './features/auth/helpers/map-SessionViewModel-SQL';
 
 const useCases = [
   ///Blogs
@@ -130,6 +137,16 @@ const useCases = [
     ]),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_URL!),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'nodejs',
+      password: 'nodejs',
+      database: 'blog_nest',
+      autoLoadEntities: false,
+      synchronize: false,
+    }),
     PassportModule,
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
@@ -171,21 +188,27 @@ const useCases = [
     LikesRepo,
     MapLikeViewModel,
     // Users
-    UsersQueryRepo,
-    UsersRepo,
+    UsersQueryRepoMongo,
+    UsersQueryRepoSQL,
+    UsersRepoMongo,
+    UsersRepoSQL,
     MapUserViewModel,
+    MapUserViewModelSQL,
     // Email
     EmailManager,
     EmailAdapter,
     // JWT
     JwtService,
     // Auth
-    SessionsRepo,
-    SessionsQueryRepo,
+    SessionsRepoMongo,
+    SessionsRepoSQL,
+    SessionsQueryRepoMongo,
+    SessionsQueryRepoSQL,
     BasicStrategy,
     JwtStrategy,
     LocalStrategy,
-    MapSessionViewModel,
+    MapSessionViewModelMongo,
+    MapSessionViewModelSQL,
     ///
     ExistingBlogConstraint,
     /// UseCases

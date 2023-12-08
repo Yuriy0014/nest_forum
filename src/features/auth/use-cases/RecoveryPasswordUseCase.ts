@@ -1,8 +1,8 @@
-import { UsersRepo } from '../../users/users.repo';
 import { EmailManager } from '../../../infrastructure/email/email.manager';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersQueryRepo } from '../../users/users.query-repo';
 import { JwtService } from '../../../infrastructure/jwt/jwt.service';
+import { UsersRepoSQL } from '../../users/users.repo-sql';
+import { UsersQueryRepoSQL } from '../../users/users.query-repo-sql';
 
 export class RecoveryPasswordCommand {
   constructor(public email: string) {}
@@ -13,9 +13,9 @@ export class RecoveryPasswordUseCase
   implements ICommandHandler<RecoveryPasswordCommand>
 {
   constructor(
-    private readonly usersRepo: UsersRepo,
+    private readonly usersRepo: UsersRepoSQL,
     private readonly emailManager: EmailManager,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepoSQL,
     private readonly jwtService: JwtService,
   ) {}
   async execute(command: RecoveryPasswordCommand): Promise<boolean> {

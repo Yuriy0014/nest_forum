@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import add from 'date-fns/add';
-import { SessionUpdateFilterModel } from '../models/auth.models';
-import { SessionsRepo } from '../sessions.repo';
+import { SessionUpdateFilterModel } from '../models/auth.models-mongo';
+import { SessionsRepoMongo } from '../sessions.repo-mongo.service';
+import { SessionsRepoSQL } from '../sessions.repo-sql';
 
 export class UpdateSessionCommand {
   constructor(
@@ -18,7 +19,7 @@ export class UpdateSessionCommand {
 export class UpdateSessionUseCase
   implements ICommandHandler<UpdateSessionCommand>
 {
-  constructor(private readonly sessionsRepo: SessionsRepo) {}
+  constructor(private readonly sessionsRepo: SessionsRepoSQL) {}
 
   async execute(command: UpdateSessionCommand): Promise<boolean> {
     const filter: SessionUpdateFilterModel = {
@@ -33,13 +34,10 @@ export class UpdateSessionUseCase
       deviceName: command.deviceName,
       RFTokenIAT: new Date(command.RefreshTokenIssuedAt),
       RFTokenObsoleteDate: add(new Date(command.RefreshTokenIssuedAt), {
-        seconds: 20,
+        seconds: 2000,
       }),
     };
 
-    return await this.sessionsRepo.updateSessionInfo(
-      filter,
-      updateSessionContent,
-    );
+    return this.sessionsRepo.updateSessionInfo(filter, updateSessionContent);
   }
 }

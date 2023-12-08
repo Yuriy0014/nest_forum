@@ -5,10 +5,10 @@ import {
   SessionModelType,
 } from './models/domain/session.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
-import { SessionUpdateFilterModel } from './models/auth.models';
+import { SessionUpdateFilterModel } from './models/auth.models-mongo';
 
 @Injectable()
-export class SessionsRepo {
+export class SessionsRepoMongo {
   constructor(
     @InjectModel(Session.name)
     private readonly sessionModel: SessionModelType,

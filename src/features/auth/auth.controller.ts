@@ -14,7 +14,10 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserInputModel, UserViewModel } from '../users/models/users.models';
+import {
+  UserInputModel,
+  UserViewModel,
+} from '../users/models/users.models.mongo';
 import {
   ConfirmationCodeInputModel,
   EmailForPasswordRecoveryInputModel,
@@ -22,7 +25,7 @@ import {
   LoginInputDTO,
   NewPasswordInputModel,
   reqSessionDTOType,
-} from './models/auth.models';
+} from './models/auth.models-mongo';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { Response } from 'express';
 import {
@@ -41,17 +44,17 @@ import { ResendEmailCommand } from './use-cases/ResendEmailUseCase';
 import { DeleteSessionCommand } from './use-cases/DeleteSessionUseCase';
 import { CheckUserIdGuard } from '../comments/guards/comments.guards';
 import { UpdateSessionCommand } from './use-cases/UpdateSessionUseCase';
-import { UsersQueryRepo } from '../users/users.query-repo';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RecoveryPasswordCommand } from './use-cases/RecoveryPasswordUseCase';
 import { UpdatePasswordCommand } from './use-cases/UpdatePasswordUseCase';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { UsersQueryRepoSQL } from '../users/users.query-repo-sql';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepoSQL,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -136,7 +139,7 @@ export class AuthController {
       const sessionRegInfo = await this.commandBus.execute(
         new RegisterSessionCommand(sessionDTO),
       );
-      if (sessionRegInfo === null) {
+      if (sessionRegInfo === false) {
         throw new HttpException(
           'Не удалось залогиниться. Попроубуйте позднее',
           HttpStatus.UNAUTHORIZED,

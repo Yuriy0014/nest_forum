@@ -3,9 +3,13 @@ import {
   Session,
   SessionModelType,
 } from '../models/domain/session.domain-entities';
-import { SessionsRepo } from '../sessions.repo';
-import { reqSessionDTOType, SessionViewModel } from '../models/auth.models';
+import { SessionsRepoMongo } from '../sessions.repo-mongo.service';
+import {
+  reqSessionDTOType,
+  SessionViewModel,
+} from '../models/auth.models-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { SessionsRepoSQL } from '../sessions.repo-sql';
 
 export class RegisterSessionCommand {
   constructor(public sessionDTO: reqSessionDTOType) {}
@@ -15,25 +19,14 @@ export class RegisterSessionCommand {
 export class RegisterSessionUseCase
   implements ICommandHandler<RegisterSessionCommand>
 {
-  constructor(
-    @InjectModel(Session.name)
-    private readonly sessionModel: SessionModelType,
-    private readonly sessionRepo: SessionsRepo,
-  ) {}
+  constructor(private readonly sessionRepo: SessionsRepoSQL) {}
 
-  async execute(
-    command: RegisterSessionCommand,
-  ): Promise<SessionViewModel | null> {
-    const createdSession = this.sessionModel.createSession(
-      command.sessionDTO,
-      this.sessionModel,
-    );
-
+  async execute(command: RegisterSessionCommand): Promise<boolean> {
     try {
-      await this.sessionRepo.save(createdSession);
-      return createdSession;
+      await this.sessionRepo.createSessionInfo(command.sessionDTO);
+      return true;
     } catch (e) {
-      return null;
+      return false;
     }
   }
 }

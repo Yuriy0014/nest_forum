@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import jwt from 'jsonwebtoken';
-import { UserViewModel } from '../../features/users/models/users.models';
+import { UserViewModel } from '../../features/users/models/users.models.mongo';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class JwtService {
     deviceId: string,
   ): Promise<string> {
     return jwt.sign({ userId: user.id, deviceId: deviceId }, this.JWT_SECRET, {
-      expiresIn: '20s',
+      expiresIn: '2000s',
     });
   }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserDBModel } from '../../features/users/models/users.models';
 import { EmailAdapter } from './email.adapter';
+import { UserDBModel } from '../../features/users/models/users.models.sql';
 
 @Injectable()
 export class EmailManager {
@@ -24,11 +24,11 @@ export class EmailManager {
   async sendEmailConfirmationMessage(user: UserDBModel): Promise<void> {
     const MessageHTMLText = `<h1>Thank for your registration</h1>
  <p>To finish registration please follow the link below:
-     <a href='https://somesite.com/confirm-email?code=${user.emailConfirmation.confirmationCode}'>complete registration</a>
+     <a href='https://somesite.com/confirm-email?code=${user.emailConfirmationCode}'>complete registration</a>
  </p>`;
 
     await this.emailAdapter.sendEmail(
-      user.accountData.email,
+      user.email,
       'Email confirmation',
       MessageHTMLText,
     );

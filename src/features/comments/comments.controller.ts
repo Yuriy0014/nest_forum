@@ -19,7 +19,7 @@ import {
   likesInfoViewModel,
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
-import { UsersQueryRepo } from '../users/users.query-repo';
+import { UsersQueryRepoMongo } from '../users/users.query-repo-mongo';
 import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
@@ -32,7 +32,7 @@ export class CommentsController {
   constructor(
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly likesQueryRepo: LikesQueryRepo,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepoMongo,
     private readonly commandBus: CommandBus,
   ) {}
 

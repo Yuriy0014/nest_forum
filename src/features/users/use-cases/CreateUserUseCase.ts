@@ -1,10 +1,8 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserModelType } from '../models/domain/users.domain-entities';
-import { UsersRepo } from '../users.repo';
 import { EmailManager } from '../../../infrastructure/email/email.manager';
-import { UserCreateModel, UserInputModel } from '../models/users.models';
+import { UserCreateModel, UserInputModel } from '../models/users.models.mongo';
 import bcrypt from 'bcrypt';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UsersRepoSQL } from '../users.repo-sql';
 
 enum ResultCode {
   success,
@@ -29,9 +27,7 @@ export class CreateUserCommand {
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(
-    @InjectModel(User.name)
-    private readonly userModel: UserModelType,
-    private readonly usersRepo: UsersRepo,
+    private readonly usersRepo: UsersRepoSQL,
     private readonly emailManager: EmailManager,
   ) {}
 
@@ -42,8 +38,15 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       passwordHash,
       isAuthorSuper: command.isAuthorSuper,
     };
-    const createdUser = this.userModel.createUser(createDTO, this.userModel);
-    await this.usersRepo.save(createdUser);
+
+    // Создаем юзера
+    const userId = await this.usersRepo.createUser(createDTO);
+
+    // Селектим созданного
+    const createdUser = await this.usersRepo.findUserById(userId);
+    if (!createdUser) {
+      throw new Error('Проблема с созданием польователя');
+    }
 
     if (!command.isAuthorSuper) {
       this.emailManager
@@ -53,7 +56,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
 
     return {
       resultCode: ResultCode.success,
-      data: createdUser._id.toString(),
+      data: createdUser.id,
     };
   }
 }

@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
-import { SessionsQueryRepo } from '../auth/sessions.query.repo';
+import { SessionsQueryRepoMongo } from '../auth/sessions.query-repo-mongo.service';
 import { VerifyRefreshTokenGuard } from '../auth/guards/auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteAllSessionsCommand } from './use-cases/DeleteAllSessionsUseCase';
@@ -22,7 +22,7 @@ import { DeleteDeviceSessionsCommand } from './use-cases/DeleteDeviceSessionsUse
 export class SecurityController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly sessionsQueryRepo: SessionsQueryRepo,
+    private readonly sessionsQueryRepo: SessionsQueryRepoMongo,
     private readonly commandBus: CommandBus,
   ) {}
 

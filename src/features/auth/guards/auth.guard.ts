@@ -5,11 +5,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersQueryRepo } from '../../users/users.query-repo';
-import { UsersRepo } from '../../users/users.repo';
 import jwt, { TokenExpiredError } from 'jsonwebtoken';
-import { SessionsQueryRepo } from '../sessions.query.repo';
-import { UserDBModel } from '../../users/models/users.models';
+import { UsersQueryRepoSQL } from '../../users/users.query-repo-sql';
+import { UsersRepoSQL } from '../../users/users.repo-sql';
+import { SessionsQueryRepoSQL } from '../sessions.query.repo-sql';
+import { UserDBModel } from '../../users/models/users.models.sql';
 
 // @Injectable()
 // export class AuthGuardBase implements CanActivate {
@@ -27,7 +27,7 @@ import { UserDBModel } from '../../users/models/users.models';
 
 @Injectable()
 export class ExistingEmailGuard implements CanActivate {
-  constructor(protected usersQueryRepo: UsersQueryRepo) {}
+  constructor(protected usersQueryRepo: UsersQueryRepoSQL) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -56,7 +56,7 @@ export class ExistingEmailGuard implements CanActivate {
 
 @Injectable()
 export class IsEmailAlreadyConfirmedGuard implements CanActivate {
-  constructor(protected usersRepo: UsersRepo) {}
+  constructor(protected usersRepo: UsersRepoSQL) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -72,7 +72,8 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
         ]);
       }
 
-      if (confirmed.emailConfirmation.isConfirmed) {
+      if (confirmed.isEmailConfirmed) {
+        console.log('Почта уже подтверждена');
         throw new BadRequestException([
           { message: 'BAD REQUEST', field: 'code' },
         ]);
@@ -90,7 +91,7 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
         ]);
       }
 
-      if (confirmed.emailConfirmation.isConfirmed) {
+      if (confirmed.isEmailConfirmed) {
         throw new BadRequestException([
           { message: 'BAD REQUEST', field: 'email' },
         ]);
@@ -102,7 +103,7 @@ export class IsEmailAlreadyConfirmedGuard implements CanActivate {
 
 @Injectable()
 export class VerifyRefreshTokenGuard implements CanActivate {
-  constructor(protected sessionsQueryRepo: SessionsQueryRepo) {}
+  constructor(protected sessionsQueryRepo: SessionsQueryRepoSQL) {}
 
   private catchTokenError(err: any) {
     if (err instanceof TokenExpiredError) {
@@ -150,6 +151,7 @@ export class VerifyRefreshTokenGuard implements CanActivate {
       req.userId = result.userId;
       return true;
     } catch (e) {
+      console.log(e);
       this.catchTokenError(e);
       return false;
     }
@@ -158,10 +160,7 @@ export class VerifyRefreshTokenGuard implements CanActivate {
 
 @Injectable()
 export class IsCodeCorrectForPassRecoveryGuard implements CanActivate {
-  constructor(
-    protected usersRepo: UsersRepo,
-    protected sessionsQueryRepo: SessionsQueryRepo,
-  ) {}
+  constructor(protected usersRepo: UsersRepoSQL) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -177,7 +176,7 @@ export class IsCodeCorrectForPassRecoveryGuard implements CanActivate {
       ]);
     }
 
-    if (!user!.passwordRecovery!.active) {
+    if (!user!.passwordRecoveryCodeActive!) {
       throw new BadRequestException([
         {
           message: 'Confirmation code has been already used',
@@ -202,7 +201,7 @@ export class IsCodeCorrectForPassRecoveryGuard implements CanActivate {
         field: 'newPassword',
       });
     }
-    req.userId = user._id.toString();
+    req.userId = user.id;
     return true;
   }
 }

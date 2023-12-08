@@ -29,7 +29,7 @@ import {
   CommentViewModel,
 } from '../comments/models/comments.models';
 import { MapCommentViewModel } from '../comments/helpers/map-CommentViewModel';
-import { UsersQueryRepo } from '../users/users.query-repo';
+import { UsersQueryRepoMongo } from '../users/users.query-repo-mongo';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
@@ -52,7 +52,7 @@ export class PostsController {
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly mapCommentViewModel: MapCommentViewModel,
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepoMongo,
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly commandBus: CommandBus,
   ) {}

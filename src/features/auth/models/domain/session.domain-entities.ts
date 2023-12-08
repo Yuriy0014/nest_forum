@@ -4,7 +4,7 @@ import {
   DeviceNameModel,
   reqSessionDTOType,
   SessionIpModel,
-} from '../auth.models';
+} from '../auth.models-mongo';
 import add from 'date-fns/add';
 
 @Schema()

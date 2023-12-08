@@ -11,23 +11,23 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepo } from './users.query-repo';
+import { UsersQueryRepoMongo } from './users.query-repo-mongo';
 import { queryUserPagination } from './helpers/filter';
 import {
   UserInputModel,
   UsersWithPaginationModel,
   UserViewModel,
-} from './models/users.models';
-import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+} from './models/users.models.mongo';
 import { DeleteUserCommand } from './use-cases/DeleteUserUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from './use-cases/CreateUserUseCase';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @UseGuards(BasicAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly usersQueryRepo: UsersQueryRepo,
+    private readonly usersQueryRepo: UsersQueryRepoMongo,
     private readonly commandBus: CommandBus,
   ) {}
 

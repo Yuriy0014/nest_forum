@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { UserFilterModel } from './helpers/filter';
-import { UserDBModel, UserViewModel } from './models/users.models';
+import { UserDBModel, UserViewModel } from './models/users.models.mongo';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserModelType } from './models/domain/users.domain-entities';
 import { MapUserViewModel } from './helpers/map-UserViewModel';
 
 @Injectable()
-export class UsersQueryRepo {
+export class UsersQueryRepoMongo {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: UserModelType,

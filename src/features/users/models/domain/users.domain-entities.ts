@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { UserCreateModel } from '../users.models';
+import { UserCreateModel } from '../users.models.mongo';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 

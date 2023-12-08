@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserDBModel, UserViewModel } from '../models/users.models';
+import { UserDBModel, UserViewModel } from '../models/users.models.mongo';
 
 @Injectable()
 export class MapUserViewModel {

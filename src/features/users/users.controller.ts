@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepoMongo } from './users.query-repo-mongo';
 import { queryUserPagination } from './helpers/filter';
 import {
   UserInputModel,
@@ -22,12 +21,13 @@ import { DeleteUserCommand } from './use-cases/DeleteUserUseCase';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from './use-cases/CreateUserUseCase';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { UsersQueryRepoSQL } from './users.query-repo-sql';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/users')
 export class UsersController {
   constructor(
-    private readonly usersQueryRepo: UsersQueryRepoMongo,
+    private readonly usersQueryRepo: UsersQueryRepoSQL,
     private readonly commandBus: CommandBus,
   ) {}
 

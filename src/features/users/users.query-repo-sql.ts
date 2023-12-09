@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { UserViewModel } from './models/users.models.mongo';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { MapUserViewModelSQL } from './helpers/map-UserViewModel.sql';
+import { UserViewModel } from './models/users.models.sql';
+import { UserFilterModel } from './helpers/filter';
 
 @Injectable()
 export class UsersQueryRepoSQL {
@@ -10,6 +11,40 @@ export class UsersQueryRepoSQL {
     private readonly mapUserViewModelSQL: MapUserViewModelSQL,
     @InjectDataSource() protected dataSource: DataSource,
   ) {}
+
+  async FindAllUsers(queryFilter: UserFilterModel) {
+    const rawUsers = await this.dataSource.query(
+      `
+        SELECT u."id", u."login", u."email", u."password",
+         u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
+          u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
+        FROM public."users" u
+        ORDER BY $1 $2
+        LIMIT $3
+        OFFSET $4;
+        `,
+      [
+        queryFilter.sortBy,
+        queryFilter.sortDirection,
+        queryFilter.pageSize,
+        queryFilter.pageSize * (queryFilter.pageNumber - 1),
+      ],
+    );
+
+    const foundUsers = rawUsers.map((user) =>
+      this.mapUserViewModelSQL.getUserViewModel(user),
+    );
+
+    const totalCount = foundUsers.length;
+
+    return {
+      pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
+      page: queryFilter.pageNumber,
+      pageSize: queryFilter.pageSize,
+      totalCount: totalCount,
+      items: foundUsers,
+    };
+  }
 
   async findByLoginOrEmail(
     loginOrEmail: string,

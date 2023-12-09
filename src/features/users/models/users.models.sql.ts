@@ -21,6 +21,13 @@ export class UserDBModel {
   }
 }
 
+export type UserViewModel = {
+  id: string;
+  login: string;
+  email: string;
+  createdAt: string;
+};
+
 export class SessionDBModel {
   constructor(
     public id: string,

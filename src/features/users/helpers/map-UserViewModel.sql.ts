@@ -9,7 +9,7 @@ export class MapUserViewModelSQL {
       id: user.id,
       login: user.login,
       email: user.email,
-      createdAt: user.createdAt.toString(),
+      createdAt: user.createdAt.toISOString(),
     };
   }
 }

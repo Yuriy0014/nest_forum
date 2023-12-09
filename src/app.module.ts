@@ -133,7 +133,8 @@ const useCases = [
     ThrottlerModule.forRoot([
       {
         ttl: 10000,
-        limit: 5,
+        // Временно отключаю IP retriction
+        limit: 1000000000000000000,
       },
     ]),
     ConfigModule.forRoot(),
@@ -147,12 +148,7 @@ const useCases = [
       database: 'blog_nest',
       autoLoadEntities: false,
       synchronize: false,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false, // Временное решение, можно убрать после установки SSL-сертификата
-        },
-        sslmode: 'require', // Это добавит необходимую опцию
-      },
+      ssl: true,
     }),
     PassportModule,
     MongooseModule.forFeature([

@@ -13,7 +13,7 @@ export class JwtService {
 
   async createJWT(user: UserViewModel) {
     return jwt.sign({ userId: user.id }, this.JWT_SECRET, {
-      expiresIn: '10s',
+      expiresIn: '2000s',
     });
   }
 

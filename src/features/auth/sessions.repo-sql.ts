@@ -15,33 +15,33 @@ export class SessionsRepoSQL {
   async createSessionInfo(sessionDTO: reqSessionDTOType) {
     const id = uuidv4();
 
-    try {
-      await this.dataSource.query(
-        `
+    // try {
+    await this.dataSource.query(
+      `
         INSERT INTO public.sessions(
         "id", "ip", "title", 
         "lastActiveDate", "deviceId", "deviceName",
          "userId", "RFTokenIAT", "RFTokenObsoleteDate")
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `,
-        [
-          id,
-          sessionDTO.loginIp,
-          'Title session',
-          new Date(),
-          sessionDTO.deviceId,
-          sessionDTO.deviceName,
-          sessionDTO.userId,
-          new Date(sessionDTO.refreshTokenIssuedAt),
-          add(new Date(sessionDTO.refreshTokenIssuedAt), {
-            seconds: 2000,
-          }),
-        ],
-      );
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+      [
+        id,
+        sessionDTO.loginIp,
+        'Title session',
+        new Date(),
+        sessionDTO.deviceId,
+        sessionDTO.deviceName,
+        sessionDTO.userId,
+        new Date(sessionDTO.refreshTokenIssuedAt),
+        add(new Date(sessionDTO.refreshTokenIssuedAt), {
+          seconds: 2000,
+        }),
+      ],
+    );
+    // } catch (e) {
+    //   console.log(e);
+    //   return false;
+    // }
 
     return id;
   }

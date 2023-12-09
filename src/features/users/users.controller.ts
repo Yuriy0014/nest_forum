@@ -24,7 +24,7 @@ import { CreateUserCommand } from './use-cases/CreateUserUseCase';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @UseGuards(BasicAuthGuard)
-@Controller('users')
+@Controller('sa/users')
 export class UsersController {
   constructor(
     private readonly usersQueryRepo: UsersQueryRepoMongo,

@@ -1,5 +1,5 @@
 import { EmailManager } from '../../../infrastructure/email/email.manager';
-import { UserCreateModel, UserInputModel } from '../models/users.models.mongo';
+import { UserCreateModel, UserInputModel } from '../models/users.models.sql';
 import bcrypt from 'bcrypt';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepoSQL } from '../users.repo-sql';

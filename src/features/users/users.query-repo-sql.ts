@@ -13,19 +13,22 @@ export class UsersQueryRepoSQL {
   ) {}
 
   async FindAllUsers(queryFilter: UserFilterModel) {
+    console.log(
+      '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection,
+    );
+
     const rawUsers = await this.dataSource.query(
       `
         SELECT u."id", u."login", u."email", u."password",
          u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
           u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
         FROM public."users" u
-        ORDER BY $1 $2
-        LIMIT $3
-        OFFSET $4;
+        ORDER BY $1
+        LIMIT $2
+        OFFSET $3;
         `,
       [
-        queryFilter.sortBy,
-        queryFilter.sortDirection,
+        '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection,
         queryFilter.pageSize,
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],

@@ -5,57 +5,19 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Post,
-  postModelType,
-} from '../posts/models/domain/posts.domain-entities';
-import {
-  Blog,
-  BlogModelType,
-} from '../blogs/models/domain/blogs.domain-entities';
-import {
-  User,
-  UserModelType,
-} from '../users/models/domain/users.domain-entities';
-import {
-  Like,
-  LikeModelType,
-  UsersLikesConnection,
-  UsersLikesConnectionType,
-} from '../likes/models/domain/likes.domain-entities';
-import {
-  Session,
-  SessionModelType,
-} from '../auth/models/domain/session.domain-entities';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Controller('testing')
 export class TestingController {
-  constructor(
-    @InjectModel(Blog.name)
-    private readonly blogModel: BlogModelType,
-    @InjectModel(Post.name)
-    private readonly postModel: postModelType,
-    @InjectModel(User.name)
-    private readonly userModel: UserModelType,
-    @InjectModel(Like.name)
-    private readonly likeModel: LikeModelType,
-    @InjectModel(Session.name)
-    private readonly sessionModel: SessionModelType,
-    @InjectModel(UsersLikesConnection.name)
-    private readonly usersLikesConnectionModel: UsersLikesConnectionType,
-  ) {}
+  constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   @Delete('all-data')
   @HttpCode(204)
   async deleteAll() {
     await Promise.all([
-      this.blogModel.deleteMany({}),
-      this.postModel.deleteMany({}),
-      this.userModel.deleteMany({}),
-      this.likeModel.deleteMany({}),
-      this.sessionModel.deleteMany({}),
-      this.usersLikesConnectionModel.deleteMany({}),
+      this.dataSource.query(`DELETE FROM public.sessions`),
+      this.dataSource.query(`DELETE FROM public.users`),
     ]).catch((e) => {
       console.log(e);
       throw new HttpException('Not Found', HttpStatus.INTERNAL_SERVER_ERROR);

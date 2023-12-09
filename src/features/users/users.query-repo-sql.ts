@@ -38,7 +38,14 @@ export class UsersQueryRepoSQL {
       this.mapUserViewModelSQL.getUserViewModel(user),
     );
 
-    const totalCount = foundUsers.length;
+    const totalUsers = await this.dataSource.query(
+      `
+        SELECT u."id"
+        FROM public."users" u
+        `,
+    );
+
+    const totalCount = totalUsers.length;
 
     return {
       pagesCount: Math.ceil(totalCount / queryFilter.pageSize),

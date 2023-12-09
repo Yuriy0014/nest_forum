@@ -1,31 +1,17 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { SessionsRepoSQL } from '../../auth/sessions.repo-sql';
 
-import {
-  Session,
-  SessionModelType,
-} from '../../auth/models/domain/session.domain-entities';
-
-export class DeleteDeviceSessionsCommand {
+export class DeleteDeviceSessionCommand {
   constructor(public deviceId: string) {}
 }
 
-@CommandHandler(DeleteDeviceSessionsCommand)
+@CommandHandler(DeleteDeviceSessionCommand)
 export class DeleteDeviceSessionsUseCase
-  implements ICommandHandler<DeleteDeviceSessionsCommand>
+  implements ICommandHandler<DeleteDeviceSessionCommand>
 {
-  constructor(
-    @InjectModel(Session.name)
-    private readonly sessionModel: SessionModelType,
-  ) {}
+  constructor(private readonly sessionRepo: SessionsRepoSQL) {}
 
-  async execute(command: DeleteDeviceSessionsCommand): Promise<boolean> {
-    const sessionInstance = await this.sessionModel.findOne({
-      deviceId: command.deviceId,
-    });
-    if (!sessionInstance) return false;
-
-    await sessionInstance.deleteOne();
-    return true;
+  async execute(command: DeleteDeviceSessionCommand): Promise<boolean> {
+    return this.sessionRepo.deleteSessionByDeviceId(command.deviceId);
   }
 }

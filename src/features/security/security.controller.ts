@@ -12,17 +12,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
-import { SessionsQueryRepoMongo } from '../auth/sessions.query-repo-mongo.service';
 import { VerifyRefreshTokenGuard } from '../auth/guards/auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteAllSessionsCommand } from './use-cases/DeleteAllSessionsUseCase';
-import { DeleteDeviceSessionsCommand } from './use-cases/DeleteDeviceSessionsUseCase';
+import { DeleteDeviceSessionCommand } from './use-cases/DeleteDeviceSessionsUseCase';
+import { SessionsQueryRepoSQL } from '../auth/sessions.query.repo-sql';
 
 @Controller('security')
 export class SecurityController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly sessionsQueryRepo: SessionsQueryRepoMongo,
+    private readonly sessionsQueryRepo: SessionsQueryRepoSQL,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -50,7 +50,11 @@ export class SecurityController {
     }
 
     const status = await this.commandBus.execute(
-      new DeleteAllSessionsCommand(RFTokenInfo.iat, RFTokenInfo.deviceId),
+      new DeleteAllSessionsCommand(
+        RFTokenInfo.iat,
+        RFTokenInfo.deviceId,
+        RFTokenInfo.userId,
+      ),
     );
 
     if (!status) {
@@ -89,7 +93,7 @@ export class SecurityController {
     }
 
     const deleteStatus: boolean = await this.commandBus.execute(
-      new DeleteDeviceSessionsCommand(req.params.deviceId),
+      new DeleteDeviceSessionCommand(req.params.deviceId),
     );
 
     if (!deleteStatus) {

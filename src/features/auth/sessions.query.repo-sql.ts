@@ -16,7 +16,7 @@ export class SessionsQueryRepoSQL {
       `
         SELECT s."id", s."ip", s."title", s."lastActiveDate", s."deviceId", s."deviceName", 
         s."userId", s."RFTokenIAT", s."RFTokenObsoleteDate"
-            FROM public.sessions s
+        FROM public.sessions s
         WHERE (s."userId" = $1)`,
       [userId],
     );

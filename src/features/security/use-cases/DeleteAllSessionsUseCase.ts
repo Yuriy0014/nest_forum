@@ -1,38 +1,27 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
-import {
-  Session,
-  SessionModelType,
-} from '../../auth/models/domain/session.domain-entities';
+import { SessionsRepoSQL } from '../../auth/sessions.repo-sql';
 
 export class DeleteAllSessionsCommand {
-  constructor(public currentRFTokenIAT: number, public deviceId: string) {}
+  constructor(
+    public currentRFTokenIAT: number,
+    public deviceId: string,
+    public userId: string,
+  ) {}
 }
 
 @CommandHandler(DeleteAllSessionsCommand)
 export class DeleteAllSessionsUseCase
   implements ICommandHandler<DeleteAllSessionsCommand>
 {
-  constructor(
-    @InjectModel(Session.name)
-    private readonly sessionModel: SessionModelType,
-  ) {}
+  constructor(private readonly sessionRepo: SessionsRepoSQL) {}
 
   async execute(command: DeleteAllSessionsCommand): Promise<boolean> {
     try {
-      let sessionInstance = await this.sessionModel.findOne({
-        RFTokenIAT: { $ne: new Date(command.currentRFTokenIAT) },
-        deviceId: { $ne: command.deviceId },
-      });
-
-      while (sessionInstance) {
-        await sessionInstance.deleteOne();
-        sessionInstance = await this.sessionModel.findOne({
-          RFTokenIAT: { $ne: new Date(command.currentRFTokenIAT) },
-          deviceId: { $ne: command.deviceId },
-        });
-      }
+      await this.sessionRepo.deleteSessionForUser(
+        command.currentRFTokenIAT,
+        command.deviceId,
+        command.userId,
+      );
     } catch (e) {
       console.log(e);
       return false;

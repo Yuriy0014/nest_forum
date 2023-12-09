@@ -114,4 +114,45 @@ export class SessionsRepoSQL {
 
     return deletedSession.length === 0;
   }
+
+  async deleteSessionByDeviceId(deviceId: string) {
+    await this.dataSource.query(
+      `
+        DELETE FROM public.sessions
+        WHERE "deviceId" = $1,`[deviceId],
+    );
+
+    const deletedSession = await this.dataSource.query(
+      `
+        SELECT s."id"
+        FROM public.sessions s
+        WHERE (s."deviceId" = $1)`,
+      [deviceId],
+    );
+
+    return deletedSession.length === 0;
+  }
+
+  async deleteSessionForUser(
+    currentRFTokenIAT: number,
+    deviceId: string,
+    userId: string,
+  ) {
+    await this.dataSource.query(
+      `
+        DELETE FROM public.sessions
+        WHERE "RFTokenIAT" <> $1 AND "userId" = $2 AND "deviceId" <> $3`,
+      [new Date(currentRFTokenIAT), userId, deviceId],
+    );
+
+    const deletedSession = await this.dataSource.query(
+      `
+        SELECT s."id"
+        FROM public.sessions s
+        WHERE (s."userId" = $1 AND s."RFTokenIAT" = $2 AND s."deviceId" = $3)`,
+      [userId, new Date(currentRFTokenIAT), deviceId],
+    );
+
+    return deletedSession.length === 1;
+  }
 }

@@ -13,9 +13,23 @@ export class UsersQueryRepoSQL {
   ) {}
 
   async FindAllUsers(queryFilter: UserFilterModel) {
-    console.log(
-      '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection,
-    );
+    const validSortFields = [
+      'id',
+      'login',
+      'email',
+      'createdAt',
+      'confirmationCodeExpDate',
+      'isEmailConfirmed',
+      'passwordRecoveryCodeActive',
+    ];
+    if (!validSortFields.includes(queryFilter.sortBy)) {
+      throw new Error('Invalid sort field');
+    }
+
+    const orderByClause =
+      '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
+
+    console.log(orderByClause);
 
     const rawUsers = await this.dataSource.query(
       `
@@ -23,16 +37,17 @@ export class UsersQueryRepoSQL {
          u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
           u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
         FROM public."users" u
-        ORDER BY $1
-        LIMIT $2
-        OFFSET $3;
+        ORDER BY ${orderByClause}
+        LIMIT $1
+        OFFSET $2;
         `,
       [
-        '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection,
         queryFilter.pageSize,
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],
     );
+
+    console.log(rawUsers);
 
     const foundUsers = rawUsers.map((user) =>
       this.mapUserViewModelSQL.getUserViewModel(user),

@@ -119,7 +119,8 @@ export class SessionsRepoSQL {
     await this.dataSource.query(
       `
         DELETE FROM public.sessions
-        WHERE "deviceId" = $1,`[deviceId],
+        WHERE "deviceId" = $1;`,
+      [deviceId],
     );
 
     const deletedSession = await this.dataSource.query(

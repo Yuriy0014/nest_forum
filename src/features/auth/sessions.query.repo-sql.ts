@@ -43,13 +43,13 @@ export class SessionsQueryRepoSQL {
   async findUserIdByDeviceId(deviceId: string) {
     const foundSession = await this.dataSource.query(
       `
-        SELECT s."id"
+        SELECT s."userId"
         FROM public."sessions" s
         WHERE (s."deviceId" = $1 )`,
       [deviceId],
     );
     if (foundSession[0]) {
-      return foundSession[0].id;
+      return foundSession[0].userId;
     } else {
       return null;
     }

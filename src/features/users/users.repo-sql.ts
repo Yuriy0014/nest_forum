@@ -129,7 +129,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, false, '', $8);
     );
 
     if (userRaw.length !== 0) {
-      return this.rawSqlToObject.createUserFromRawData(userRaw);
+      return this.rawSqlToObject.createUserFromRawData(userRaw[0]);
     }
     return null;
   }

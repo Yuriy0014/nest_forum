@@ -26,6 +26,19 @@ export class UsersQueryRepoSQL {
       throw new Error('Invalid sort field');
     }
 
+    const login_like =
+      queryFilter.searchLoginTerm === null
+        ? '%'
+        : `%${queryFilter.searchLoginTerm}%`;
+    console.log(login_like);
+
+    const email_like =
+      queryFilter.searchEmailTerm === null
+        ? '%'
+        : `%${queryFilter.searchEmailTerm}%`;
+
+    console.log(email_like);
+
     const orderByClause =
       '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
 
@@ -37,11 +50,14 @@ export class UsersQueryRepoSQL {
          u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
           u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
         FROM public."users" u
+        WHERE ("login" LIKE $1 AND "email" LIKE $2)
         ORDER BY ${orderByClause}
-        LIMIT $1
-        OFFSET $2;
+        LIMIT $3
+        OFFSET $4;
         `,
       [
+        login_like,
+        email_like,
         queryFilter.pageSize,
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],
@@ -57,7 +73,10 @@ export class UsersQueryRepoSQL {
       `
         SELECT u."id"
         FROM public."users" u
+        WHERE ("login" LIKE $1 AND "email" LIKE $2)
+        ORDER BY ${orderByClause}
         `,
+      [login_like, email_like],
     );
 
     const totalCount = totalUsers.length;

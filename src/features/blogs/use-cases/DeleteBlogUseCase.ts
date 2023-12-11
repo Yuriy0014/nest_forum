@@ -1,4 +1,4 @@
-import { BlogsRepo } from '../blogs.repo';
+import { BlogsRepoMongo } from '../blogs.repo-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class DeleteBlogCommand {
@@ -7,7 +7,7 @@ export class DeleteBlogCommand {
 
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
-  constructor(private readonly blogsRepo: BlogsRepo) {}
+  constructor(private readonly blogsRepo: BlogsRepoMongo) {}
 
   async execute(command: DeleteBlogCommand) {
     const foundBlog = await this.blogsRepo.findBlogById(command.blogId);

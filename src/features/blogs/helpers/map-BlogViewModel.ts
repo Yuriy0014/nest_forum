@@ -1,4 +1,4 @@
-import { BlogDbModel, BlogViewModel } from '../models/blogs.models';
+import { BlogDbModel, BlogViewModel } from '../models/blogs.models-mongo';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

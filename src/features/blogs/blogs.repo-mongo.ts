@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
-import { BlogDbModel } from './models/blogs.models';
+import { BlogDbModel } from './models/blogs.models-mongo';
 import {
   Blog,
   blogDBMethodsType,
@@ -10,7 +10,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
-export class BlogsRepo {
+export class BlogsRepoMongo {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,

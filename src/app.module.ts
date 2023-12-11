@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BlogsController } from './features/blogs/blogs.controller';
-import { BlogsRepo } from './features/blogs/blogs.repo';
-import { BlogsQueryRepo } from './features/blogs/blogs.query-repo';
+import { BlogsRepoMongo } from './features/blogs/blogs.repo-mongo';
+import { BlogsQueryRepoMongo } from './features/blogs/blogs.query-repo-mongo';
 import {
   Blog,
   BlogSchema,
@@ -175,8 +175,8 @@ const useCases = [
   providers: [
     AppService,
     // Blogs
-    BlogsRepo,
-    BlogsQueryRepo,
+    BlogsRepoMongo,
+    BlogsQueryRepoMongo,
     MapBlogViewModel,
     // Posts
     PostsRepo,

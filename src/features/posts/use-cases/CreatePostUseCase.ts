@@ -7,7 +7,7 @@ import {
 } from '../../likes/models/domain/likes.domain-entities';
 import { PostsRepo } from '../posts.repo';
 import { LikesRepo } from '../../likes/likes.repo';
-import { BlogsQueryRepo } from '../../blogs/blogs.query-repo';
+import { BlogsQueryRepoMongo } from '../../blogs/blogs.query-repo-mongo';
 import { MapPostViewModel } from '../helpers/map-PostViewModel';
 import { PostCreateModelStandart } from '../models/posts.models';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
@@ -25,7 +25,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     private readonly likeModel: LikeModelType,
     private readonly postsRepo: PostsRepo,
     private readonly likesRepo: LikesRepo,
-    private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepoMongo,
     private readonly mapPostViewModel: MapPostViewModel,
   ) {}
 

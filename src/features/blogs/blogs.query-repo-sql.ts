@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogDbModel } from './models/blogs.models';
+import { BlogDbModel } from './models/blogs.models-mongo';
 import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogFilterModel } from './helpers/filter';
@@ -7,7 +7,7 @@ import { FilterQuery } from 'mongoose';
 import { MapBlogViewModel } from './helpers/map-BlogViewModel';
 
 @Injectable()
-export class BlogsQueryRepo {
+export class BlogsQueryRepoSQL {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,

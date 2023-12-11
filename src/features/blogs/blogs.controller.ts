@@ -18,8 +18,8 @@ import {
   BlogsWithPaginationModel,
   BlogUpdateModel,
   BlogViewModel,
-} from './models/blogs.models';
-import { BlogsQueryRepo } from './blogs.query-repo';
+} from './models/blogs.models-mongo';
+import { BlogsQueryRepoMongo } from './blogs.query-repo-mongo';
 import { queryBlogPagination } from './helpers/filter';
 import {
   PostCreateModelFromBlog,
@@ -39,7 +39,7 @@ import { CreatePostCommand } from '../posts/use-cases/CreatePostUseCase';
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsQueryRepo: BlogsQueryRepo,
+    private readonly blogsQueryRepo: BlogsQueryRepoMongo,
     private readonly postsQueryRepo: PostsQueryRepo,
     private commandBus: CommandBus,
   ) {}

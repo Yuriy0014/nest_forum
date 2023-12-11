@@ -50,7 +50,7 @@ export class UsersQueryRepoSQL {
          u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
           u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
         FROM public."users" u
-        WHERE ("login" LIKE $1 AND "email" LIKE $2)
+        WHERE ("login" LIKE $1 OR "email" LIKE $2)
         ORDER BY ${orderByClause}
         LIMIT $3
         OFFSET $4;

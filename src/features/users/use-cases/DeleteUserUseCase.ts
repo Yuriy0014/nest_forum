@@ -1,5 +1,5 @@
-import { UsersRepoMongo } from '../users.repo-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UsersRepoSQL } from '../users.repo-sql';
 
 export class DeleteUserCommand {
   constructor(public userId: string) {}
@@ -7,7 +7,7 @@ export class DeleteUserCommand {
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
-  constructor(private readonly usersRepo: UsersRepoMongo) {}
+  constructor(private readonly usersRepo: UsersRepoSQL) {}
 
   async execute(command: DeleteUserCommand): Promise<boolean> {
     const user = await this.usersRepo.findUserById(command.userId);

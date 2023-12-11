@@ -60,8 +60,23 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, false, '', $8);
     }
   }
 
-  async deleteUser(instance: UserDBModel): Promise<boolean> {
-    return true;
+  async deleteUser(userId: string): Promise<boolean> {
+    await this.dataSource.query(
+      `
+        DELETE FROM public.users
+        WHERE id = $1`,
+      [userId],
+    );
+
+    const deletedUser = await this.dataSource.query(
+      `
+        SELECT u."id"
+        FROM public."users" u
+        WHERE u."id" = $1`,
+      [userId],
+    );
+
+    return deletedUser.length === 0;
   }
 
   async findByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {

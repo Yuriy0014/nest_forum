@@ -13,6 +13,6 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
     const user = await this.usersRepo.findUserById(command.userId);
     if (!user) return false;
 
-    return await this.usersRepo.deleteUser(user);
+    return await this.usersRepo.deleteUser(command.userId);
   }
 }

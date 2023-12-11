@@ -69,12 +69,23 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id') UserId: string) {
-    const deletion_status = await this.commandBus.execute(
-      new DeleteUserCommand(UserId),
-    );
-    if (!deletion_status) {
+  async deleteUser(@Param('id') userId: string) {
+    const foundUser: UserViewModel | null =
+      await this.usersQueryRepo.findUserById(userId);
+
+    if (!foundUser) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    const deletion_status = await this.commandBus.execute(
+      new DeleteUserCommand(userId),
+    );
+
+    if (!deletion_status) {
+      throw new HttpException(
+        'Не удалось удалить пользователя',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

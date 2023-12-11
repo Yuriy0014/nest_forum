@@ -119,7 +119,7 @@ export class UsersQueryRepoSQL {
         WHERE (u."id" = $1)`,
       [id],
     );
-    if (user) {
+    if (user[0]) {
       return this.mapUserViewModelSQL.getUserViewModel(user[0]);
     } else {
       return null;

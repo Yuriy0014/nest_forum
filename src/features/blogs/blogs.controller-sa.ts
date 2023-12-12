@@ -70,11 +70,16 @@ export class BlogsControllerSa {
   async createBlog(
     @Body() inputModel: BlogCreateModel,
   ): Promise<BlogViewModel> {
-    const createdBlog: BlogViewModel = await this.commandBus.execute(
+    const createdBlog: Result<BlogViewModel> = await this.commandBus.execute(
       new CreateBlogCommand(inputModel),
     );
-
-    return createdBlog;
+    if (createdBlog.data === null) {
+      throw new HttpException(
+        createdBlog.errorMessage!,
+        createdBlog.resultCode,
+      );
+    }
+    return createdBlog.data;
   }
 
   @Delete(':id')
@@ -86,7 +91,16 @@ export class BlogsControllerSa {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.commandBus.execute(new DeleteBlogCommand(blogId));
+    const deletionResult = await this.commandBus.execute(
+      new DeleteBlogCommand(blogId),
+    );
+
+    if (!deletionResult) {
+      throw new HttpException(
+        'Не удалось удалить блог',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Put(':id')
@@ -101,7 +115,16 @@ export class BlogsControllerSa {
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    await this.commandBus.execute(new UpdateBlogCommand(blogId, updateDTO));
+    const updateResult = await this.commandBus.execute(
+      new UpdateBlogCommand(blogId, updateDTO),
+    );
+
+    if (!updateResult) {
+      throw new HttpException(
+        'Не удалось обновить блог',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   ////////////////////////////

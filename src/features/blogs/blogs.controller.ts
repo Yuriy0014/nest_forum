@@ -17,15 +17,13 @@ import { PostsWithPaginationModel } from '../posts/models/posts.models';
 import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
-import { CommandBus } from '@nestjs/cqrs';
 import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
 
 @Controller('blogs')
-export class BlogsControllerSa {
+export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,
     private readonly postsQueryRepo: PostsQueryRepo,
-    private commandBus: CommandBus,
   ) {}
 
   @Get()

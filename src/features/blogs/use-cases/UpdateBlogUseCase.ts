@@ -1,21 +1,19 @@
-import { BlogsRepoMongo } from '../blogs.repo-mongo';
 import { BlogUpdateModel } from '../models/blogs.models-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { BlogsRepoSQL } from '../blogs.repo-sql';
 
 export class UpdateBlogCommand {
-  constructor(public userId: string, public updateDTO: BlogUpdateModel) {}
+  constructor(public blogId: string, public updateDTO: BlogUpdateModel) {}
 }
 
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
-  constructor(private readonly blogsRepo: BlogsRepoMongo) {}
+  constructor(private readonly blogsRepo: BlogsRepoSQL) {}
 
   async execute(command: UpdateBlogCommand): Promise<boolean> {
-    const foundBlog = await this.blogsRepo.findBlogById(command.userId);
+    const foundBlog = await this.blogsRepo.findBlogById(command.blogId);
     if (!foundBlog) return false;
 
-    foundBlog.updateBlog(command.updateDTO);
-    await this.blogsRepo.save(foundBlog);
-    return true;
+    return this.blogsRepo.updateBlog(command.blogId, command.updateDTO);
   }
 }

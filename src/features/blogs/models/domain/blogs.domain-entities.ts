@@ -36,7 +36,6 @@ export class Blog {
     blogInstance.name = dto.name;
     blogInstance.description = dto.description;
     blogInstance.websiteUrl = dto.websiteUrl;
-    blogInstance._id = new mongoose.Types.ObjectId();
     blogInstance.createdAt = new Date().toISOString();
     blogInstance.isMembership = false;
 

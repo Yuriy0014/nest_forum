@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlogsController } from './features/blogs/blogs.controller';
 import { BlogsRepoMongo } from './features/blogs/blogs.repo-mongo';
 import { BlogsQueryRepoMongo } from './features/blogs/blogs.query-repo-mongo';
 import {
@@ -98,6 +97,8 @@ import { UserObjectFromRawData } from './features/users/helpers/map-rawsql-to-ob
 import { BlogsControllerSa } from './features/blogs/blogs.controller-sa';
 import { MapBlogViewModelSQL } from './features/blogs/helpers/map-BlogViewModelSQL';
 import { BlogsQueryRepoSQL } from './features/blogs/blogs.query-repo-sql';
+import { BlogsController } from './features/blogs/blogs.controller';
+import { BlogsRepoSQL } from './features/blogs/blogs.repo-sql';
 
 const useCases = [
   ///Blogs
@@ -180,6 +181,7 @@ const useCases = [
     AppService,
     // Blogs
     BlogsRepoMongo,
+    BlogsRepoSQL,
     BlogsQueryRepoMongo,
     BlogsQueryRepoSQL,
     MapBlogViewModelMongo,

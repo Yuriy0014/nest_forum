@@ -1,23 +1,39 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
+  Post,
+  Put,
   Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import {
+  BlogCreateModel,
   BlogsWithPaginationModel,
+  BlogUpdateModel,
   BlogViewModel,
 } from './models/blogs.models-mongo';
 import { queryBlogPagination } from './helpers/filter';
-import { PostsWithPaginationModel } from '../posts/models/posts.models';
+import {
+  PostCreateModelFromBlog,
+  PostsWithPaginationModel,
+  PostViewModel,
+} from '../posts/models/posts.models';
 import { queryPostPagination } from '../posts/helpers/filter';
 import { PostsQueryRepo } from '../posts/posts.query-repo';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
+import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
+import { DeleteBlogCommand } from './use-cases/DeleteBlogUseCase';
 import { CommandBus } from '@nestjs/cqrs';
+import { UpdateBlogCommand } from './use-cases/UpdateBlogUseCase';
+import { CreatePostCommand } from '../posts/use-cases/CreatePostUseCase';
 import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
 
 @Controller('blogs')
@@ -49,14 +65,43 @@ export class BlogsControllerSa {
     return foundBlogs;
   }
 
-  @Get(':id')
-  async findBlog(@Param('id') id: string): Promise<BlogViewModel> {
+  @Post()
+  @UseGuards(BasicAuthGuard)
+  async createBlog(
+    @Body() inputModel: BlogCreateModel,
+  ): Promise<BlogViewModel> {
+    const createdBlog: BlogViewModel = await this.commandBus.execute(
+      new CreateBlogCommand(inputModel),
+    );
+
+    return createdBlog;
+  }
+
+  @Delete(':id')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(204)
+  async deleteBlog(@Param('id') blogId: string) {
     const foundBlog: BlogViewModel | null =
-      await this.blogsQueryRepo.findBlogById(id);
+      await this.blogsQueryRepo.findBlogById(blogId);
     if (!foundBlog) {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
-    return foundBlog;
+    await this.commandBus.execute(new DeleteBlogCommand(blogId));
+  }
+
+  @Put(':id')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(204)
+  async updateBlog(
+    @Param('id') blogId: string,
+    @Body() updateDTO: BlogUpdateModel,
+  ) {
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+    await this.commandBus.execute(new UpdateBlogCommand(blogId, updateDTO));
   }
 
   ////////////////////////////
@@ -85,5 +130,26 @@ export class BlogsControllerSa {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
     return foundPosts;
+  }
+
+  @Post(':id/posts')
+  @UseGuards(BasicAuthGuard)
+  async createPost(
+    @Param('id') blogId: string,
+    @Body() inputModel: PostCreateModelFromBlog,
+  ): Promise<PostViewModel> {
+    // Проверяем, что блог существует
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    inputModel.blogId = blogId;
+    const createdPost: PostViewModel = await this.commandBus.execute(
+      new CreatePostCommand(inputModel),
+    );
+
+    return createdPost;
   }
 }

@@ -9,7 +9,7 @@ import {
   Blog,
   BlogSchema,
 } from './features/blogs/models/domain/blogs.domain-entities';
-import { MapBlogViewModel } from './features/blogs/helpers/map-BlogViewModel';
+import { MapBlogViewModelMongo } from './features/blogs/helpers/map-BlogViewModelMongo';
 import { PostsController } from './features/posts/posts.controller';
 import { PostsRepo } from './features/posts/posts.repo';
 import { PostsQueryRepo } from './features/posts/posts.query-repo';
@@ -95,6 +95,9 @@ import { SessionsRepoSQL } from './features/auth/sessions.repo-sql';
 import { SessionsQueryRepoSQL } from './features/auth/sessions.query.repo-sql';
 import { MapSessionViewModelSQL } from './features/auth/helpers/map-SessionViewModel-SQL';
 import { UserObjectFromRawData } from './features/users/helpers/map-rawsql-to-object';
+import { BlogsControllerSa } from './features/blogs/blogs.controller-sa';
+import { MapBlogViewModelSQL } from './features/blogs/helpers/map-BlogViewModelSQL';
+import { BlogsQueryRepoSQL } from './features/blogs/blogs.query-repo-sql';
 
 const useCases = [
   ///Blogs
@@ -166,6 +169,7 @@ const useCases = [
     AppController,
     TestingController,
     BlogsController,
+    BlogsControllerSa,
     PostsController,
     CommentsController,
     UsersController,
@@ -177,7 +181,9 @@ const useCases = [
     // Blogs
     BlogsRepoMongo,
     BlogsQueryRepoMongo,
-    MapBlogViewModel,
+    BlogsQueryRepoSQL,
+    MapBlogViewModelMongo,
+    MapBlogViewModelSQL,
     // Posts
     PostsRepo,
     PostsQueryRepo,

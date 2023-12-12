@@ -4,14 +4,14 @@ import { Blog, BlogModelType } from './models/domain/blogs.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogFilterModel } from './helpers/filter';
 import { FilterQuery } from 'mongoose';
-import { MapBlogViewModel } from './helpers/map-BlogViewModel';
+import { MapBlogViewModelMongo } from './helpers/map-BlogViewModelMongo';
 
 @Injectable()
 export class BlogsQueryRepoMongo {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
-    private readonly mapPostViewModel: MapBlogViewModel,
+    private readonly mapPostViewModel: MapBlogViewModelMongo,
   ) {}
 
   async findBlogById(id: string) {

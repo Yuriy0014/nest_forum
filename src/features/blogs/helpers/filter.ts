@@ -8,7 +8,7 @@ export type BlogFilterModel = {
 
 export const queryBlogPagination = (query: any): BlogFilterModel => {
   return {
-    searchNameTerm: query.searchNameTerm ?? '',
+    searchNameTerm: query.searchNameTerm ?? null,
     sortBy: query.sortBy ?? 'createdAt',
     sortDirection: query.sortDirection === 'asc' ? 'asc' : 'desc',
     pageNumber: +(query.pageNumber ?? 1),

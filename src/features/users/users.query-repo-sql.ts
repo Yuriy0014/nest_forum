@@ -30,19 +30,14 @@ export class UsersQueryRepoSQL {
       queryFilter.searchLoginTerm === null
         ? '%'
         : `%${queryFilter.searchLoginTerm}%`;
-    console.log(login_like);
 
     const email_like =
       queryFilter.searchEmailTerm === null
         ? '%'
         : `%${queryFilter.searchEmailTerm}%`;
 
-    console.log(email_like);
-
     const orderByClause =
       '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
-
-    console.log(orderByClause);
 
     const rawUsers = await this.dataSource.query(
       `
@@ -62,8 +57,6 @@ export class UsersQueryRepoSQL {
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],
     );
-
-    console.log(rawUsers);
 
     const foundUsers = rawUsers.map((user) =>
       this.mapUserViewModelSQL.getUserViewModel(user),

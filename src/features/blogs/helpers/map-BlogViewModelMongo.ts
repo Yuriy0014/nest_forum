@@ -1,8 +1,8 @@
-import { BlogDbModel, BlogViewModel } from '../models/blogs.models-mongo';
 import { Injectable } from '@nestjs/common';
+import { BlogDbModel, BlogViewModel } from '../models/blogs.models-mongo';
 
 @Injectable()
-export class MapBlogViewModel {
+export class MapBlogViewModelMongo {
   getBlogViewModel = (blog: BlogDbModel): BlogViewModel => {
     return {
       id: blog._id.toString(),

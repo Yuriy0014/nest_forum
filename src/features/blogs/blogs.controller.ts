@@ -15,15 +15,15 @@ import {
 import { queryBlogPagination } from './helpers/filter';
 import { PostsWithPaginationModel } from '../posts/models/posts.models-mongo';
 import { queryPostPagination } from '../posts/helpers/filter';
-import { PostsQueryRepoMongo } from '../posts/posts.query-repo-mongo';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
+import { PostsQueryRepoSQL } from '../posts/posts.query-repo-sql';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,
-    private readonly postsQueryRepo: PostsQueryRepoMongo,
+    private readonly postsQueryRepo: PostsQueryRepoSQL,
   ) {}
 
   @Get()

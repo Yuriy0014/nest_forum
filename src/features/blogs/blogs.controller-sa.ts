@@ -26,7 +26,6 @@ import {
   PostViewModel,
 } from '../posts/models/posts.models-mongo';
 import { queryPostPagination } from '../posts/helpers/filter';
-import { PostsQueryRepoMongo } from '../posts/posts.query-repo-mongo';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
@@ -35,12 +34,16 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UpdateBlogCommand } from './use-cases/UpdateBlogUseCase';
 import { CreatePostCommand } from '../posts/use-cases/CreatePostUseCase';
 import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
+import { PostsQueryRepoSQL } from '../posts/posts.query-repo-sql';
+import { UpdatePostComand } from '../posts/use-cases/UpdatePostUseCase';
+import { PostUpdateModel } from '../posts/models/posts.models-sql';
+import { DeletePostCommand } from '../posts/use-cases/DeletePostUseCase';
 
 @Controller('blogs')
 export class BlogsControllerSa {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,
-    private readonly postsQueryRepo: PostsQueryRepoMongo,
+    private readonly postsQueryRepo: PostsQueryRepoSQL,
     private commandBus: CommandBus,
   ) {}
 
@@ -181,5 +184,34 @@ export class BlogsControllerSa {
     }
 
     return createdPost;
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(204)
+  async deletePost(@Param('postId') postId: string) {
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(postId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.commandBus.execute(new DeletePostCommand(postId));
+  }
+
+  @Put(':blogId/posts/:postId')
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(204)
+  async updatePost(
+    @Param('postId') postId: string,
+    @Body() updateDTO: PostUpdateModel,
+  ) {
+    const foundPost: PostViewModel | null =
+      await this.postsQueryRepo.findPostById(postId);
+    if (!foundPost) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.commandBus.execute(new UpdatePostComand(postId, updateDTO));
   }
 }

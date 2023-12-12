@@ -169,9 +169,16 @@ export class BlogsControllerSa {
     }
 
     inputModel.blogId = blogId;
-    const createdPost: PostViewModel = await this.commandBus.execute(
+    const createdPost: PostViewModel | null = await this.commandBus.execute(
       new CreatePostCommand(inputModel),
     );
+
+    if (!createdPost) {
+      throw new HttpException(
+        'Не удалось создать пост',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return createdPost;
   }

@@ -210,4 +210,32 @@ export class LikesRepoSQL {
       return false;
     }
   }
+
+  async createLikesInfo(
+    ownerId: string,
+    ownerType: LikeObjectTypeEnum,
+  ): Promise<void> {
+    await this.dataSource.query(
+      `
+            INSERT INTO public.likes(
+            "ownerType", "ownerId", "likesCount", "dislikesCount")
+            VALUES ( $1, $2, $3, $4);`,
+      [ownerType, ownerId, 0, 0],
+    );
+  }
+
+  async findLastThreeLikesPost(postId: string) {
+    const likesData = await this.dataSource.query(
+      `
+        SELECT "id", "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status"
+        FROM public."usersLikesConnection"
+        WHERE ("likedObjectId" = $1 AND "likedObjectType" = $2 AND "status" = $3)
+        ORDER BY "addedAt" desc
+        LIMIT 3
+        ;`,
+      [postId, 'Post', likeStatus.Like],
+    );
+
+    return likesData;
+  }
 }

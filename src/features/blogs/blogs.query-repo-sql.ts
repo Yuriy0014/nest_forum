@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BlogFilterModel } from './helpers/filter';
-import { BlogDbModel } from './models/blogs.models-sql';
+import { BlogDbModel, BlogViewModel } from './models/blogs.models-sql';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { MapBlogViewModelSQL } from './helpers/map-BlogViewModelSQL';
@@ -12,7 +12,7 @@ export class BlogsQueryRepoSQL {
     @InjectDataSource() protected dataSource: DataSource,
   ) {}
 
-  async findBlogById(id: string) {
+  async findBlogById(id: string): Promise<BlogViewModel | null> {
     const blog: BlogDbModel[] = await this.dataSource.query(
       `
         SELECT b."id", b."name", b."description", b."websiteUrl", b."createdAt", b."isMembership"

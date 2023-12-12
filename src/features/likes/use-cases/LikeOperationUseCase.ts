@@ -1,4 +1,3 @@
-import { LikesRepoMongo } from '../likes.repo-mongo';
 import { LikeObjectTypeEnum } from '../models/domain/likes.domain-entities';
 import {
   likesInfoViewModel,
@@ -6,6 +5,7 @@ import {
   likeStatusModel,
 } from '../models/likes.models-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { LikesRepoSQL } from '../likes.repo-sql';
 
 export class LikeOperationCommand {
   constructor(
@@ -22,7 +22,7 @@ export class LikeOperationCommand {
 export class LikeOperationUseCase
   implements ICommandHandler<LikeOperationCommand>
 {
-  constructor(private readonly likesRepo: LikesRepoMongo) {}
+  constructor(private readonly likesRepo: LikesRepoSQL) {}
 
   async execute(command: LikeOperationCommand): Promise<boolean> {
     const savedLikeStatus = command.likesInfo.myStatus;

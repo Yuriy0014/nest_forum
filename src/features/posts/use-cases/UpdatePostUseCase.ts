@@ -1,6 +1,6 @@
-import { PostsRepoMongo } from '../posts.repo-mongo';
-import { PostUpdateModel } from '../models/posts.models-mongo';
+import { PostUpdateModel } from '../models/posts.models-sql';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { PostsRepoSQL } from '../posts.repo-sql';
 
 export class UpdatePostComand {
   constructor(public postId: string, public updateDTO: PostUpdateModel) {}
@@ -8,14 +8,9 @@ export class UpdatePostComand {
 
 @CommandHandler(UpdatePostComand)
 export class UpdatePostUseCase implements ICommandHandler<UpdatePostComand> {
-  constructor(private readonly postsRepo: PostsRepoMongo) {}
+  constructor(private readonly postsRepo: PostsRepoSQL) {}
 
   async execute(command: UpdatePostComand): Promise<boolean> {
-    const foundPost = await this.postsRepo.findPostById(command.postId);
-    if (!foundPost) return false;
-
-    foundPost.updatePost(command.updateDTO);
-    await this.postsRepo.save(foundPost);
-    return true;
+    return this.postsRepo.updatePost(command.postId, command.updateDTO);
   }
 }

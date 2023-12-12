@@ -3,20 +3,16 @@ import { PostDbModel, PostViewModel } from '../models/posts.models-sql';
 import {
   likeDetailsViewModel,
   likeStatus,
-} from '../../likes/models/likes.models-mongo';
-import { LikesQueryRepoMongo } from '../../likes/likes.query-repo-mongo';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  UsersLikesConnection,
-  UsersLikesConnectionType,
-} from '../../likes/models/domain/likes.domain-entities';
+} from '../../likes/models/likes.models-sql';
+import { LikesQueryRepoSQL } from '../../likes/likes.query-repo-sql';
+import { LikesRepoSQL } from '../../likes/likes.repo-sql';
+import { usersLikesConnectionDBModel } from '../../likes/models/likes.models-sql';
 
 @Injectable()
 export class MapPostViewModelSQL {
   constructor(
-    @InjectModel(UsersLikesConnection.name)
-    private readonly usersLikesConnectionModel: UsersLikesConnectionType,
-    protected likesQueryRepo: LikesQueryRepoMongo,
+    protected likesQueryRepo: LikesQueryRepoSQL,
+    protected likesRepo: LikesRepoSQL,
   ) {}
 
   async getPostViewModel(
@@ -35,20 +31,12 @@ export class MapPostViewModelSQL {
       myStatus: likeStatus.None,
     };
 
-    const likesLastThreeMongoose = await this.usersLikesConnectionModel
-      .find({
-        likedObjectId: postId,
-        likedObjectType: 'Post',
-        status: likeStatus.Like,
-      })
-      .lean()
-      .sort({ addedAt: 'desc' })
-      .limit(3);
+    const likesLastThreeSQl: usersLikesConnectionDBModel[] =
+      await this.likesRepo.findLastThreeLikesPost(postId);
 
-    const likesLastThree = likesLastThreeMongoose.map((value) => {
-      console.log(value);
+    const likesLastThree = likesLastThreeSQl.map((value) => {
       const newItem: likeDetailsViewModel = {
-        addedAt: value.addedAt.toString(),
+        addedAt: value.addedAt.toISOString(),
         userId: value.userId,
         login: value.userLogin,
       };

@@ -1,16 +1,10 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { Post, postModelType } from '../models/domain/posts.domain-entities';
-import {
-  Like,
-  LikeModelType,
-  LikeObjectTypeEnum,
-} from '../../likes/models/domain/likes.domain-entities';
-import { PostsRepoMongo } from '../posts.repo-mongo';
-import { LikesRepoMongo } from '../../likes/likes.repo-mongo';
-import { BlogsQueryRepoMongo } from '../../blogs/blogs.query-repo-mongo';
-import { MapPostViewModelMongo } from '../helpers/map-PostViewModel-mongo';
-import { PostCreateModelStandart } from '../models/posts.models-mongo';
+import { PostCreateModelStandart } from '../models/posts.models-sql';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { BlogsQueryRepoSQL } from '../../blogs/blogs.query-repo-sql';
+import { MapPostViewModelSQL } from '../helpers/map-PostViewModel-SQL';
+import { PostsRepoSQL } from '../posts.repo-sql';
+import { LikesRepoSQL } from '../../likes/likes.repo-sql';
+import { LikeObjectTypeEnum } from '../../likes/models/likes.models-sql';
 
 export class CreatePostCommand {
   constructor(public PostCreateModelDTO: PostCreateModelStandart) {}
@@ -19,14 +13,10 @@ export class CreatePostCommand {
 @CommandHandler(CreatePostCommand)
 export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
-    @InjectModel(Post.name)
-    private readonly postModel: postModelType,
-    @InjectModel(Like.name)
-    private readonly likeModel: LikeModelType,
-    private readonly postsRepo: PostsRepoMongo,
-    private readonly likesRepo: LikesRepoMongo,
-    private readonly blogsQueryRepo: BlogsQueryRepoMongo,
-    private readonly mapPostViewModel: MapPostViewModelMongo,
+    private readonly postsRepo: PostsRepoSQL,
+    private readonly likesRepo: LikesRepoSQL,
+    private readonly blogsQueryRepo: BlogsQueryRepoSQL,
+    private readonly mapPostViewModel: MapPostViewModelSQL,
   ) {}
 
   async execute(command: CreatePostCommand) {
@@ -34,21 +24,31 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       command.PostCreateModelDTO.blogId,
     );
 
-    const createdPost = this.postModel.createPost(
+    if (!blog) {
+      return null;
+    }
+
+    const createdPostId = await this.postsRepo.createPost(
       command.PostCreateModelDTO,
-      blog!.name,
-      this.postModel,
+      blog.name,
     );
 
-    const newLikesInfo = this.likeModel.createLikesInfo(
-      createdPost._id.toString(),
+    if (!createdPostId) {
+      return null;
+    }
+
+    // Создаем информацию о лайках
+    await this.likesRepo.createLikesInfo(
+      createdPostId,
       LikeObjectTypeEnum.Post,
-      this.likeModel,
     );
 
-    await this.likesRepo.save(newLikesInfo);
+    const createdPost = await this.postsRepo.findPostById(createdPostId);
 
-    await this.postsRepo.save(createdPost);
+    if (!createdPost) {
+      return null;
+    }
+
     return this.mapPostViewModel.getPostViewModel(createdPost);
   }
 }

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { likesInfoViewModel } from '../../likes/models/likes.models';
+import { likesInfoViewModel } from '../../likes/models/likes.models-mongo';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class CommentInputModel {

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { likeStatus } from '../likes.models';
+import { likeStatus } from '../likes.models-mongo';
 
 export enum LikeObjectTypeEnum {
   Comment = 'Comment',

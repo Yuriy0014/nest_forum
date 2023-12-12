@@ -17,8 +17,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
   likesInfoViewModel,
-} from '../likes/models/likes.models';
-import { LikesQueryRepo } from '../likes/likes.query-repo';
+} from '../likes/models/likes.models-mongo';
+import { LikesQueryRepoMongo } from '../likes/likes.query-repo-mongo';
 import { UsersQueryRepoMongo } from '../users/users.query-repo-mongo';
 import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
@@ -31,7 +31,7 @@ import { UpdateCommentCommand } from './use-cases/UpdateCommentUseCase';
 export class CommentsController {
   constructor(
     private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly likesQueryRepo: LikesQueryRepo,
+    private readonly likesQueryRepo: LikesQueryRepoMongo,
     private readonly usersQueryRepo: UsersQueryRepoMongo,
     private readonly commandBus: CommandBus,
   ) {}

@@ -3,7 +3,7 @@ import {
   likeStatus,
   ownerTypeModel,
   usersLikesConnectionDBModel,
-} from './models/likes.models';
+} from './models/likes.models-mongo';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
@@ -12,16 +12,16 @@ import {
   UsersLikesConnection,
   UsersLikesConnectionType,
 } from './models/domain/likes.domain-entities';
-import { MapLikeViewModel } from './helpers/map-likesViewModel';
+import { MapLikeViewModelMongo } from './helpers/map-likesViewModel-mongo';
 
 @Injectable()
-export class LikesQueryRepo {
+export class LikesQueryRepoMongo {
   constructor(
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
     @InjectModel(UsersLikesConnection.name)
     private readonly usersLikesConnectionModel: UsersLikesConnectionType,
-    private readonly mapCommentViewModel: MapLikeViewModel,
+    private readonly mapCommentViewModel: MapLikeViewModelMongo,
   ) {}
 
   async findLikesByOwnerId(

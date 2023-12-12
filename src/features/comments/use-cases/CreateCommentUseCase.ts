@@ -10,7 +10,7 @@ import {
   LikeObjectTypeEnum,
 } from '../../likes/models/domain/likes.domain-entities';
 import { CommentsRepo } from '../comments.repo';
-import { LikesRepo } from '../../likes/likes.repo';
+import { LikesRepoMongo } from '../../likes/likes.repo-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreateCommentCommand {
@@ -32,7 +32,7 @@ export class CreateCommentUseCase
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
     private readonly commentsRepo: CommentsRepo,
-    private readonly likesRepo: LikesRepo,
+    private readonly likesRepo: LikesRepoMongo,
   ) {}
 
   async execute(command: CreateCommentCommand): Promise<CommentDocument> {

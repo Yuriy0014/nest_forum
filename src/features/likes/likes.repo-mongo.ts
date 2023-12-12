@@ -9,10 +9,10 @@ import {
 } from './models/domain/likes.domain-entities';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { likeStatus } from './models/likes.models';
+import { likeStatus } from './models/likes.models-mongo';
 
 @Injectable()
-export class LikesRepo {
+export class LikesRepoMongo {
   constructor(
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,

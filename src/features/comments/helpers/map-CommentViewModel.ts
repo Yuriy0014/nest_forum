@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { LikesQueryRepo } from '../../likes/likes.query-repo';
+import { LikesQueryRepoMongo } from '../../likes/likes.query-repo-mongo';
 import { CommentDbModel, CommentViewModel } from '../models/comments.models';
-import { likeStatus } from '../../likes/models/likes.models';
+import { likeStatus } from '../../likes/models/likes.models-mongo';
 
 @Injectable()
 export class MapCommentViewModel {
-  constructor(private readonly likesQueryRepo: LikesQueryRepo) {}
+  constructor(private readonly likesQueryRepo: LikesQueryRepoMongo) {}
 
   async getCommentViewModel(
     comment: CommentDbModel,

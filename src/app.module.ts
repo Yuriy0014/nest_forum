@@ -26,7 +26,7 @@ import {
   Comment,
   CommentSchema,
 } from './features/comments/models/domain/comments.domain-entities';
-import { LikesQueryRepo } from './features/likes/likes.query-repo';
+import { LikesQueryRepoMongo } from './features/likes/likes.query-repo-mongo';
 import { UsersController } from './features/users/users.controller';
 import { UsersRepoMongo } from './features/users/users.repo-mongo';
 import { MapUserViewModelMongo } from './features/users/helpers/map-UserViewModel-mongo';
@@ -55,8 +55,8 @@ import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
-import { LikesRepo } from './features/likes/likes.repo';
-import { MapLikeViewModel } from './features/likes/helpers/map-likesViewModel';
+import { LikesRepoMongo } from './features/likes/likes.repo-mongo';
+import { MapLikeViewModelMongo } from './features/likes/helpers/map-likesViewModel-mongo';
 import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
 import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
@@ -102,6 +102,9 @@ import { BlogsRepoSQL } from './features/blogs/blogs.repo-sql';
 import { MapPostViewModelSQL } from './features/posts/helpers/map-PostViewModel-SQL';
 import { PostsRepoSQL } from './features/posts/posts.repo-sql';
 import { PostsQueryRepoSQL } from './features/posts/posts.query-repo-sql';
+import { LikesRepoSQL } from './features/likes/likes.repo-sql';
+import { LikesQueryRepoSQL } from './features/likes/likes.query-repo-sql';
+import { MapLikeViewModelSQL } from './features/likes/helpers/map-likesViewModel-sql';
 
 const useCases = [
   ///Blogs
@@ -201,9 +204,12 @@ const useCases = [
     CommentsQueryRepo,
     MapCommentViewModel,
     // Likes
-    LikesQueryRepo,
-    LikesRepo,
-    MapLikeViewModel,
+    LikesQueryRepoMongo,
+    LikesQueryRepoSQL,
+    LikesRepoMongo,
+    LikesRepoSQL,
+    MapLikeViewModelMongo,
+    MapLikeViewModelSQL,
     // Users
     UsersQueryRepoMongo,
     UsersQueryRepoSQL,

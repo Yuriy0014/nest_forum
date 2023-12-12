@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { likesInfoViewModel, likeStatusModel } from '../models/likes.models';
+import {
+  likesInfoViewModel,
+  likeStatusModel,
+} from '../models/likes.models-mongo';
 import {
   Like,
   UsersLikesConnection,
 } from '../models/domain/likes.domain-entities';
 
 @Injectable()
-export class MapLikeViewModel {
-  constructor() {}
-
+export class MapLikeViewModelMongo {
   getLikesInfoViewModel = (
     likes: Like,
     userStatus: UsersLikesConnection | { status: likeStatusModel },

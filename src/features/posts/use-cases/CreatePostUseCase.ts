@@ -6,7 +6,7 @@ import {
   LikeObjectTypeEnum,
 } from '../../likes/models/domain/likes.domain-entities';
 import { PostsRepoMongo } from '../posts.repo-mongo';
-import { LikesRepo } from '../../likes/likes.repo';
+import { LikesRepoMongo } from '../../likes/likes.repo-mongo';
 import { BlogsQueryRepoMongo } from '../../blogs/blogs.query-repo-mongo';
 import { MapPostViewModelMongo } from '../helpers/map-PostViewModel-mongo';
 import { PostCreateModelStandart } from '../models/posts.models-mongo';
@@ -24,7 +24,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
     private readonly postsRepo: PostsRepoMongo,
-    private readonly likesRepo: LikesRepo,
+    private readonly likesRepo: LikesRepoMongo,
     private readonly blogsQueryRepo: BlogsQueryRepoMongo,
     private readonly mapPostViewModel: MapPostViewModelMongo,
   ) {}

@@ -3,8 +3,8 @@ import { PostDbModel, PostViewModel } from '../models/posts.models-sql';
 import {
   likeDetailsViewModel,
   likeStatus,
-} from '../../likes/models/likes.models';
-import { LikesQueryRepo } from '../../likes/likes.query-repo';
+} from '../../likes/models/likes.models-mongo';
+import { LikesQueryRepoMongo } from '../../likes/likes.query-repo-mongo';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   UsersLikesConnection,
@@ -16,7 +16,7 @@ export class MapPostViewModelSQL {
   constructor(
     @InjectModel(UsersLikesConnection.name)
     private readonly usersLikesConnectionModel: UsersLikesConnectionType,
-    protected likesQueryRepo: LikesQueryRepo,
+    protected likesQueryRepo: LikesQueryRepoMongo,
   ) {}
 
   async getPostViewModel(

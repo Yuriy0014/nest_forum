@@ -52,9 +52,9 @@ export class BlogsRepoSQL {
 
     const updatedBlog: BlogDbModel[] = await this.dataSource.query(
       `
-        SELECT b."id", b."name", b."description", b."websiteUrl", b."createdAt", b."isMembership"
+        SELECT b."id"
         FROM public.blogs b
-        WHERE (b."id" = $1 AND "name"=$2 AND "description"=$3 AND "websiteUrl"=$4);`,
+        WHERE (b."id" = $1 AND b."name"=$2 AND b."description"=$3 AND b."websiteUrl"=$4);`,
       [blogId, updateDTO.name, updateDTO.description, updateDTO.websiteUrl],
     );
 
@@ -73,7 +73,7 @@ export class BlogsRepoSQL {
       `
         SELECT b."id"
         FROM public."blogs" b
-        WHERE u."id" = $1`,
+        WHERE b."id" = $1`,
       [blogId],
     );
 

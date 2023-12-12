@@ -13,9 +13,9 @@ import {
   BlogViewModel,
 } from './models/blogs.models-sql';
 import { queryBlogPagination } from './helpers/filter';
-import { PostsWithPaginationModel } from '../posts/models/posts.models';
+import { PostsWithPaginationModel } from '../posts/models/posts.models-mongo';
 import { queryPostPagination } from '../posts/helpers/filter';
-import { PostsQueryRepo } from '../posts/posts.query-repo';
+import { PostsQueryRepoMongo } from '../posts/posts.query-repo-mongo';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
 
@@ -23,7 +23,7 @@ import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
 export class BlogsController {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,
-    private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsQueryRepo: PostsQueryRepoMongo,
   ) {}
 
   @Get()

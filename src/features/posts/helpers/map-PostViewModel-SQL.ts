@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostDBModel, PostViewModel } from '../models/posts.models';
+import { PostDbModel, PostViewModel } from '../models/posts.models-sql';
 import {
   likeDetailsViewModel,
   likeStatus,
@@ -12,7 +12,7 @@ import {
 } from '../../likes/models/domain/likes.domain-entities';
 
 @Injectable()
-export class MapPostViewModel {
+export class MapPostViewModelSQL {
   constructor(
     @InjectModel(UsersLikesConnection.name)
     private readonly usersLikesConnectionModel: UsersLikesConnectionType,
@@ -20,10 +20,10 @@ export class MapPostViewModel {
   ) {}
 
   async getPostViewModel(
-    post: PostDBModel,
+    post: PostDbModel,
     userId?: string | undefined,
   ): Promise<PostViewModel> {
-    const postId = post._id.toString();
+    const postId = post.id;
 
     const likesInfo = (await this.likesQueryRepo.findLikesByOwnerId(
       'Post',
@@ -62,7 +62,7 @@ export class MapPostViewModel {
       content: post.content,
       blogId: post.blogId,
       blogName: post.blogName,
-      createdAt: post.createdAt,
+      createdAt: post.createdAt.toISOString(),
       extendedLikesInfo: {
         likesCount: likesInfo.likesCount,
         dislikesCount: likesInfo.dislikesCount,

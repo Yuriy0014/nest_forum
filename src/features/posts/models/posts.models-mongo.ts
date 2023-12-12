@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 import { ExistingBlog } from '../guards/CustomDoesBlogExist';
 
-export class PostDBModel {
+export class PostDbModel {
   constructor(
     public _id: mongoose.Types.ObjectId,
     public title: string,

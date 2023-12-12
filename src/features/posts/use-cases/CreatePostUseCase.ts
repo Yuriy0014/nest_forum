@@ -5,11 +5,11 @@ import {
   LikeModelType,
   LikeObjectTypeEnum,
 } from '../../likes/models/domain/likes.domain-entities';
-import { PostsRepo } from '../posts.repo';
+import { PostsRepoMongo } from '../posts.repo-mongo';
 import { LikesRepo } from '../../likes/likes.repo';
 import { BlogsQueryRepoMongo } from '../../blogs/blogs.query-repo-mongo';
-import { MapPostViewModel } from '../helpers/map-PostViewModel';
-import { PostCreateModelStandart } from '../models/posts.models';
+import { MapPostViewModelMongo } from '../helpers/map-PostViewModel-mongo';
+import { PostCreateModelStandart } from '../models/posts.models-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreatePostCommand {
@@ -23,10 +23,10 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     private readonly postModel: postModelType,
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
-    private readonly postsRepo: PostsRepo,
+    private readonly postsRepo: PostsRepoMongo,
     private readonly likesRepo: LikesRepo,
     private readonly blogsQueryRepo: BlogsQueryRepoMongo,
-    private readonly mapPostViewModel: MapPostViewModel,
+    private readonly mapPostViewModel: MapPostViewModelMongo,
   ) {}
 
   async execute(command: CreatePostCommand) {

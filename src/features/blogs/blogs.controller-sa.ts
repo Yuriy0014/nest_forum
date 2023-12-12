@@ -24,9 +24,9 @@ import {
   PostCreateModelFromBlog,
   PostsWithPaginationModel,
   PostViewModel,
-} from '../posts/models/posts.models';
+} from '../posts/models/posts.models-mongo';
 import { queryPostPagination } from '../posts/helpers/filter';
-import { PostsQueryRepo } from '../posts/posts.query-repo';
+import { PostsQueryRepoMongo } from '../posts/posts.query-repo-mongo';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
 import { CreateBlogCommand } from './use-cases/CreateBlogUseCase';
@@ -40,7 +40,7 @@ import { BlogsQueryRepoSQL } from './blogs.query-repo-sql';
 export class BlogsControllerSa {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,
-    private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsQueryRepo: PostsQueryRepoMongo,
     private commandBus: CommandBus,
   ) {}
 

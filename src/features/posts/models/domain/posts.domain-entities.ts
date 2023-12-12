@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { PostCreateModelStandart, PostUpdateModel } from '../posts.models';
+import {
+  PostCreateModelStandart,
+  PostUpdateModel,
+} from '../posts.models-mongo';
 
 @Schema()
 export class Post {

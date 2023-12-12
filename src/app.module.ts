@@ -10,9 +10,9 @@ import {
 } from './features/blogs/models/domain/blogs.domain-entities';
 import { MapBlogViewModelMongo } from './features/blogs/helpers/map-BlogViewModelMongo';
 import { PostsController } from './features/posts/posts.controller';
-import { PostsRepo } from './features/posts/posts.repo';
-import { PostsQueryRepo } from './features/posts/posts.query-repo';
-import { MapPostViewModel } from './features/posts/helpers/map-PostViewModel';
+import { PostsRepoMongo } from './features/posts/posts.repo-mongo';
+import { PostsQueryRepoMongo } from './features/posts/posts.query-repo-mongo';
+import { MapPostViewModelMongo } from './features/posts/helpers/map-PostViewModel-mongo';
 import { TestingController } from './features/testing/testing.controller';
 import { CommentsController } from './features/comments/comments.controller';
 import { CommentsRepo } from './features/comments/comments.repo';
@@ -99,6 +99,9 @@ import { MapBlogViewModelSQL } from './features/blogs/helpers/map-BlogViewModelS
 import { BlogsQueryRepoSQL } from './features/blogs/blogs.query-repo-sql';
 import { BlogsController } from './features/blogs/blogs.controller';
 import { BlogsRepoSQL } from './features/blogs/blogs.repo-sql';
+import { MapPostViewModelSQL } from './features/posts/helpers/map-PostViewModel-SQL';
+import { PostsRepoSQL } from './features/posts/posts.repo-sql';
+import { PostsQueryRepoSQL } from './features/posts/posts.query-repo-sql';
 
 const useCases = [
   ///Blogs
@@ -187,9 +190,12 @@ const useCases = [
     MapBlogViewModelMongo,
     MapBlogViewModelSQL,
     // Posts
-    PostsRepo,
-    PostsQueryRepo,
-    MapPostViewModel,
+    PostsRepoMongo,
+    PostsRepoSQL,
+    PostsQueryRepoMongo,
+    PostsQueryRepoSQL,
+    MapPostViewModelMongo,
+    MapPostViewModelSQL,
     // Comments
     CommentsRepo,
     CommentsQueryRepo,

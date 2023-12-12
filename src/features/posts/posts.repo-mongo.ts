@@ -7,10 +7,10 @@ import {
   postDocument,
   postModelType,
 } from './models/domain/posts.domain-entities';
-import { PostDBModel } from './models/posts.models';
+import { PostDbModel } from './models/posts.models-mongo';
 
 @Injectable()
-export class PostsRepo {
+export class PostsRepoMongo {
   constructor(
     @InjectModel(Post.name)
     private readonly postModel: postModelType,
@@ -21,7 +21,7 @@ export class PostsRepo {
   }
 
   async findPostById(userId: string) {
-    const foundPost: HydratedDocument<PostDBModel, postDBMethodsType> | null =
+    const foundPost: HydratedDocument<PostDbModel, postDBMethodsType> | null =
       await this.postModel.findById(userId);
     if (foundPost) {
       return foundPost;

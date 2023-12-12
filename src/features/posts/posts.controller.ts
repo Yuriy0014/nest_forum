@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -13,13 +12,10 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { PostsQueryRepo } from './posts.query-repo';
 import {
-  PostCreateModelStandart,
   PostsWithPaginationModel,
-  PostUpdateModel,
   PostViewModel,
-} from './models/posts.models';
+} from './models/posts.models-mongo';
 import { queryPostPagination } from './helpers/filter';
 import { CommentsQueryRepo } from '../comments/comments.query-repo';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
@@ -29,7 +25,6 @@ import {
   CommentViewModel,
 } from '../comments/models/comments.models';
 import { MapCommentViewModel } from '../comments/helpers/map-CommentViewModel';
-import { UsersQueryRepoMongo } from '../users/users.query-repo-mongo';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
@@ -37,22 +32,20 @@ import {
 } from '../likes/models/likes.models';
 import { LikesQueryRepo } from '../likes/likes.query-repo';
 import { CheckUserIdGuard } from './guards/post.guards';
-import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeletePostCommand } from './use-cases/DeletePostUseCase';
-import { UpdatePostComand } from './use-cases/UpdatePostUseCase';
 import { CreateCommentCommand } from '../comments/use-cases/CreateCommentUseCase';
-import { CreatePostCommand } from './use-cases/CreatePostUseCase';
+import { PostsQueryRepoSQL } from './posts.query-repo-sql';
+import { UsersQueryRepoSQL } from '../users/users.query-repo-sql';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly postsQueryRepo: PostsQueryRepoSQL,
     private readonly commentsQueryRepo: CommentsQueryRepo,
     private readonly mapCommentViewModel: MapCommentViewModel,
-    private readonly usersQueryRepo: UsersQueryRepoMongo,
+    private readonly usersQueryRepo: UsersQueryRepoSQL,
     private readonly likesQueryRepo: LikesQueryRepo,
     private readonly commandBus: CommandBus,
   ) {}
@@ -93,47 +86,6 @@ export class PostsController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
     return foundPost;
-  }
-
-  @Post()
-  @UseGuards(BasicAuthGuard)
-  async createPost(
-    @Body() inputModel: PostCreateModelStandart,
-  ): Promise<PostViewModel> {
-    const createdPost: PostViewModel = await this.commandBus.execute(
-      new CreatePostCommand(inputModel),
-    );
-
-    return createdPost;
-  }
-
-  @Delete(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
-  async deletePost(@Param('id') PostId: string) {
-    const foundPost: PostViewModel | null =
-      await this.postsQueryRepo.findPostById(PostId);
-    if (!foundPost) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    await this.commandBus.execute(new DeletePostCommand(PostId));
-  }
-
-  @Put(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
-  async updatePost(
-    @Param('id') PostId: string,
-    @Body() updateDTO: PostUpdateModel,
-  ) {
-    const foundPost: PostViewModel | null =
-      await this.postsQueryRepo.findPostById(PostId);
-    if (!foundPost) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    await this.commandBus.execute(new UpdatePostComand(PostId, updateDTO));
   }
 
   ///////////////////

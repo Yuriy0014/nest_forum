@@ -1,4 +1,4 @@
-import { PostsRepo } from '../posts.repo';
+import { PostsRepoMongo } from '../posts.repo-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class DeletePostCommand {
@@ -7,7 +7,7 @@ export class DeletePostCommand {
 
 @CommandHandler(DeletePostCommand)
 export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
-  constructor(private readonly postsRepo: PostsRepo) {}
+  constructor(private readonly postsRepo: PostsRepoMongo) {}
 
   async execute(command: DeletePostCommand) {
     const foundPost = await this.postsRepo.findPostById(command.postId);

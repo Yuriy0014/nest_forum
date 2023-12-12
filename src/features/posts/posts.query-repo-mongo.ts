@@ -3,19 +3,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PostFilterModel } from './helpers/filter';
 import { FilterQuery } from 'mongoose';
 import { Post, postModelType } from './models/domain/posts.domain-entities';
-import { PostDBModel } from './models/posts.models';
-import { MapPostViewModel } from './helpers/map-PostViewModel';
+import { PostDbModel } from './models/posts.models-mongo';
+import { MapPostViewModelMongo } from './helpers/map-PostViewModel-mongo';
 
 @Injectable()
-export class PostsQueryRepo {
+export class PostsQueryRepoMongo {
   constructor(
     @InjectModel(Post.name)
     private readonly postModel: postModelType,
-    private readonly mapPostViewModel: MapPostViewModel,
+    private readonly mapPostViewModel: MapPostViewModelMongo,
   ) {}
 
   async findPostById(id: string, userId?: string) {
-    const foundPost: PostDBModel | null = await this.postModel
+    const foundPost: PostDbModel | null = await this.postModel
       .findById(id)
       .lean();
     if (foundPost) {
@@ -26,7 +26,7 @@ export class PostsQueryRepo {
   }
 
   async FindAllPost(queryFilter: PostFilterModel, userId?: string) {
-    const findFilter: FilterQuery<PostDBModel> =
+    const findFilter: FilterQuery<PostDbModel> =
       queryFilter.blogId === '' ? {} : { blogId: queryFilter.blogId };
     const sortFilter: any =
       queryFilter.sortBy === 'createdAt'
@@ -41,7 +41,7 @@ export class PostsQueryRepo {
       .limit(queryFilter.pageSize);
 
     /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises
-    const foundPostsFunction = (postArr: PostDBModel[]) => {
+    const foundPostsFunction = (postArr: PostDbModel[]) => {
       const promises = postArr.map(
         async (value) =>
           await this.mapPostViewModel.getPostViewModel(value, userId),

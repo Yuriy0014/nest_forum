@@ -25,7 +25,7 @@ import {
   LoginInputDTO,
   NewPasswordInputModel,
   reqSessionDTOType,
-} from './models/auth.models-mongo';
+} from './models/auth.models-sql';
 import { JwtService } from '../../infrastructure/jwt/jwt.service';
 import { Response } from 'express';
 import {

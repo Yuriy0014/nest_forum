@@ -1,4 +1,4 @@
-import { reqSessionDTOType } from '../models/auth.models-mongo';
+import { reqSessionDTOType } from '../models/auth.models-sql';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionsRepoSQL } from '../sessions.repo-sql';
 

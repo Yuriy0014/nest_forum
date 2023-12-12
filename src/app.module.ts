@@ -29,7 +29,7 @@ import {
 import { LikesQueryRepo } from './features/likes/likes.query-repo';
 import { UsersController } from './features/users/users.controller';
 import { UsersRepoMongo } from './features/users/users.repo-mongo';
-import { MapUserViewModel } from './features/users/helpers/map-UserViewModel';
+import { MapUserViewModelMongo } from './features/users/helpers/map-UserViewModel-mongo';
 import {
   User,
   UserSchema,
@@ -86,7 +86,7 @@ import { DeleteAllSessionsUseCase } from './features/security/use-cases/DeleteAl
 import { DeleteDeviceSessionsUseCase } from './features/security/use-cases/DeleteDeviceSessionsUseCase';
 import { SecurityController } from './features/security/security.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MapUserViewModelSQL } from './features/users/helpers/map-UserViewModel.sql';
+import { MapUserViewModelSQL } from './features/users/helpers/map-UserViewModel-sql';
 import { UsersQueryRepoMongo } from './features/users/users.query-repo-mongo';
 import { UsersQueryRepoSQL } from './features/users/users.query-repo-sql';
 import { UsersRepoSQL } from './features/users/users.repo-sql';
@@ -203,7 +203,7 @@ const useCases = [
     UsersQueryRepoSQL,
     UsersRepoMongo,
     UsersRepoSQL,
-    MapUserViewModel,
+    MapUserViewModelMongo,
     MapUserViewModelSQL,
     UserObjectFromRawData,
     // Email

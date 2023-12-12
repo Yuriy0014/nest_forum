@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserDBModel, UserViewModel } from '../models/users.models.mongo';
 
 @Injectable()
-export class MapUserViewModel {
+export class MapUserViewModelMongo {
   getUserViewModel(user: UserDBModel): UserViewModel {
     return {
       id: user._id.toString(),

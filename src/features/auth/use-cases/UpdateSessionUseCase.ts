@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import add from 'date-fns/add';
-import { SessionUpdateFilterModel } from '../models/auth.models-mongo';
-import { SessionsRepoMongo } from '../sessions.repo-mongo.service';
+import { SessionUpdateFilterModel } from '../models/auth.models-sql';
 import { SessionsRepoSQL } from '../sessions.repo-sql';
 
 export class UpdateSessionCommand {

@@ -1,4 +1,4 @@
-import { BlogUpdateModel } from '../models/blogs.models-mongo';
+import { BlogUpdateModel } from '../models/blogs.models-sql';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepoSQL } from '../blogs.repo-sql';
 

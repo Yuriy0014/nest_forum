@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   reqSessionDTOType,
   SessionUpdateFilterModel,
-} from './models/auth.models-mongo';
+} from './models/auth.models-sql';
 import { v4 as uuidv4 } from 'uuid';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';

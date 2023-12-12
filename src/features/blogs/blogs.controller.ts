@@ -11,7 +11,7 @@ import {
 import {
   BlogsWithPaginationModel,
   BlogViewModel,
-} from './models/blogs.models-mongo';
+} from './models/blogs.models-sql';
 import { queryBlogPagination } from './helpers/filter';
 import { PostsWithPaginationModel } from '../posts/models/posts.models';
 import { queryPostPagination } from '../posts/helpers/filter';

@@ -1,8 +1,7 @@
-import { BlogCreateModel } from '../models/blogs.models-mongo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { MapBlogViewModelSQL } from '../helpers/map-BlogViewModelSQL';
 import { BlogsRepoSQL } from '../blogs.repo-sql';
-import { BlogViewModel } from '../models/blogs.models-sql';
+import { BlogViewModel, BlogCreateModel } from '../models/blogs.models-sql';
 
 export class CreateBlogCommand {
   constructor(public BlogCreateModelDTO: BlogCreateModel) {}

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { MapUserViewModelSQL } from './helpers/map-UserViewModel.sql';
+import { MapUserViewModelSQL } from './helpers/map-UserViewModel-sql';
 import { UserViewModel } from './models/users.models.sql';
 import { UserFilterModel } from './helpers/filter';
 

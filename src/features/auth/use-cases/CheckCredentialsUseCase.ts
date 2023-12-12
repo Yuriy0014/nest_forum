@@ -1,9 +1,9 @@
-import { LoginInputDTO } from '../models/auth.models-mongo';
-import { UserViewModel } from '../../users/models/users.models.mongo';
+import { LoginInputDTO } from '../models/auth.models-sql';
+import { UserViewModel } from '../../users/models/users.models.sql';
 import bcrypt from 'bcrypt';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepoSQL } from '../../users/users.repo-sql';
-import { MapUserViewModelSQL } from '../../users/helpers/map-UserViewModel.sql';
+import { MapUserViewModelSQL } from '../../users/helpers/map-UserViewModel-sql';
 
 export class CheckCredentialsCommand {
   constructor(public loginDTO: LoginInputDTO) {}

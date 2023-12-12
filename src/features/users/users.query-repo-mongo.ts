@@ -4,14 +4,14 @@ import { UserFilterModel } from './helpers/filter';
 import { UserDBModel, UserViewModel } from './models/users.models.mongo';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserModelType } from './models/domain/users.domain-entities';
-import { MapUserViewModel } from './helpers/map-UserViewModel';
+import { MapUserViewModelMongo } from './helpers/map-UserViewModel-mongo';
 
 @Injectable()
 export class UsersQueryRepoMongo {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: UserModelType,
-    private readonly mapUserViewModel: MapUserViewModel,
+    private readonly mapUserViewModel: MapUserViewModelMongo,
   ) {}
 
   async FindAllUsers(queryFilter: UserFilterModel) {

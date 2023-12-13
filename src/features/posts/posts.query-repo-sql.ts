@@ -54,13 +54,15 @@ export class PostsQueryRepoSQL {
 
     const foundPosts = await foundPostsFunction(foundPostsSQL);
 
-    const totalCount = await this.dataSource.query(
+    const totalPostsRaw = await this.dataSource.query(
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
         ORDER BY ${orderByClause}
         `,
     );
+
+    const totalCount = totalPostsRaw.length;
 
     return {
       pagesCount: Math.ceil(totalCount / queryFilter.pageSize),

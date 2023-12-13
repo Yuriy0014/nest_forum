@@ -40,6 +40,7 @@ import { PostUpdateModel } from '../posts/models/posts.models-sql';
 import { DeletePostCommand } from '../posts/use-cases/DeletePostUseCase';
 import { Result } from '../helpers/result_types';
 
+@UseGuards(BasicAuthGuard)
 @Controller('sa/blogs')
 export class BlogsControllerSa {
   constructor(
@@ -70,7 +71,6 @@ export class BlogsControllerSa {
   }
 
   @Post()
-  @UseGuards(BasicAuthGuard)
   async createBlog(
     @Body() inputModel: BlogCreateModel,
   ): Promise<BlogViewModel> {
@@ -87,7 +87,6 @@ export class BlogsControllerSa {
   }
 
   @Delete(':id')
-  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deleteBlog(@Param('id') blogId: string) {
     const foundBlog: BlogViewModel | null =
@@ -108,7 +107,6 @@ export class BlogsControllerSa {
   }
 
   @Put(':id')
-  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updateBlog(
     @Param('id') blogId: string,
@@ -160,7 +158,6 @@ export class BlogsControllerSa {
   }
 
   @Post(':id/posts')
-  @UseGuards(BasicAuthGuard)
   async createPost(
     @Param('id') blogId: string,
     @Body() inputModel: PostCreateModelFromBlog,
@@ -188,7 +185,6 @@ export class BlogsControllerSa {
   }
 
   @Delete(':blogId/posts/:postId')
-  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deletePost(@Param('postId') postId: string) {
     const foundPost: PostViewModel | null =
@@ -201,7 +197,6 @@ export class BlogsControllerSa {
   }
 
   @Put(':blogId/posts/:postId')
-  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updatePost(
     @Param('postId') postId: string,

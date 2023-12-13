@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BlogsQueryRepoSQL } from '../blogs.query-repo-sql';
 import { BlogViewModel } from '../models/blogs.models-sql';
 
@@ -14,7 +19,9 @@ export class ExistingBlogGuard implements CanActivate {
     const foundBlog: BlogViewModel | null =
       await this.blogsQueryRepo.findBlogById(currentBlogId);
     if (!foundBlog) {
-      return false;
+      throw new NotFoundException([
+        { message: 'There is no blog with such id', field: 'blogId' },
+      ]);
     }
     return true;
   }

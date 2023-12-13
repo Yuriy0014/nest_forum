@@ -18,13 +18,13 @@ import {
   BlogsWithPaginationModel,
   BlogUpdateModel,
   BlogViewModel,
-} from './models/blogs.models-mongo';
+} from './models/blogs.models-sql';
 import { queryBlogPagination } from './helpers/filter';
 import {
   PostCreateModelFromBlog,
   PostsWithPaginationModel,
   PostViewModel,
-} from '../posts/models/posts.models-mongo';
+} from '../posts/models/posts.models-sql';
 import { queryPostPagination } from '../posts/helpers/filter';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { CheckUserIdGuard } from '../posts/guards/post.guards';
@@ -186,7 +186,16 @@ export class BlogsControllerSa {
 
   @Delete(':blogId/posts/:postId')
   @HttpCode(204)
-  async deletePost(@Param('postId') postId: string) {
+  async deletePost(
+    @Param('postId') postId: string,
+    @Param('blogId') blogId: string,
+  ) {
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
     const foundPost: PostViewModel | null =
       await this.postsQueryRepo.findPostById(postId);
     if (!foundPost) {
@@ -200,8 +209,15 @@ export class BlogsControllerSa {
   @HttpCode(204)
   async updatePost(
     @Param('postId') postId: string,
+    @Param('blogId') blogId: string,
     @Body() updateDTO: PostUpdateModel,
   ) {
+    const foundBlog: BlogViewModel | null =
+      await this.blogsQueryRepo.findBlogById(blogId);
+    if (!foundBlog) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
     const foundPost: PostViewModel | null =
       await this.postsQueryRepo.findPostById(postId);
     if (!foundPost) {

@@ -5,13 +5,13 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { Injectable } from '@nestjs/common';
-import { BlogsQueryRepoMongo } from '../../blogs/blogs.query-repo-mongo';
 import { BlogViewModel } from '../../blogs/models/blogs.models-mongo';
+import { BlogsQueryRepoSQL } from '../../blogs/blogs.query-repo-sql';
 
 @ValidatorConstraint({ name: 'ExistingBlog', async: true })
 @Injectable()
 export class ExistingBlogConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly blogsQueryRepo: BlogsQueryRepoMongo) {}
+  constructor(private readonly blogsQueryRepo: BlogsQueryRepoSQL) {}
 
   async validate(value: any): Promise<boolean> {
     const foundBlog: BlogViewModel | null =

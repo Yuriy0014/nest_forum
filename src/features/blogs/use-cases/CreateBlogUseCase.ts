@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { MapBlogViewModelSQL } from '../helpers/map-BlogViewModelSQL';
 import { BlogsRepoSQL } from '../blogs.repo-sql';
 import { BlogViewModel, BlogCreateModel } from '../models/blogs.models-sql';
+import { Result, ResultCode } from '../../helpers/result_types';
 
 export class CreateBlogCommand {
   constructor(public BlogCreateModelDTO: BlogCreateModel) {}

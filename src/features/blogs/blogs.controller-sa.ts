@@ -38,8 +38,9 @@ import { PostsQueryRepoSQL } from '../posts/posts.query-repo-sql';
 import { UpdatePostComand } from '../posts/use-cases/UpdatePostUseCase';
 import { PostUpdateModel } from '../posts/models/posts.models-sql';
 import { DeletePostCommand } from '../posts/use-cases/DeletePostUseCase';
+import { Result } from '../helpers/result_types';
 
-@Controller('blogs')
+@Controller('sa/blogs')
 export class BlogsControllerSa {
   constructor(
     private readonly blogsQueryRepo: BlogsQueryRepoSQL,

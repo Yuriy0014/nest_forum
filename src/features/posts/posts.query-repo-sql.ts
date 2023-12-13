@@ -26,11 +26,6 @@ export class PostsQueryRepoSQL {
       throw new Error('Invalid sort field');
     }
 
-    const name_like =
-      queryFilter.searchNameTerm === null
-        ? '%'
-        : `%${queryFilter.searchNameTerm}%`;
-
     const orderByClause =
       '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
 
@@ -38,13 +33,11 @@ export class PostsQueryRepoSQL {
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
-        WHERE "name" ILIKE $1
         ORDER BY ${orderByClause}
-        LIMIT $2
-        OFFSET $3;
+        LIMIT $1
+        OFFSET $2;
         `,
       [
-        name_like,
         queryFilter.pageSize,
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],
@@ -65,10 +58,8 @@ export class PostsQueryRepoSQL {
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
-        WHERE "name" ILIKE $1
         ORDER BY ${orderByClause}
         `,
-      [name_like],
     );
 
     return {

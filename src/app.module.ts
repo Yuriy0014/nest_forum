@@ -144,7 +144,7 @@ const useCases = [
       {
         ttl: 10000,
         // Временно отключаю IP retriction
-        limit: 5,
+        limit: 10000000,
       },
     ]),
     ConfigModule.forRoot(),

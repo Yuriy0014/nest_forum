@@ -219,7 +219,7 @@ export class LikesRepoSQL {
       `
             INSERT INTO public.likes(
             "ownerType", "ownerId", "likesCount", "dislikesCount")
-            VALUES ( $1, $2, $3, $4);`,
+            VALUES ($1, $2, $3, $4);`,
       [ownerType, ownerId, 0, 0],
     );
   }

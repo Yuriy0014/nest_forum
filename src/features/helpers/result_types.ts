@@ -1,11 +1,11 @@
-enum ResultCode {
+export enum ResultCode {
   success,
   internalServerError,
   badRequest,
   incorrectEmail,
 }
 
-type Result<T> = {
+export type Result<T> = {
   resultCode: ResultCode;
   data: T | null;
   errorMessage?: string;

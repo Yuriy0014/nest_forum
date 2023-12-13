@@ -41,7 +41,7 @@ export class LikesRepoSQL {
         await this.dataSource.query(
           `
         SELECT c."id"
-        FROM public.usersLikesConnection c
+        FROM public.userslikesconnection c
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [userId, ownerId, ownerType],
         );
@@ -50,7 +50,7 @@ export class LikesRepoSQL {
       if (!userStatusInstance[0]) {
         await this.dataSource.query(
           `
-        INSERT INTO public."usersLikesConnection"(
+        INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
         VALUES ($1 $2, $3, $4, $5, $6, $7);`,
           [userId, ownerId, ownerType, userLogin, new Date(), likeStatus.Like],
@@ -58,7 +58,7 @@ export class LikesRepoSQL {
       } else {
         await this.dataSource.query(
           `
-        UPDATE public."usersLikesConnection"
+        UPDATE public."userslikesconnection"
         SET "status"=$1
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [likeStatus.Like, userId, ownerId, ownerType],
@@ -100,7 +100,7 @@ export class LikesRepoSQL {
         await this.dataSource.query(
           `
         SELECT c."id"
-        FROM public.usersLikesConnection c
+        FROM public.userslikesconnection c
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [userId, ownerId, ownerType],
         );
@@ -109,7 +109,7 @@ export class LikesRepoSQL {
       if (!userStatusInstance[0]) {
         await this.dataSource.query(
           `
-        INSERT INTO public."usersLikesConnection"(
+        INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
         VALUES ($1 $2, $3, $4, $5, $6, $7);`,
           [
@@ -124,7 +124,7 @@ export class LikesRepoSQL {
       } else {
         await this.dataSource.query(
           `
-        UPDATE public."usersLikesConnection"
+        UPDATE public."userslikesconnection"
         SET "status"=$1
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [likeStatus.Dislike, userId, ownerId, ownerType],
@@ -181,7 +181,7 @@ export class LikesRepoSQL {
         await this.dataSource.query(
           `
         SELECT c."id"
-        FROM public.usersLikesConnection c
+        FROM public.userslikesconnection c
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [userId, ownerId, ownerType],
         );
@@ -190,7 +190,7 @@ export class LikesRepoSQL {
       if (!userStatusInstance[0]) {
         await this.dataSource.query(
           `
-        INSERT INTO public."usersLikesConnection"(
+        INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
         VALUES ($1 $2, $3, $4, $5, $6, $7);`,
           [userId, ownerId, ownerType, userLogin, new Date(), likeStatus.None],
@@ -198,7 +198,7 @@ export class LikesRepoSQL {
       } else {
         await this.dataSource.query(
           `
-        UPDATE public."usersLikesConnection"
+        UPDATE public."userslikesconnection"
         SET "status"=$1
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
           [likeStatus.None, userId, ownerId, ownerType],
@@ -228,7 +228,7 @@ export class LikesRepoSQL {
     const likesData = await this.dataSource.query(
       `
         SELECT "id", "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status"
-        FROM public."usersLikesConnection"
+        FROM public."userslikesconnection"
         WHERE ("likedObjectId" = $1 AND "likedObjectType" = $2 AND "status" = $3)
         ORDER BY "addedAt" desc
         LIMIT 3

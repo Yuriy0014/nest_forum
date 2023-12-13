@@ -51,7 +51,7 @@ export class LikesQueryRepoSQL {
     foundStatus = await this.dataSource.query(
       `
         SELECT c."status"
-        FROM public."usersLikesConnection" c
+        FROM public."userslikesconnection" c
         WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
       [userId, ownerId, ownerType],
     );

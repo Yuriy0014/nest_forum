@@ -21,7 +21,7 @@ export class TestingController {
       this.dataSource.query(`DELETE FROM public.blogs`),
       this.dataSource.query(`DELETE FROM public.posts`),
       this.dataSource.query(`DELETE FROM public.likes`),
-      this.dataSource.query(`DELETE FROM public.usersLikesConnection`),
+      this.dataSource.query(`DELETE FROM public.userslikesconnection`),
     ]).catch((e) => {
       console.log(e);
       throw new HttpException('Not Found', HttpStatus.INTERNAL_SERVER_ERROR);

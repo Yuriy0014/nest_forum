@@ -1,13 +1,13 @@
-import { PostCreateModelStandart } from '../models/posts.models-sql';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsQueryRepoSQL } from '../../blogs/blogs.query-repo-sql';
 import { MapPostViewModelSQL } from '../helpers/map-PostViewModel-SQL';
 import { PostsRepoSQL } from '../posts.repo-sql';
 import { LikesRepoSQL } from '../../likes/likes.repo-sql';
 import { LikeObjectTypeEnum } from '../../likes/models/likes.models-sql';
+import { PostCreateModelFromBlog } from '../models/posts.models-sql';
 
 export class CreatePostCommand {
-  constructor(public PostCreateModelDTO: PostCreateModelStandart) {}
+  constructor(public PostCreateModelDTO: PostCreateModelFromBlog) {}
 }
 
 @CommandHandler(CreatePostCommand)

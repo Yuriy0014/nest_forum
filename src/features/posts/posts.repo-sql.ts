@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
-  PostCreateModelStandart,
+  PostCreateModelFromBlog,
   PostDbModel,
   PostUpdateModel,
 } from './models/posts.models-sql';
@@ -13,7 +13,7 @@ export class PostsRepoSQL {
   constructor(@InjectDataSource() protected dataSource: DataSource) {}
 
   async createPost(
-    dto: PostCreateModelStandart,
+    dto: PostCreateModelFromBlog,
     blogName: string,
   ): Promise<string | null> {
     const id = uuidv4();
@@ -44,6 +44,7 @@ export class PostsRepoSQL {
   }
 
   async updatePost(
+    blogId: string,
     postId: string,
     updateDTO: PostUpdateModel,
   ): Promise<boolean> {
@@ -58,7 +59,7 @@ export class PostsRepoSQL {
           updateDTO.title,
           updateDTO.shortDescription,
           updateDTO.content,
-          updateDTO.blogId,
+          blogId,
           postId,
         ],
       );
@@ -77,7 +78,7 @@ export class PostsRepoSQL {
         updateDTO.title,
         updateDTO.shortDescription,
         updateDTO.content,
-        updateDTO.blogId,
+        blogId,
       ],
     );
 

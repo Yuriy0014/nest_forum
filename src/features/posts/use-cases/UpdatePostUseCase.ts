@@ -3,7 +3,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepoSQL } from '../posts.repo-sql';
 
 export class UpdatePostComand {
-  constructor(public postId: string, public updateDTO: PostUpdateModel) {}
+  constructor(
+    public blogId: string,
+    public postId: string,
+    public updateDTO: PostUpdateModel,
+  ) {}
 }
 
 @CommandHandler(UpdatePostComand)
@@ -11,6 +15,10 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostComand> {
   constructor(private readonly postsRepo: PostsRepoSQL) {}
 
   async execute(command: UpdatePostComand): Promise<boolean> {
-    return this.postsRepo.updatePost(command.postId, command.updateDTO);
+    return this.postsRepo.updatePost(
+      command.blogId,
+      command.postId,
+      command.updateDTO,
+    );
   }
 }

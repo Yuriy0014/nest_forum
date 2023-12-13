@@ -1,7 +1,7 @@
 import { extendedLikesInfoViewModel } from '../../likes/models/likes.models-mongo';
 import mongoose from 'mongoose';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
-import { ExistingBlog } from '../guards/CustomDoesBlogExist';
+import { ExistingBlog } from '../guards/CustomDoesBlogExist-forClassValidator';
 
 export class PostDbModel {
   constructor(

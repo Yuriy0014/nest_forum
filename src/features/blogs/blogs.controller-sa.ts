@@ -39,6 +39,7 @@ import { UpdatePostComand } from '../posts/use-cases/UpdatePostUseCase';
 import { PostUpdateModel } from '../posts/models/posts.models-sql';
 import { DeletePostCommand } from '../posts/use-cases/DeletePostUseCase';
 import { Result } from '../helpers/result_types';
+import { ExistingBlogGuard } from './guards/blogs.guards';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/blogs')
@@ -185,6 +186,7 @@ export class BlogsControllerSa {
   }
 
   @Delete(':blogId/posts/:postId')
+  @UseGuards(ExistingBlogGuard)
   @HttpCode(204)
   async deletePost(
     @Param('postId') postId: string,
@@ -206,6 +208,7 @@ export class BlogsControllerSa {
   }
 
   @Put(':blogId/posts/:postId')
+  @UseGuards(ExistingBlogGuard)
   @HttpCode(204)
   async updatePost(
     @Param('postId') postId: string,
@@ -224,6 +227,8 @@ export class BlogsControllerSa {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    await this.commandBus.execute(new UpdatePostComand(postId, updateDTO));
+    await this.commandBus.execute(
+      new UpdatePostComand(blogId, postId, updateDTO),
+    );
   }
 }

@@ -1,6 +1,5 @@
-import { extendedLikesInfoViewModel } from '../../likes/models/likes.models-mongo';
+import { extendedLikesInfoViewModel } from '../../likes/models/likes.models-sql';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
-import { ExistingBlog } from '../guards/CustomDoesBlogExist';
 
 export class PostDbModel {
   constructor(
@@ -44,11 +43,6 @@ export class PostCreateModelFromBlog extends PostCreateModelBase {
   blogId: string;
 }
 
-export class PostCreateModelStandart extends PostCreateModelBase {
-  @ExistingBlog()
-  blogId: string;
-}
-
 export class PostUpdateModel {
   @IsString()
   @Length(2, 30)
@@ -73,9 +67,6 @@ export class PostUpdateModel {
     message: 'content should not consist of whitespace characters',
   })
   content: string;
-
-  @ExistingBlog()
-  blogId: string;
 }
 
 export type PostViewModel = {

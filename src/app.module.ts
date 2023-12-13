@@ -57,7 +57,7 @@ import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
 import { LikesRepoMongo } from './features/likes/likes.repo-mongo';
 import { MapLikeViewModelMongo } from './features/likes/helpers/map-likesViewModel-mongo';
-import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist';
+import { ExistingBlogConstraint } from './features/posts/guards/CustomDoesBlogExist-forClassValidator';
 import { CreateBlogUseCase } from './features/blogs/use-cases/CreateBlogUseCase';
 import { UpdateBlogUseCase } from './features/blogs/use-cases/UpdateBlogUseCase';
 import { DeleteBlogUseCase } from './features/blogs/use-cases/DeleteBlogUseCase';

@@ -18,6 +18,10 @@ export class TestingController {
     await Promise.all([
       this.dataSource.query(`DELETE FROM public.sessions`),
       this.dataSource.query(`DELETE FROM public.users`),
+      this.dataSource.query(`DELETE FROM public.blogs`),
+      this.dataSource.query(`DELETE FROM public.posts`),
+      this.dataSource.query(`DELETE FROM public.likes`),
+      this.dataSource.query(`DELETE FROM public.usersLikesConnection`),
     ]).catch((e) => {
       console.log(e);
       throw new HttpException('Not Found', HttpStatus.INTERNAL_SERVER_ERROR);

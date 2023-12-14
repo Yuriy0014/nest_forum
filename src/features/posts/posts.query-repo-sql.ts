@@ -31,7 +31,7 @@ export class PostsQueryRepoSQL {
 
     const whereClause =
       queryFilter.blogId === null
-        ? '1==1'
+        ? '1=1'
         : `p."blogId" = %${queryFilter.blogId}%`;
 
     const foundPostsSQL = await this.dataSource.query(

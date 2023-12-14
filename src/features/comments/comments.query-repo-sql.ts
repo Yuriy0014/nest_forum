@@ -53,7 +53,7 @@ export class CommentsQueryRepoSQL {
           SELECT id, "postId", content, "userId", "userLogin", "createdAt"
           FROM public.comments
           ORDER BY ${orderByClause}
-          LIMIT $1 OFFSET $2;
+--           LIMIT $1 OFFSET $2;
       `,
       [
         queryFilter.pageSize,

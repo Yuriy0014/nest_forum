@@ -146,7 +146,7 @@ export class LikesRepoSQL {
   ): Promise<boolean> {
     const likesIfoInstance: likeDBModel[] = await this.dataSource.query(
       `
-        SELECT  l."dislikesCount"
+        SELECT  l."likesCount", l."dislikesCount"
         FROM public.likes l
         WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
       [ownerId, ownerType],
@@ -165,8 +165,8 @@ export class LikesRepoSQL {
       if (typeOfLikeForUpdate !== 'None') {
         const updatedValue =
           typeOfLikeForUpdate === 'likesCount'
-            ? likesIfoInstance[0].likesCount + 1
-            : likesIfoInstance[0].dislikesCount + 1;
+            ? likesIfoInstance[0].likesCount - 1
+            : likesIfoInstance[0].dislikesCount - 1;
 
         await this.dataSource.query(
           `

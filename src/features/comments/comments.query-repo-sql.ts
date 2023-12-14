@@ -55,10 +55,10 @@ export class CommentsQueryRepoSQL {
           ORDER BY ${orderByClause}
 --           LIMIT $1 OFFSET $2;
       `,
-      [
-        queryFilter.pageSize,
-        queryFilter.pageSize * (queryFilter.pageNumber - 1),
-      ],
+      // [
+      //   queryFilter.pageSize,
+      //   queryFilter.pageSize * (queryFilter.pageNumber - 1),
+      // ],
     );
 
     /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises

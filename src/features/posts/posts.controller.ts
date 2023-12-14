@@ -144,13 +144,25 @@ export class PostsController {
 
     const foundUser = await this.usersQueryRepo.findUserById(req.user.userId);
 
-    const createdComment = await this.commandBus.execute(
+    const createdCommentId = await this.commandBus.execute(
       new CreateCommentCommand(
         postId,
         inputModel.content,
         req.user.userId,
         foundUser!.login,
       ),
+    );
+
+    if (!createdCommentId) {
+      throw new HttpException(
+        'При добавлении комментария произошла ошибочка :(',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const createdComment = await this.commentsQueryRepo.findCommentById(
+      createdCommentId,
+      req.user.userId,
     );
 
     if (!createdComment) {
@@ -160,10 +172,7 @@ export class PostsController {
       );
     }
 
-    return this.mapCommentViewModel.getCommentViewModel(
-      createdComment,
-      req.user.userId,
-    );
+    return createdComment;
   }
 
   ////////////////////////////

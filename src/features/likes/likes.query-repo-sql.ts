@@ -60,6 +60,11 @@ export class LikesQueryRepoSQL {
       foundStatus = {
         status: likeStatus.None,
       };
+
+      return this.mapLikeViewModel.getLikesInfoViewModel(
+        foundLikes[0],
+        foundStatus,
+      );
     }
 
     return this.mapLikeViewModel.getLikesInfoViewModel(

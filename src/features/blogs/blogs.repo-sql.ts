@@ -17,12 +17,11 @@ export class BlogsRepoSQL {
     try {
       await this.dataSource.query(
         `
-    INSERT INTO public.blogs(
-    "id",
-    "name", "description", "websiteUrl", "createdAt", 
-    "isMembership")
-     VALUES ($1, $2, $3, $4, $5, $6);
-    `,
+            INSERT INTO public.blogs("id",
+                                     "name", "description", "websiteUrl", "createdAt",
+                                     "isMembership")
+            VALUES ($1, $2, $3, $4, $5, $6);
+        `,
         [id, dto.name, dto.description, dto.websiteUrl, new Date(), false],
       );
     } catch (e) {
@@ -39,10 +38,12 @@ export class BlogsRepoSQL {
     try {
       await this.dataSource.query(
         `
-        UPDATE public.blogs
-        SET "name"=$1, "description"=$2, "websiteUrl"=$3
-        WHERE "id" = $4;
-    `,
+            UPDATE public.blogs
+            SET "name"=$1,
+                "description"=$2,
+                "websiteUrl"=$3
+            WHERE "id" = $4;
+        `,
         [updateDTO.name, updateDTO.description, updateDTO.websiteUrl, blogId],
       );
     } catch (e) {
@@ -52,9 +53,9 @@ export class BlogsRepoSQL {
 
     const updatedBlog: BlogDbModel[] = await this.dataSource.query(
       `
-        SELECT b."id"
-        FROM public.blogs b
-        WHERE (b."id" = $1 AND b."name"=$2 AND b."description"=$3 AND b."websiteUrl"=$4);`,
+                SELECT b."id"
+                FROM public.blogs b
+                WHERE (b."id" = $1 AND b."name" = $2 AND b."description" = $3 AND b."websiteUrl" = $4);`,
       [blogId, updateDTO.name, updateDTO.description, updateDTO.websiteUrl],
     );
 
@@ -64,16 +65,17 @@ export class BlogsRepoSQL {
   async deleteBlog(blogId: string): Promise<boolean> {
     await this.dataSource.query(
       `
-        DELETE FROM public.blogs
-        WHERE id = $1`,
+                DELETE
+                FROM public.blogs
+                WHERE id = $1`,
       [blogId],
     );
 
     const deletedBlog = await this.dataSource.query(
       `
-        SELECT b."id"
-        FROM public."blogs" b
-        WHERE b."id" = $1`,
+                SELECT b."id"
+                FROM public."blogs" b
+                WHERE b."id" = $1`,
       [blogId],
     );
 
@@ -83,9 +85,9 @@ export class BlogsRepoSQL {
   async findBlogById(id: string): Promise<BlogDbModel | null> {
     const blog: BlogDbModel[] = await this.dataSource.query(
       `
-        SELECT b."id", b."name", b."description", b."websiteUrl", b."createdAt", b."isMembership"
-        FROM public.blogs b
-        WHERE (b."id" = $1);`,
+                SELECT b."id", b."name", b."description", b."websiteUrl", b."createdAt", b."isMembership"
+                FROM public.blogs b
+                WHERE (b."id" = $1);`,
       [id],
     );
     if (blog[0]) {

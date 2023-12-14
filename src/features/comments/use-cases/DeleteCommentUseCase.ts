@@ -1,5 +1,5 @@
-import { CommentsRepo } from '../comments.repo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommentsRepoSQL } from '../comments.repo-sql';
 
 export class DeleteCommentCommand {
   constructor(public commentId: string) {}
@@ -9,13 +9,9 @@ export class DeleteCommentCommand {
 export class DeleteCommentUseCase
   implements ICommandHandler<DeleteCommentCommand>
 {
-  constructor(private readonly commentsRepo: CommentsRepo) {}
+  constructor(private readonly commentsRepo: CommentsRepoSQL) {}
 
   async execute(command: DeleteCommentCommand): Promise<boolean> {
-    const foundComment = await this.commentsRepo.findCommentById(
-      command.commentId,
-    );
-    if (!foundComment) return false;
-    return this.commentsRepo.deleteComment(foundComment);
+    return this.commentsRepo.deleteComment(command.commentId);
   }
 }

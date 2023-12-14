@@ -17,20 +17,17 @@ import {
   PostViewModel,
 } from './models/posts.models-mongo';
 import { queryPostPagination } from './helpers/filter';
-import { CommentsQueryRepo } from '../comments/comments.query-repo';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
 import {
   CommentInputModel,
   CommentsWithPaginationModel,
   CommentViewModel,
-} from '../comments/models/comments.models';
-import { MapCommentViewModel } from '../comments/helpers/map-CommentViewModel';
+} from '../comments/models/comments.models-mongo';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
   likesInfoViewModel,
 } from '../likes/models/likes.models-mongo';
-import { LikesQueryRepoMongo } from '../likes/likes.query-repo-mongo';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
@@ -38,15 +35,18 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateCommentCommand } from '../comments/use-cases/CreateCommentUseCase';
 import { PostsQueryRepoSQL } from './posts.query-repo-sql';
 import { UsersQueryRepoSQL } from '../users/users.query-repo-sql';
+import { LikesQueryRepoSQL } from '../likes/likes.query-repo-sql';
+import { CommentsQueryRepoSQL } from '../comments/comments.query-repo-sql';
+import { MapCommentViewModelSQL } from '../comments/helpers/map-CommentViewModel-sql';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsQueryRepo: PostsQueryRepoSQL,
-    private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly mapCommentViewModel: MapCommentViewModel,
+    private readonly commentsQueryRepo: CommentsQueryRepoSQL,
+    private readonly mapCommentViewModel: MapCommentViewModelSQL,
     private readonly usersQueryRepo: UsersQueryRepoSQL,
-    private readonly likesQueryRepo: LikesQueryRepoMongo,
+    private readonly likesQueryRepo: LikesQueryRepoSQL,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -152,6 +152,14 @@ export class PostsController {
         foundUser!.login,
       ),
     );
+
+    if (!createdComment) {
+      throw new HttpException(
+        'При добавлении комментария произошла ошибочка :(',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     return this.mapCommentViewModel.getCommentViewModel(
       createdComment,
       req.user.userId,

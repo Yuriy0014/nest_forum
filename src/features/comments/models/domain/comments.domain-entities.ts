@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { CommentCreateModel, CommentUpdateModel } from '../comments.models';
+import {
+  CommentCreateModel,
+  CommentUpdateModel,
+} from '../comments.models-mongo';
 
 @Schema()
 class CommentatorInfo {

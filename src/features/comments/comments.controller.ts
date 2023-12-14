@@ -11,28 +11,31 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepo } from './comments.query-repo';
-import { CommentUpdateModel, CommentViewModel } from './models/comments.models';
+import {
+  CommentUpdateModel,
+  CommentViewModel,
+} from './models/comments.models-mongo';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
+  LikeObjectTypeEnum,
   likesInfoViewModel,
-} from '../likes/models/likes.models-mongo';
-import { LikesQueryRepoMongo } from '../likes/likes.query-repo-mongo';
-import { UsersQueryRepoMongo } from '../users/users.query-repo-mongo';
+} from '../likes/models/likes.models-sql';
 import { CheckUserIdGuard } from './guards/comments.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
-import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from './use-cases/DeleteCommentUseCase';
 import { UpdateCommentCommand } from './use-cases/UpdateCommentUseCase';
+import { CommentsQueryRepoSQL } from './comments.query-repo-sql';
+import { LikesQueryRepoSQL } from '../likes/likes.query-repo-sql';
+import { UsersQueryRepoSQL } from '../users/users.query-repo-sql';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
-    private readonly commentsQueryRepo: CommentsQueryRepo,
-    private readonly likesQueryRepo: LikesQueryRepoMongo,
-    private readonly usersQueryRepo: UsersQueryRepoMongo,
+    private readonly commentsQueryRepo: CommentsQueryRepoSQL,
+    private readonly likesQueryRepo: LikesQueryRepoSQL,
+    private readonly usersQueryRepo: UsersQueryRepoSQL,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -86,7 +89,16 @@ export class CommentsController {
     if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
-    await this.commandBus.execute(new DeleteCommentCommand(commentId));
+    const deletionResult = await this.commandBus.execute(
+      new DeleteCommentCommand(commentId),
+    );
+
+    if (!deletionResult) {
+      throw new HttpException(
+        'При удалении коммента произошла ошибочка',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   ////////////////////////////

@@ -15,9 +15,9 @@ import { PostsQueryRepoMongo } from './features/posts/posts.query-repo-mongo';
 import { MapPostViewModelMongo } from './features/posts/helpers/map-PostViewModel-mongo';
 import { TestingController } from './features/testing/testing.controller';
 import { CommentsController } from './features/comments/comments.controller';
-import { CommentsRepo } from './features/comments/comments.repo';
-import { CommentsQueryRepo } from './features/comments/comments.query-repo';
-import { MapCommentViewModel } from './features/comments/helpers/map-CommentViewModel';
+import { CommentsRepoMongo } from './features/comments/comments.repo-mongo';
+import { CommentsQueryRepoMongo } from './features/comments/comments.query-repo-mongo';
+import { MapCommentViewModelMongo } from './features/comments/helpers/map-CommentViewModel-mongo';
 import {
   Post,
   PostSchema,
@@ -105,6 +105,9 @@ import { PostsQueryRepoSQL } from './features/posts/posts.query-repo-sql';
 import { LikesRepoSQL } from './features/likes/likes.repo-sql';
 import { LikesQueryRepoSQL } from './features/likes/likes.query-repo-sql';
 import { MapLikeViewModelSQL } from './features/likes/helpers/map-likesViewModel-sql';
+import { CommentsQueryRepoSQL } from './features/comments/comments.query-repo-sql';
+import { CommentsRepoSQL } from './features/comments/comments.repo-sql';
+import { MapCommentViewModelSQL } from './features/comments/helpers/map-CommentViewModel-sql';
 
 const useCases = [
   ///Blogs
@@ -200,9 +203,12 @@ const useCases = [
     MapPostViewModelMongo,
     MapPostViewModelSQL,
     // Comments
-    CommentsRepo,
-    CommentsQueryRepo,
-    MapCommentViewModel,
+    CommentsRepoMongo,
+    CommentsQueryRepoMongo,
+    CommentsQueryRepoSQL,
+    CommentsRepoSQL,
+    MapCommentViewModelMongo,
+    MapCommentViewModelSQL,
     // Likes
     LikesQueryRepoMongo,
     LikesQueryRepoSQL,

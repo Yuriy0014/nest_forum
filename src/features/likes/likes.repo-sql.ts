@@ -33,7 +33,7 @@ export class LikesRepoSQL {
         `
         UPDATE public.likes
         SET "likesCount"=$3
-        WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
+        WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
         [ownerId, ownerType, likesIfoInstance[0].likesCount + 1],
       );
 
@@ -60,7 +60,7 @@ export class LikesRepoSQL {
           `
         UPDATE public."userslikesconnection"
         SET "status"=$1
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
+        WHERE ("userId" = $1 AND "likedObjectId" = $2 AND "likedObjectType" = $3);`,
           [likeStatus.Like, userId, ownerId, ownerType],
         );
       }
@@ -92,7 +92,7 @@ export class LikesRepoSQL {
         `
         UPDATE public.likes
         SET "dislikesCount"=$3
-        WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
+        WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
         [ownerId, ownerType, likesIfoInstance[0].dislikesCount + 1],
       );
 
@@ -126,7 +126,7 @@ export class LikesRepoSQL {
           `
         UPDATE public."userslikesconnection"
         SET "status"=$1
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
+        WHERE ("userId" = $1 AND "likedObjectId" = $2 AND "likedObjectType" = $3);`,
           [likeStatus.Dislike, userId, ownerId, ownerType],
         );
       }
@@ -172,7 +172,7 @@ export class LikesRepoSQL {
           `
                 UPDATE public.likes
                 SET "${typeOfLikeForUpdate}"= $3
-                WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
+                WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
           [ownerId, ownerType, updatedValue],
         );
       }
@@ -200,7 +200,7 @@ export class LikesRepoSQL {
           `
         UPDATE public."userslikesconnection"
         SET "status"=$1
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
+        WHERE ("userId" = $1 AND "likedObjectId" = $2 AND "likedObjectType" = $3);`,
           [likeStatus.None, userId, ownerId, ownerType],
         );
       }
@@ -214,14 +214,20 @@ export class LikesRepoSQL {
   async createLikesInfo(
     ownerId: string,
     ownerType: LikeObjectTypeEnum,
-  ): Promise<void> {
-    await this.dataSource.query(
-      `
+  ): Promise<boolean> {
+    try {
+      await this.dataSource.query(
+        `
             INSERT INTO public.likes(
             "ownerType", "ownerId", "likesCount", "dislikesCount")
             VALUES ($1, $2, $3, $4);`,
-      [ownerType, ownerId, 0, 0],
-    );
+        [ownerType, ownerId, 0, 0],
+      );
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 
   async findLastThreeLikesPost(postId: string) {

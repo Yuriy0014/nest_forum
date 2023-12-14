@@ -8,7 +8,7 @@ import {
 } from './models/domain/comments.domain-entities';
 
 @Injectable()
-export class CommentsRepo {
+export class CommentsRepoMongo {
   constructor(
     @InjectModel(Comment.name)
     private readonly commentModel: CommentModelType,

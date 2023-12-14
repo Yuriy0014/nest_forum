@@ -1,4 +1,4 @@
-import { CommentsFilterModel } from '../models/comments.models';
+import { CommentsFilterModel } from '../models/comments.models-mongo';
 
 export const queryCommentsWithPagination = (
   query: any,

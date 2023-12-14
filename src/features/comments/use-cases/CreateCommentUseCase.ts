@@ -1,17 +1,7 @@
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  Comment,
-  CommentDocument,
-  CommentModelType,
-} from '../models/domain/comments.domain-entities';
-import {
-  Like,
-  LikeModelType,
-  LikeObjectTypeEnum,
-} from '../../likes/models/domain/likes.domain-entities';
-import { CommentsRepo } from '../comments.repo';
-import { LikesRepoMongo } from '../../likes/likes.repo-mongo';
+import { LikeObjectTypeEnum } from '../../likes/models/domain/likes.domain-entities';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { LikesRepoSQL } from '../../likes/likes.repo-sql';
+import { CommentsRepoSQL } from '../comments.repo-sql';
 
 export class CreateCommentCommand {
   constructor(
@@ -27,15 +17,11 @@ export class CreateCommentUseCase
   implements ICommandHandler<CreateCommentCommand>
 {
   constructor(
-    @InjectModel(Comment.name)
-    private readonly commentModel: CommentModelType,
-    @InjectModel(Like.name)
-    private readonly likeModel: LikeModelType,
-    private readonly commentsRepo: CommentsRepo,
-    private readonly likesRepo: LikesRepoMongo,
+    private readonly commentsRepo: CommentsRepoSQL,
+    private readonly likesRepo: LikesRepoSQL,
   ) {}
 
-  async execute(command: CreateCommentCommand): Promise<CommentDocument> {
+  async execute(command: CreateCommentCommand): Promise<string | null> {
     const createCommentDTO = {
       postId: command.postId,
       content: command.content,
@@ -43,20 +29,23 @@ export class CreateCommentUseCase
       userLogin: command.userLogin,
     };
 
-    const newComment = this.commentModel.createComment(
+    const newCommentId: string | null = await this.commentsRepo.createComment(
       createCommentDTO,
-      this.commentModel,
     );
 
-    const newLikesInfo = this.likeModel.createLikesInfo(
-      newComment._id.toString(),
+    if (!newCommentId) {
+      return null;
+    }
+
+    const newLikesInfo = await this.likesRepo.createLikesInfo(
+      newCommentId,
       LikeObjectTypeEnum.Comment,
-      this.likeModel,
     );
 
-    await this.commentsRepo.save(newComment);
-    await this.likesRepo.save(newLikesInfo);
+    if (!newLikesInfo) {
+      return null;
+    }
 
-    return newComment;
+    return newCommentId;
   }
 }

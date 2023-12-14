@@ -4,16 +4,19 @@ import {
   Comment,
   CommentModelType,
 } from './models/domain/comments.domain-entities';
-import { MapCommentViewModel } from './helpers/map-CommentViewModel';
-import { CommentDbModel, CommentsFilterModel } from './models/comments.models';
+import { MapCommentViewModelMongo } from './helpers/map-CommentViewModel-mongo';
+import {
+  CommentDbModel,
+  CommentsFilterModel,
+} from './models/comments.models-mongo';
 import { FilterQuery } from 'mongoose';
 
 @Injectable()
-export class CommentsQueryRepo {
+export class CommentsQueryRepoMongo {
   constructor(
     @InjectModel(Comment.name)
     private readonly commentModel: CommentModelType,
-    private readonly mapCommentViewModel: MapCommentViewModel,
+    private readonly mapCommentViewModel: MapCommentViewModelMongo,
   ) {}
 
   async findCommentById(id: string, userId?: string) {

@@ -19,15 +19,7 @@ export class CommentsRepoSQL {
         `
           INSERT INTO public.comments("id","postId", content, "userId", "userLogin", "createdAt")
           VALUES ($1, $2, $3, $4, $5, $6);`,
-        [
-          id,
-          dto.postId,
-          dto.content,
-          dto.content,
-          dto.userId,
-          dto.userLogin,
-          new Date(),
-        ],
+        [id, dto.postId, dto.content, dto.userId, dto.userLogin, new Date()],
       );
     } catch (e) {
       console.log(e);

@@ -60,7 +60,7 @@ export class LikesRepoSQL {
           `
         UPDATE public."userslikesconnection"
         SET "status"=$1
-        WHERE ("userId" = $1 AND "likedObjectId" = $2 AND "likedObjectType" = $3);`,
+        WHERE ("userId" = $2 AND "likedObjectId" = $3 AND "likedObjectType" = $4);`,
           [likeStatus.Like, userId, ownerId, ownerType],
         );
       }
@@ -126,7 +126,7 @@ export class LikesRepoSQL {
           `
         UPDATE public."userslikesconnection"
         SET "status"=$1
-        WHERE ("userId" = $1 AND "likedObjectId" = $2 AND "likedObjectType" = $3);`,
+        WHERE ("userId" = $2 AND "likedObjectId" = $3 AND "likedObjectType" = $4);`,
           [likeStatus.Dislike, userId, ownerId, ownerType],
         );
       }

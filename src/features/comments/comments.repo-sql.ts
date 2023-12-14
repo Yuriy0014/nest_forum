@@ -5,7 +5,7 @@ import {
   CommentDbModel,
   CommentUpdateModel,
 } from './models/comments.models-sql';
-import { CommentCreateModel } from './models/comments.models-mongo';
+import { CommentCreateModel } from './models/comments.models-sql';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

@@ -5,7 +5,7 @@ export class CommentInputModel {
   @IsString()
   @Length(20, 200)
   @Matches(/.*\S+.*/, {
-    message: 'title should not consist of whitespace characters',
+    message: 'content should not consist of whitespace characters',
   })
   content: string;
 }

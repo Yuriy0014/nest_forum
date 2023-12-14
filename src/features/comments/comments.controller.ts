@@ -14,7 +14,7 @@ import {
 import {
   CommentUpdateModel,
   CommentViewModel,
-} from './models/comments.models-mongo';
+} from './models/comments.models-sql';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
@@ -57,8 +57,8 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
   async updateComment(
-    @Param('id') commentId: string,
     @Body() updateDTO: CommentUpdateModel,
+    @Param('id') commentId: string,
     @Request() req: any,
   ) {
     const foundComment: CommentViewModel | null =

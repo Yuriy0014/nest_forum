@@ -15,19 +15,19 @@ import {
 import {
   PostsWithPaginationModel,
   PostViewModel,
-} from './models/posts.models-mongo';
+} from './models/posts.models-sql';
 import { queryPostPagination } from './helpers/filter';
 import { queryCommentsWithPagination } from '../comments/helpers/filter';
 import {
   CommentInputModel,
   CommentsWithPaginationModel,
   CommentViewModel,
-} from '../comments/models/comments.models-mongo';
+} from '../comments/models/comments.models-sql';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   likeInputModel,
   likesInfoViewModel,
-} from '../likes/models/likes.models-mongo';
+} from '../likes/models/likes.models-sql';
 import { CheckUserIdGuard } from './guards/post.guards';
 import { LikeOperationCommand } from '../likes/use-cases/LikeOperationUseCase';
 import { LikeObjectTypeEnum } from '../likes/models/domain/likes.domain-entities';

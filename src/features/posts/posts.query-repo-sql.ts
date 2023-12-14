@@ -29,15 +29,22 @@ export class PostsQueryRepoSQL {
     const orderByClause =
       '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
 
+    const whereClause =
+      queryFilter.blogId === null
+        ? '1==1'
+        : `p."blogId" = %${queryFilter.blogId}%`;
+
     const foundPostsSQL = await this.dataSource.query(
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
+        WHERE $1
         ORDER BY ${orderByClause}
-        LIMIT $1
-        OFFSET $2;
+        LIMIT $2
+        OFFSET $3;
         `,
       [
+        whereClause,
         queryFilter.pageSize,
         queryFilter.pageSize * (queryFilter.pageNumber - 1),
       ],

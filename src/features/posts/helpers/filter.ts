@@ -16,7 +16,7 @@ export const queryPostPagination = (
     sortBy: query.sortBy ?? 'createdAt',
     sortDirection: query.sortDirection === 'asc' ? 'asc' : 'desc',
     pageNumber: +(query.pageNumber ?? 1),
-    blogId: query.blogId ?? blogId ?? '',
+    blogId: query.blogId ?? blogId ?? null,
     pageSize: +(query.pageSize ?? 10),
   };
 };

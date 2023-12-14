@@ -52,13 +52,15 @@ export class CommentsQueryRepoSQL {
       `
           SELECT id, "postId", content, "userId", "userLogin", "createdAt"
           FROM public.comments
+          WHERE id = $3
           ORDER BY ${orderByClause}
---           LIMIT $1 OFFSET $2;
+          LIMIT $1 OFFSET $2;
       `,
-      // [
-      //   queryFilter.pageSize,
-      //   queryFilter.pageSize * (queryFilter.pageNumber - 1),
-      // ],
+      [
+        queryFilter.pageSize,
+        queryFilter.pageSize * (queryFilter.pageNumber - 1),
+        queryFilter.postId,
+      ],
     );
 
     /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises
@@ -76,7 +78,9 @@ export class CommentsQueryRepoSQL {
       `
           SELECT id
           FROM public.comments
+          WHERE id = $1
       `,
+      [queryFilter.postId],
     );
 
     const totalCount = totalComments.length;

@@ -71,7 +71,7 @@ export class BlogsController {
       sortDirection?: string;
       pageNumber?: string;
       pageSize?: string;
-      blogId?: string;
+      blogId: string;
     },
     @Request() req: any,
   ): Promise<PostsWithPaginationModel> {

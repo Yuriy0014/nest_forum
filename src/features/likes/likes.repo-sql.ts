@@ -52,8 +52,8 @@ export class LikesRepoSQL {
           `
         INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1 $2, $3, $4, $5, $6, $7);`,
-          [userId, ownerId, ownerType, userLogin, new Date(), likeStatus.Like],
+        VALUES ($1, $2, $3, $4, $5, $6);`,
+          [userId, userLogin, new Date(), ownerId, ownerType, likeStatus.Like],
         );
       } else {
         await this.dataSource.query(
@@ -111,13 +111,13 @@ export class LikesRepoSQL {
           `
         INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1 $2, $3, $4, $5, $6, $7);`,
+        VALUES ($1, $2, $3, $4, $5, $6);`,
           [
             userId,
-            ownerId,
-            ownerType,
             userLogin,
             new Date(),
+            ownerId,
+            ownerType,
             likeStatus.Dislike,
           ],
         );
@@ -192,8 +192,8 @@ export class LikesRepoSQL {
           `
         INSERT INTO public."userslikesconnection"(
         "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1 $2, $3, $4, $5, $6, $7);`,
-          [userId, ownerId, ownerType, userLogin, new Date(), likeStatus.None],
+        VALUES ($1, $2, $3, $4, $5, $6);`,
+          [userId, userLogin, new Date(), ownerId, ownerType, likeStatus.None],
         );
       } else {
         await this.dataSource.query(

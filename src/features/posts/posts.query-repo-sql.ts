@@ -68,6 +68,7 @@ export class PostsQueryRepoSQL {
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
+        WHERE ${whereClause}
         ORDER BY ${orderByClause}
         `,
     );

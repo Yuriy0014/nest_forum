@@ -121,10 +121,6 @@ export class PostsController {
       req.userId,
     );
 
-    if (!foundPosts.items.length) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
     return foundPosts;
   }
 

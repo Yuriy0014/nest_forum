@@ -29,25 +29,28 @@ export class PostsQueryRepoSQL {
     const orderByClause =
       '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
 
-    const whereClause =
-      queryFilter.blogId === null
-        ? 'TRUE'
-        : `p."blogId" = %${queryFilter.blogId}%`;
+    let whereClause = 'TRUE';
+
+    const params: any[] = [
+      queryFilter.pageSize,
+      queryFilter.pageSize * (queryFilter.pageNumber - 1),
+    ];
+
+    if (queryFilter.blogId !== null) {
+      whereClause = `p."blogId" = $3`;
+      params.push(queryFilter.blogId);
+    }
 
     const foundPostsSQL = await this.dataSource.query(
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
-        WHERE $1
+        WHERE ${whereClause}
         ORDER BY ${orderByClause}
         LIMIT $2
         OFFSET $3;
         `,
-      [
-        whereClause,
-        queryFilter.pageSize,
-        queryFilter.pageSize * (queryFilter.pageNumber - 1),
-      ],
+      params,
     );
 
     /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises

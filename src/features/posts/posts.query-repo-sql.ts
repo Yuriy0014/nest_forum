@@ -64,6 +64,12 @@ export class PostsQueryRepoSQL {
 
     const foundPosts = await foundPostsFunction(foundPostsSQL);
 
+    const paramsForTotal: string[] = [];
+    if (queryFilter.blogId !== null) {
+      whereClause = `p."blogId" = $1`;
+      paramsForTotal.push(queryFilter.blogId);
+    }
+
     const totalPostsRaw = await this.dataSource.query(
       `
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
@@ -71,8 +77,7 @@ export class PostsQueryRepoSQL {
         WHERE ${whereClause}
         ORDER BY ${orderByClause};
         `,
-      //   Первые два true - просто заглушка, т.к. подставляем третье значение
-      [true, true, queryFilter.blogId],
+      paramsForTotal,
     );
 
     const totalCount = totalPostsRaw.length;

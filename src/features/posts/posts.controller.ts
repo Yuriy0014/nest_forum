@@ -68,9 +68,6 @@ export class PostsController {
     const foundPosts: PostsWithPaginationModel =
       await this.postsQueryRepo.FindAllPost(queryFilter, req.userId);
 
-    if (!foundPosts.items.length) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
     return foundPosts;
   }
 

@@ -69,8 +69,10 @@ export class PostsQueryRepoSQL {
         SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
         FROM public.posts p
         WHERE ${whereClause}
-        ORDER BY ${orderByClause}
+        ORDER BY ${orderByClause};
         `,
+      //   Первые два true - просто заглушка, т.к. подставляем третье значение
+      [true, true, queryFilter.blogId],
     );
 
     const totalCount = totalPostsRaw.length;

@@ -52,7 +52,7 @@ export class CommentsQueryRepoSQL {
       `
           SELECT id, "postId", content, "userId", "userLogin", "createdAt"
           FROM public.comments
-          WHERE id = $3
+          WHERE "postId" = $3
           ORDER BY ${orderByClause}
           LIMIT $1 OFFSET $2;
       `,
@@ -78,7 +78,7 @@ export class CommentsQueryRepoSQL {
       `
           SELECT id
           FROM public.comments
-          WHERE id = $1
+          WHERE "postId" = $1
       `,
       [queryFilter.postId],
     );

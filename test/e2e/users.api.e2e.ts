@@ -1,166 +1,277 @@
-import request from 'supertest'
-
-import {STATUSES_HTTP} from "../../enum/http-statuses";
-import {app} from "../../app_settings";
-import {RouterPaths} from "../../helpers/RouterPaths";
-import {authBasicHeader, connection_string} from "../utils/export_data_functions";
-import {UserCreateModel, UserViewModel} from "../../models/Users/UserModel";
-import {usersTestManager} from "../utils/usersTestManager";
-import mongoose from "mongoose";
+import request from 'supertest';
+import {
+  BadRequestException,
+  HttpStatus,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { AppModule } from '../../src/app.module';
+import cookieParser from 'cookie-parser';
+import {
+  ErrorExceptionFilter,
+  HttpExceptionFilter,
+} from '../../src/middlewares/exception.filter';
+import { useContainer } from 'class-validator';
+import { RouterPaths } from '../../src/helpers/RouterPaths';
+import { authBasicHeader } from '../utils/export_data_functions';
+import {
+  UserInputModel,
+  UserViewModel,
+} from '../../src/features/users/models/users.models.sql';
+import { usersTestManager } from '../utils/usersTestManager';
 
 describe('/Testing users', () => {
-    beforeAll(async () => {
-        await mongoose.connect(connection_string);
-    })
+  let app: INestApplication;
 
+  beforeAll(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
 
-    it('Delete all data before tests', async () => {
-        await request(app)
-            .delete(`${RouterPaths.testing}/all-data`)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
-    })
+    app = moduleFixture.createNestApplication();
+    app.use(cookieParser());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
+        // числом, если указано @Params('id') userId: number
+        transform: true,
+        stopAtFirstError: true,
+        exceptionFactory: (errors) => {
+          const errorsForResponse = [];
 
-    it('should return 401 without AUTH', async () => {
-        await request(app)
-            .get(RouterPaths.users)
-            .expect(STATUSES_HTTP.UNAUTHORIZED_401)
-    })
+          errors.forEach((e) => {
+            const constrKeys = Object.keys(e.constraints!);
+            constrKeys.forEach((ckey) => {
+              // @ts-ignore
+              errorsForResponse.push({
+                message: e.constraints![ckey],
+                field: e.property,
+              });
+            });
+          });
 
+          throw new BadRequestException(errorsForResponse);
+        },
+      }),
+    );
+    app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
+    // Эта строка нужна чтобы работал DI в  custom validator декораторе
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
+    await app.init(); // как await app.listen(port);
+  });
 
-    it('should return 200 and empty array', async () => {
-        await request(app)
-            .get(RouterPaths.users)
-            .set(authBasicHeader)
-            .expect(STATUSES_HTTP.OK_200, {pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: []})
-    })
+  it('Delete all data before tests', async () => {
+    await request(app.getHttpServer())
+      .delete(`${RouterPaths.testing}/all-data`)
+      .expect(HttpStatus.NO_CONTENT);
+  });
 
-    it('should not create user without AUTH', async () => {
+  it('should return 401 without AUTH', async () => {
+    await request(app.getHttpServer())
+      .get(RouterPaths.users)
+      .expect(HttpStatus.UNAUTHORIZED);
+  });
 
-        const data: UserCreateModel = {
-            "login": "Feynman",
-            "password": "Richard8=227",
-            "email": "Feynman1918@gmailya.com",
-        }
+  it('should return 200 and empty array', async () => {
+    await request(app.getHttpServer())
+      .get(RouterPaths.users)
+      .set(authBasicHeader)
+      .expect(HttpStatus.OK, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: [],
+      });
+  });
 
-        await usersTestManager.createUser(data, STATUSES_HTTP.UNAUTHORIZED_401)
-
-        await request(app)
-            .get(RouterPaths.users)
-            .set(authBasicHeader)
-            .expect(STATUSES_HTTP.OK_200, {pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: []})
-    })
-
-    let createdUser1: UserViewModel = {
-        "id": "",
-        "login": "",
-        "email": "",
-        "createdAt": "",
+  it('should not create user without AUTH', async () => {
+    const data: UserInputModel = {
+      login: 'Feynman',
+      password: 'Richard8=227',
+      email: 'Feynman1918@gmailya.com',
     };
 
-    it('should NOT create user with AUTH and INCORRECT input data', async () => {
+    await usersTestManager.createUser(app, data, HttpStatus.UNAUTHORIZED);
 
-        // Короткий логин
-        const data1: UserCreateModel = {
-            "login": "FY",
-            "password": "Richard8=227",
-            "email": "Feynman1918@gmailya.com",
-        }
+    await request(app.getHttpServer())
+      .get(RouterPaths.users)
+      .set(authBasicHeader)
+      .expect(HttpStatus.OK, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: [],
+      });
+  });
 
-        await usersTestManager.createUser(data1, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+  let createdUser1: UserViewModel = {
+    id: '',
+    login: '',
+    email: '',
+    createdAt: '',
+  };
 
-        // Длинный логин
-        const data2: UserCreateModel = {
-            "login": "FYFYFYFYFY2",
-            "password": "Richard8=227",
-            "email": "Feynman1918@gmailya.com",
-        }
+  it('should NOT create user with AUTH and INCORRECT input data', async () => {
+    // Короткий логин
+    const data1: UserInputModel = {
+      login: 'FY',
+      password: 'Richard8=227',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        await usersTestManager.createUser(data2, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
-        // Запрещенный символ @ в логине
-        const data3: UserCreateModel = {
-            "login": "Feynman@",
-            "password": "Ric@hard8=227",
-            "email": "Feynman1918@gmailya.com",
-        }
+    await usersTestManager.createUser(
+      app,
+      data1,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-        await usersTestManager.createUser(data3, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
-        // Пароль короткий и длинный
-        const data4: UserCreateModel = {
-            "login": "Feynman@",
-            "password": "7",
-            "email": "Feynman1918@gmailya.com",
-        }
+    // Длинный логин
+    const data2: UserInputModel = {
+      login: 'FYFYFYFYFY2',
+      password: 'Richard8=227',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        await usersTestManager.createUser(data4, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+    await usersTestManager.createUser(
+      app,
+      data2,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
+    // Запрещенный символ @ в логине
+    const data3: UserInputModel = {
+      login: 'Feynman@',
+      password: 'Ric@hard8=227',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        const data5: UserCreateModel = {
-            "login": "Feynman@",
-            "password": "777777777777777777771",
-            "email": "Feynman1918@gmailya.com",
-        }
+    await usersTestManager.createUser(
+      app,
+      data3,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
+    // Пароль короткий и длинный
+    const data4: UserInputModel = {
+      login: 'Feynman@',
+      password: '7',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        await usersTestManager.createUser(data5, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+    await usersTestManager.createUser(
+      app,
+      data4,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-        // Проверка email - короткий, длинный, не соответствует регулярному выражению
+    const data5: UserInputModel = {
+      login: 'Feynman@',
+      password: '777777777777777777771',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        const data6: UserCreateModel = {
-            "login": "Feynman",
-            "password": "Richard8=227",
-            "email": "Feynman1918Feynman1918Feynman1918Feynman1918Feynman1918Feynman1918@gmailya.com",
-        }
+    await usersTestManager.createUser(
+      app,
+      data5,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-        await usersTestManager.createUser(data6, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+    // Проверка email - короткий, длинный, не соответствует регулярному выражению
 
-        const data7: UserCreateModel = {
-            "login": "Feynman",
-            "password": "Richard8=227",
-            "email": "Feynm@an1918@gmailya.com",
-        }
+    const data6: UserInputModel = {
+      login: 'Feynman',
+      password: 'Richard8=227',
+      email:
+        'Feynman1918Feynman1918Feynman1918Feynman1918Feynman1918Feynman1918@gmailya.com',
+    };
 
-        await usersTestManager.createUser(data7, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+    await usersTestManager.createUser(
+      app,
+      data6,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-        const data8: UserCreateModel = {
-            "login": "Feynman",
-            "password": "Richard8=227",
-            "email": "Feynman1918@gmailya.co.m",
-        }
+    const data7: UserInputModel = {
+      login: 'Feynman',
+      password: 'Richard8=227',
+      email: 'Feynm@an1918@gmailya.com',
+    };
 
-        await usersTestManager.createUser(data8, STATUSES_HTTP.BAD_REQUEST_400, authBasicHeader)
+    await usersTestManager.createUser(
+      app,
+      data7,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-        await request(app)
-            .get(RouterPaths.users)
-            .set(authBasicHeader)
-            .expect(STATUSES_HTTP.OK_200, {pagesCount: 0, page: 1, pageSize: 10, totalCount: 0, items: []})
-    })
+    const data8: UserInputModel = {
+      login: 'Feynman',
+      password: 'Richard8=227',
+      email: 'Feynman1918@gmailya.co.m',
+    };
 
+    await usersTestManager.createUser(
+      app,
+      data8,
+      HttpStatus.BAD_REQUEST,
+      authBasicHeader,
+    );
 
-    it('should create user with AUTH and correct input data', async () => {
+    await request(app.getHttpServer())
+      .get(RouterPaths.users)
+      .set(authBasicHeader)
+      .expect(HttpStatus.OK, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: [],
+      });
+  });
 
-        const data: UserCreateModel = {
-            "login": "Feynman",
-            "password": "Richard8=227",
-            "email": "Feynman1918@gmailya.com",
-        }
+  it('should create user with AUTH and correct input data', async () => {
+    const data: UserInputModel = {
+      login: 'Feynman',
+      password: 'Richard8=227',
+      email: 'Feynman1918@gmailya.com',
+    };
 
-        const {createdUser} = await usersTestManager.createUser(data, STATUSES_HTTP.CREATED_201, authBasicHeader)
+    const { createdUser } = await usersTestManager.createUser(
+      app,
+      data,
+      HttpStatus.CREATED,
+      authBasicHeader,
+    );
 
-        createdUser1 = createdUser!
+    createdUser1 = createdUser!;
 
-        await request(app)
-            .get(RouterPaths.users)
-            .set(authBasicHeader)
-            .expect(STATUSES_HTTP.OK_200, {
-                pagesCount: 1, page: 1, pageSize: 10, totalCount: 1, items: [{
-                    "id": createdUser1.id,
-                    "login": data.login,
-                    "email": data.email,
-                    "createdAt": createdUser1.createdAt,
-                }]
-            })
-    })
+    await request(app.getHttpServer())
+      .get(RouterPaths.users)
+      .set(authBasicHeader)
+      .expect(HttpStatus.OK, {
+        pagesCount: 1,
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
+        items: [
+          {
+            id: createdUser1.id,
+            login: data.login,
+            email: data.email,
+            createdAt: createdUser1.createdAt,
+          },
+        ],
+      });
+  });
 
-    afterAll(async () => {
-        await mongoose.disconnect()
-    })
-
-})
+  afterAll(async () => {
+    await app.close();
+  });
+});

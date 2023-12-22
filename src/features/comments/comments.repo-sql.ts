@@ -17,8 +17,8 @@ export class CommentsRepoSQL {
     try {
       await this.dataSource.query(
         `
-          INSERT INTO public.comments("id","postId", content, "userId", "userLogin", "createdAt")
-          VALUES ($1, $2, $3, $4, $5, $6);`,
+                    INSERT INTO public.comments("id", "postId", content, "userId", "userLogin", "createdAt")
+                    VALUES ($1, $2, $3, $4, $5, $6);`,
         [id, dto.postId, dto.content, dto.userId, dto.userLogin, new Date()],
       );
     } catch (e) {
@@ -32,10 +32,10 @@ export class CommentsRepoSQL {
     try {
       await this.dataSource.query(
         `
-            UPDATE public.comments
-            SET "content"=$1
-            WHERE "id" = $2;
-        `,
+                    UPDATE public.comments
+                    SET "content"=$1
+                    WHERE "id" = $2;
+                `,
         [updateDTO.content, commentId],
       );
     } catch (e) {
@@ -45,9 +45,9 @@ export class CommentsRepoSQL {
 
     const updatedComment: CommentDbModel[] = await this.dataSource.query(
       `
-              SELECT "id"
-              FROM public.comments b
-              WHERE ("id" = $1 AND "content" = $2);`,
+                SELECT "id"
+                FROM public.comments b
+                WHERE ("id" = $1 AND "content" = $2);`,
       [commentId, updateDTO.content],
     );
 
@@ -57,9 +57,9 @@ export class CommentsRepoSQL {
   async findCommentById(commentId: string): Promise<CommentDbModel | null> {
     const foundComment: CommentDbModel = await this.dataSource.query(
       `
-          SELECT id, "postId", content, "userId", "userLogin", "createdAt"
-          FROM public."comments"
-          WHERE ("id" = $1)`,
+                SELECT id, "postId", content, "userId", "userLogin", "createdAt"
+                FROM public."comments"
+                WHERE ("id" = $1)`,
       [commentId],
     );
     if (foundComment[0]) {
@@ -69,14 +69,19 @@ export class CommentsRepoSQL {
     }
   }
 
-  async deleteComment(commentId: string) {
-    await this.dataSource.query(
-      `
-                DELETE
-                FROM public.comments
-                WHERE id = $1`,
-      [commentId],
-    );
+  async deleteComment(commentId: string): Promise<boolean> {
+    try {
+      await this.dataSource.query(
+        `
+                    DELETE
+                    FROM public.comments
+                    WHERE id = $1`,
+        [commentId],
+      );
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
 
     const deletedComment = await this.dataSource.query(
       `

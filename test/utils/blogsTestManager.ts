@@ -11,8 +11,8 @@ export const blogsTestManager = {
     expectedStatusCode: HttpStatusType = HttpStatus.CREATED,
     headers = {},
   ) {
-    const response = await request(app)
-      .post(RouterPaths.blogs)
+    const response = await request(app.getHttpServer())
+      .post(RouterPaths.blogsSA)
       .set(headers)
       .send(data)
       .expect(expectedStatusCode);

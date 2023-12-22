@@ -41,9 +41,6 @@ export class BlogsController {
     const foundBlogs: BlogsWithPaginationModel =
       await this.blogsQueryRepo.FindAllBlogs(queryFilter);
 
-    if (!foundBlogs.items.length) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
     return foundBlogs;
   }
 

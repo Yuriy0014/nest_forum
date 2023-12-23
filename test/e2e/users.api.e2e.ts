@@ -7,7 +7,7 @@ import {
   UserViewModel,
 } from '../../src/features/users/models/users.models.sql';
 import { usersTestManager } from '../utils/usersTestManager';
-import { createTestAPP } from './createTestAPP';
+import { createTestAPP } from '../utils/createTestAPP';
 
 describe('/Testing users', () => {
   let app: INestApplication;

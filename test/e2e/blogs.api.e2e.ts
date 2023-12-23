@@ -8,7 +8,7 @@ import {
 } from '../../src/features/blogs/models/blogs.models-sql';
 import { authBasicHeader } from '../utils/export_data_functions';
 import { blogsTestManager } from '../utils/blogsTestManager';
-import { createTestAPP } from './createTestAPP';
+import { createTestAPP } from '../utils/createTestAPP';
 
 describe('/Testing blogs', () => {
   let app: INestApplication;

@@ -14,7 +14,7 @@ import {
 } from '../../src/features/posts/models/posts.models-sql';
 import { postsTestManager } from '../utils/postsTestManager';
 import { likeStatus } from '../../src/features/likes/models/likes.models-sql';
-import { createTestAPP } from './createTestAPP';
+import { createTestAPP } from '../utils/createTestAPP';
 
 describe('/Testing posts', () => {
   let app: INestApplication;

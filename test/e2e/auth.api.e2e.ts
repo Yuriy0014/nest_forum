@@ -1,220 +1,228 @@
-import request from 'supertest'
+import request from 'supertest';
 
-import {STATUSES_HTTP} from "../../enum/http-statuses";
-import {app} from "../../app_settings";
-import {RouterPaths} from "../../helpers/RouterPaths";
-import {connection_string, workingWithDB} from "../utils/export_data_functions";
-import mongoose from "mongoose";
-import {UserCreateModel, UserDBModel} from "../../models/Users/UserModel";
-import {UserModelClass} from "../../db/db";
-import sub from "date-fns/sub";
+import sub from 'date-fns/sub';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import {
+  UserDBModel,
+  UserInputModel,
+} from '../../src/features/users/models/users.models.sql';
+import { createTestAPP } from '../utils/createTestAPP';
+import { RouterPaths } from '../../src/helpers/RouterPaths';
+import { UsersRepoSQL } from '../../src/features/users/users.repo-sql';
+import { DataSource } from 'typeorm';
 
-describe('/Testing blogs', () => {
-    let user1: UserDBModel | null;
-    let user2: UserDBModel | null;
-    beforeAll(async () => {
-        await mongoose.connect(connection_string);
-    })
+describe('/Testing auth', () => {
+  let user1: UserDBModel | null;
+  let user2: UserDBModel | null;
+  let app: INestApplication;
+  let server: any;
+  let usersRepo: UsersRepoSQL;
+  let dataSource: DataSource;
 
-    it('Delete all data before tests', async () => {
-        await request(app)
-            .delete(`${RouterPaths.testing}/all-data`)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
-    })
+  beforeAll(async () => {
+    app = await createTestAPP();
+    server = app.getHttpServer();
 
-    it('Registration 1', async () => {
-        const data: UserCreateModel = {
-            "login": "Landau",
-            "password": "LandauMIPT144",
-            "email": "LandauMIPT144@gmailya.com",
-        }
+    usersRepo = app.get(UsersRepoSQL);
+    dataSource = app.get<DataSource>(DataSource);
+  });
 
-       await request(app)
-            .post(`${RouterPaths.auth}/registration`)
-            .send(data)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
+  it('Delete all data before tests', async () => {
+    await request(server)
+      .delete(`${RouterPaths.testing}/all-data`)
+      .expect(HttpStatus.NO_CONTENT);
+  });
 
-        user1 = await workingWithDB.findByLoginOrEmail(data.email)
-        expect(user1).not.toBe(null)
-        if(user1 !== null) {
-            expect(user1.emailConfirmation.isConfirmed).toBe(false)
-            expect(typeof user1.emailConfirmation.confirmationCode).toBe('string');
-        }
-    })
+  it('Registration 1', async () => {
+    const data: UserInputModel = {
+      login: 'Landau',
+      password: 'LandauMIPT144',
+      email: 'LandauMIPT144@gmailya.com',
+    };
 
-    it('Registration 2', async () => {
-        const data: UserCreateModel = {
-            "login": "Landau_2",
-            "password": "LandauSFEDU12",
-            "email": "LandauSFEDU12@gmailya.com",
-        }
+    await request(server)
+      .post(`${RouterPaths.auth}/registration`)
+      .send(data)
+      .expect(HttpStatus.NO_CONTENT);
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration`)
-            .send(data)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
+    user1 = await usersRepo.findByLoginOrEmail(data.email);
+    expect(user1).not.toBe(null);
+    if (user1 !== null) {
+      expect(user1.isEmailConfirmed).toBe(false);
+      expect(typeof user1.emailConfirmationCode).toBe('string');
+    }
+  });
 
-        user2 = await workingWithDB.findByLoginOrEmail(data.email)
-        expect(user2).not.toBe(null)
-        if(user2 !== null) {
-            expect(user2.emailConfirmation.isConfirmed).toBe(false)
-            expect(typeof user2.emailConfirmation.confirmationCode).toBe('string');
-        }
-    })
+  it('Registration 2', async () => {
+    const data: UserInputModel = {
+      login: 'Landau_2',
+      password: 'LandauSFEDU12',
+      email: 'LandauSFEDU12@gmailya.com',
+    };
 
+    await request(server)
+      .post(`${RouterPaths.auth}/registration`)
+      .send(data)
+      .expect(HttpStatus.NO_CONTENT);
 
-    it('Registration confirmation BAD 400 ', async () => {
+    user2 = await usersRepo.findByLoginOrEmail(data.email);
+    expect(user2).not.toBe(null);
+    if (user2 !== null) {
+      expect(user2.isEmailConfirmed).toBe(false);
+      expect(typeof user2.emailConfirmationCode).toBe('string');
+    }
+  });
 
-        const dataConfirmationGood = {
-            "code": user1!.emailConfirmation.confirmationCode
-        }
+  it('Registration confirmation BAD 400 ', async () => {
+    const dataConfirmationGood = {
+      code: user1!.emailConfirmationCode,
+    };
 
-        const dataConfirmationBad1 = {
-            "code": user1!.emailConfirmation.confirmationCode + "h"
-        }
+    const dataConfirmationBad1 = {
+      code: user1!.emailConfirmationCode + 'h',
+    };
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration-confirmation`)
-            .send(dataConfirmationBad1)
-            .expect(STATUSES_HTTP.BAD_REQUEST_400)
+    await request(server)
+      .post(`${RouterPaths.auth}/registration-confirmation`)
+      .send(dataConfirmationBad1)
+      .expect(HttpStatus.BAD_REQUEST);
 
+    await dataSource.query(
+      `UPDATE public.users
+             SET "isEmailConfirmed"= TRUE
+             WHERE id = $1;`,
+      [user1!.id],
+    );
 
-        await UserModelClass.updateOne({"_id": user1!._id}, {
-                $set: {
-                    "emailConfirmation.isConfirmed": true,
-                }
-            });
+    await request(server)
+      .post(`${RouterPaths.auth}/registration-confirmation`)
+      .send(dataConfirmationGood)
+      .expect(HttpStatus.BAD_REQUEST);
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration-confirmation`)
-            .send(dataConfirmationGood)
-            .expect(STATUSES_HTTP.BAD_REQUEST_400)
+    await dataSource.query(
+      `UPDATE public.users
+             SET "isEmailConfirmed"= FALSE,
+                 "confirmationCodeExpDate" = $2
+             WHERE id = $1;`,
+      [
+        user1!.id,
+        sub(new Date(), {
+          hours: 10,
+        }),
+      ],
+    );
 
-        await UserModelClass.updateOne({"_id": user1!._id}, {
-            $set: {
-                "emailConfirmation.isConfirmed": false,
-                "emailConfirmation.expirationDate": sub(new Date(), {hours: 10}).toISOString(),
-            }
-        });
+    await request(server)
+      .post(`${RouterPaths.auth}/registration-confirmation`)
+      .send(dataConfirmationGood)
+      .expect(HttpStatus.BAD_REQUEST);
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration-confirmation`)
-            .send(dataConfirmationGood)
-            .expect(STATUSES_HTTP.BAD_REQUEST_400)
+    await dataSource.query(
+      `UPDATE public.users
+             SET "confirmationCodeExpDate"= $2
+             WHERE id = $1;`,
+      [user1!.id, user1!.confirmationCodeExpDate],
+    );
+  });
 
-        await UserModelClass.updateOne({"_id": user1!._id}, {
-            $set: {
-                "emailConfirmation.expirationDate": user1!.emailConfirmation.expirationDate
-            }
-        });
+  it('Registration confirmation GOOD user 1 ', async () => {
+    const dataConfirmation1 = {
+      code: user1!.emailConfirmationCode,
+    };
 
-    })
+    await request(server)
+      .post(`${RouterPaths.auth}/registration-confirmation`)
+      .send(dataConfirmation1)
+      .expect(HttpStatus.NO_CONTENT);
 
+    await request(server)
+      .post(`${RouterPaths.auth}/registration-confirmation`)
+      .send(dataConfirmation1)
+      .expect(HttpStatus.BAD_REQUEST);
 
-    it('Registration confirmation GOOD user 1 ', async () => {
+    user1 = await usersRepo.findByLoginOrEmail(user1!.email);
+    expect(user1).not.toBe(null);
+    if (user1 !== null) {
+      expect(user1.isEmailConfirmed).toBe(true);
+    }
+  });
 
-        const dataConfirmation1 = {
-            "code": user1!.emailConfirmation.confirmationCode
-        }
+  it('Registration confirmation GOOD user 2 ', async () => {
+    // Обернул в setTimeout чтоы не было 429
+    setTimeout(async function () {
+      const dataConfirmation1 = {
+        code: user2!.emailConfirmationCode,
+      };
 
+      await request(server)
+        .post(`${RouterPaths.auth}/registration-confirmation`)
+        .send(dataConfirmation1)
+        .expect(HttpStatus.NO_CONTENT);
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration-confirmation`)
-            .send(dataConfirmation1)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
+      await request(server)
+        .post(`${RouterPaths.auth}/registration-confirmation`)
+        .send(dataConfirmation1)
+        .expect(HttpStatus.BAD_REQUEST);
 
-        await request(app)
-            .post(`${RouterPaths.auth}/registration-confirmation`)
-            .send(dataConfirmation1)
-            .expect(STATUSES_HTTP.BAD_REQUEST_400)
+      user2 = await usersRepo.findByLoginOrEmail(user2!.email);
+      expect(user2).not.toBe(null);
+      if (user2 !== null) {
+        expect(user2.isEmailConfirmed).toBe(true);
+      }
+    }, 2000);
+  });
 
-        user1 = await workingWithDB.findByLoginOrEmail(user1!.accountData.email)
-        expect(user1).not.toBe(null)
-        if(user1 !== null) {
-            expect(user1.emailConfirmation.isConfirmed).toBe(true)
-        }
-    })
+  it('should send email with code', async () => {
+    const data = {
+      email: user2!.email,
+    };
 
-    it('Registration confirmation GOOD user 2 ', async () => {
-        // Обернул в setTimeout чтоы не было 429
-        setTimeout(async function() {
-            const dataConfirmation1 = {
-                "code": user2!.emailConfirmation.confirmationCode
-            }
+    await request(server)
+      .post(`${RouterPaths.auth}/password-recovery`)
+      .send(data)
+      .expect(HttpStatus.NO_CONTENT);
+  });
 
-            await request(app)
-                .post(`${RouterPaths.auth}/registration-confirmation`)
-                .send(dataConfirmation1)
-                .expect(STATUSES_HTTP.NO_CONTENT_204)
+  it('should return error if password is incorrect; status 400;', async () => {
+    setTimeout(async function () {
+      const userDB: UserDBModel | null = await usersRepo.findByLoginOrEmail(
+        user2!.email,
+      );
+      const data = {
+        newPassword: 'short',
+        recoveryCode: userDB!.passwordRecoveryCode,
+      };
 
-            await request(app)
-                .post(`${RouterPaths.auth}/registration-confirmation`)
-                .send(dataConfirmation1)
-                .expect(STATUSES_HTTP.BAD_REQUEST_400)
+      await request(server)
+        .post(`${RouterPaths.auth}/new-password`)
+        .send(data)
+        .expect(HttpStatus.BAD_REQUEST);
+    }, 2000);
+  });
 
-            user2 = await workingWithDB.findByLoginOrEmail(user2!.accountData.email)
-            expect(user2).not.toBe(null)
-            if(user2 !== null) {
-                expect(user2.emailConfirmation.isConfirmed).toBe(true)
-            }
-        }, 2000);
+  it('should update password;', async () => {
+    setTimeout(async function () {
+      let userDB: UserDBModel | null = await usersRepo.findByLoginOrEmail(
+        user2!.email,
+      );
+      const data = {
+        newPassword: 'new_password',
+        recoveryCode: userDB!.passwordRecoveryCode,
+      };
 
-    })
+      const old_pass = userDB!.password;
+      await request(server)
+        .post(`${RouterPaths.auth}/new-password`)
+        .send(data)
+        .expect(HttpStatus.NO_CONTENT);
 
+      userDB = await usersRepo.findByLoginOrEmail(user2!.email);
+      expect(userDB!.password === old_pass).toBe(false);
+      expect(userDB!.passwordRecoveryCodeActive).toBe(false);
+    }, 2000);
+  });
 
-    it("should send email with code", async () => {
-        const data = {
-            "email": user2!.accountData.email
-        }
-
-        await request(app)
-            .post(`${RouterPaths.auth}/password-recovery`)
-            .send(data)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
-
-    })
-
-    it("should return error if password is incorrect; status 400;", async () => {
-        setTimeout(async function() {
-        const userDB = await UserModelClass.findOne({"accountData.email": user2!.accountData.email})
-        const data = {
-            "newPassword": "short",
-            "recoveryCode": userDB!.passwordRecovery!.passwordRecoveryCode
-        }
-
-        await request(app)
-            .post(`${RouterPaths.auth}/new-password`)
-            .send(data)
-            .expect(STATUSES_HTTP.BAD_REQUEST_400)
-        }, 2000);
-
-    })
-
-
-    it("should update password;", async () => {
-        setTimeout(async function() {
-        let  userDB = await UserModelClass.findOne({"accountData.email": user2!.accountData.email})
-        const data = {
-            "newPassword": "new_password",
-            "recoveryCode": userDB!.passwordRecovery!.passwordRecoveryCode
-        }
-
-        const old_pass = userDB!.accountData.password
-        await request(app)
-            .post(`${RouterPaths.auth}/new-password`)
-            .send(data)
-            .expect(STATUSES_HTTP.NO_CONTENT_204)
-
-        userDB = await UserModelClass.findOne({"accountData.email": user2!.accountData.email})
-        expect(userDB!.accountData.password === old_pass).toBe(false)
-        expect(userDB!.passwordRecovery.active).toBe(false);
-        }, 2000);
-
-    })
-
-
-    afterAll(async () => {
-        await mongoose.disconnect()
-    })
-
-})
+  afterAll(async () => {
+    await app.close();
+  });
+});

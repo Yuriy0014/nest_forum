@@ -260,6 +260,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @HttpCode(204)
   @UseGuards(ThrottlerGuard)
   async passwordRecovery(
     @Body() inputDTO: EmailForPasswordRecoveryInputModel,

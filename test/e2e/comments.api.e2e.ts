@@ -28,7 +28,7 @@ import {
 import { likeStatus } from '../../src/features/likes/models/likes.models-sql';
 import { commentTestManager } from '../utils/commentTestManager';
 import { JwtService } from '../../src/infrastructure/jwt/jwt.service';
-import { createTestAPP } from './createTestAPP';
+import { createTestAPP } from '../utils/createTestAPP';
 
 describe('/Testing comments', () => {
   let post: PostViewModel;

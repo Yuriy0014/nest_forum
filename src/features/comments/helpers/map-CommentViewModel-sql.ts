@@ -24,6 +24,8 @@ export class MapCommentViewModelSQL {
       myStatus: likeStatus.None,
     };
 
+    console.log('Коммент Считан');
+    console.log(new Date().toISOString());
     return {
       id: comment.id,
       content: comment.content,

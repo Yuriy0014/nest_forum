@@ -51,6 +51,8 @@ export class CommentsRepoSQL {
       [commentId, updateDTO.content],
     );
 
+    console.log('Коммент обновлён');
+    console.log(new Date().toISOString());
     return updatedComment.length !== 0;
   }
 

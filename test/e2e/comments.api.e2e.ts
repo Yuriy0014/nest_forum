@@ -28,7 +28,6 @@ import {
 import { likeStatus } from '../../src/features/likes/models/likes.models-sql';
 import { commentTestManager } from '../utils/commentTestManager';
 import { JwtService } from '../../src/infrastructure/jwt/jwt.service';
-import { ConfigService } from '@nestjs/config';
 import { createTestAPP } from './createTestAPP';
 
 describe('/Testing comments', () => {
@@ -48,7 +47,7 @@ describe('/Testing comments', () => {
 
     await request(server).delete(`${RouterPaths.testing}/all-data`);
 
-    jwtService = new JwtService(new ConfigService());
+    jwtService = app.get(JwtService);
 
     // Создаем блог, к которому будем прикреплять пост
     const dataBlog: BlogCreateModel = {

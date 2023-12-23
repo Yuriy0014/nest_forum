@@ -1,10 +1,5 @@
 import request from 'supertest';
-import {
-  BadRequestException,
-  HttpStatus,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   BlogCreateModel,
   BlogViewModel,
@@ -19,60 +14,20 @@ import {
 } from '../../src/features/posts/models/posts.models-sql';
 import { postsTestManager } from '../utils/postsTestManager';
 import { likeStatus } from '../../src/features/likes/models/likes.models-sql';
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import cookieParser from 'cookie-parser';
-import {
-  ErrorExceptionFilter,
-  HttpExceptionFilter,
-} from '../../src/middlewares/exception.filter';
-import { useContainer } from 'class-validator';
+import { createTestAPP } from './createTestAPP';
 
 describe('/Testing posts', () => {
   let app: INestApplication;
   let blog: BlogViewModel;
+  let server: any;
 
   beforeAll(async () => {
     // Стартуем приложение
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
-        // числом, если указано @Params('id') userId: number
-        transform: true,
-        stopAtFirstError: true,
-        exceptionFactory: (errors) => {
-          const errorsForResponse = [];
-
-          errors.forEach((e) => {
-            const constrKeys = Object.keys(e.constraints!);
-            constrKeys.forEach((ckey) => {
-              // @ts-ignore
-              errorsForResponse.push({
-                message: e.constraints![ckey],
-                field: e.property,
-              });
-            });
-          });
-
-          throw new BadRequestException(errorsForResponse);
-        },
-      }),
-    );
-    app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
-    // Эта строка нужна чтобы работал DI в  custom validator декораторе
-    useContainer(app.select(AppModule), { fallbackOnErrors: true });
-    await app.init(); // как await app.listen(port);
+    app = await createTestAPP();
+    server = app.getHttpServer();
 
     // Заполняем необходимые начальные данные
-    await request(app.getHttpServer()).delete(
-      `${RouterPaths.testing}/all-data`,
-    );
+    await request(server).delete(`${RouterPaths.testing}/all-data`);
 
     // Создаем блог, к которому будем прикреплять посты
     const data: BlogCreateModel = {
@@ -91,25 +46,23 @@ describe('/Testing posts', () => {
   });
 
   it('should return 404 and empty array', async () => {
-    await request(app.getHttpServer())
-      .get(RouterPaths.posts)
-      .expect(HttpStatus.OK, {
-        pagesCount: 0,
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: [],
-      });
+    await request(server).get(RouterPaths.posts).expect(HttpStatus.OK, {
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
   });
 
   it('should return 400 for nit uuid ID post', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.posts}/-22222222220`)
       .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('should return 404 for not existing post', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.posts}/000e0000-e00b-00d0-a000-000000000000`)
       .expect(HttpStatus.NOT_FOUND);
   });
@@ -124,15 +77,13 @@ describe('/Testing posts', () => {
 
     await postsTestManager.createPost(app, data, HttpStatus.UNAUTHORIZED);
 
-    await request(app.getHttpServer())
-      .get(RouterPaths.posts)
-      .expect(HttpStatus.OK, {
-        pagesCount: 0,
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: [],
-      });
+    await request(server).get(RouterPaths.posts).expect(HttpStatus.OK, {
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
   });
 
   /*
@@ -170,15 +121,13 @@ describe('/Testing posts', () => {
       authBasicHeader,
     );
 
-    await request(app.getHttpServer())
-      .get(RouterPaths.posts)
-      .expect(HttpStatus.OK, {
-        pagesCount: 0,
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: [],
-      });
+    await request(server).get(RouterPaths.posts).expect(HttpStatus.OK, {
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
   });
 
   it('should create post with AUTH and correct input data', async () => {
@@ -198,7 +147,7 @@ describe('/Testing posts', () => {
 
     createdPost1 = createdPost!;
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.posts)
       .expect(HttpStatus.OK, {
         pagesCount: 1,
@@ -255,7 +204,7 @@ describe('/Testing posts', () => {
 
     createdPost2 = createdPost!;
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.posts)
       .expect(HttpStatus.OK, {
         pagesCount: 1,
@@ -300,7 +249,7 @@ describe('/Testing posts', () => {
       `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
     );
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -315,7 +264,7 @@ describe('/Testing posts', () => {
         'La la land and Interstellar La la land and Interstellar La la land and Interstellar La la land and Interstellar',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -329,7 +278,7 @@ describe('/Testing posts', () => {
       content: '',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -337,7 +286,7 @@ describe('/Testing posts', () => {
       .send(data3)
       .expect(HttpStatus.BAD_REQUEST);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.posts}/${createdPost2.id}`)
       .expect(HttpStatus.OK, {
         id: createdPost2.id,
@@ -360,7 +309,7 @@ describe('/Testing posts', () => {
         'La la land and Interstellar La la land and Interstellar La la land and Interstellar La la land and Interstellar',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -370,7 +319,7 @@ describe('/Testing posts', () => {
 
     createdPost2.title = 'NEW TITLE !';
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.posts}/${createdPost2.id}`)
       .expect(HttpStatus.OK, createdPost2);
   });
@@ -384,14 +333,14 @@ describe('/Testing posts', () => {
         'La la land and Interstellar La la land and Interstellar La la land and Interstellar La la land and Interstellar',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
       .send(data)
       .expect(HttpStatus.UNAUTHORIZED);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.posts}/${createdPost2.id}`)
       .expect(HttpStatus.OK, createdPost2);
   });
@@ -405,7 +354,7 @@ describe('/Testing posts', () => {
         'La la land and Interstellar La la land and Interstellar La la land and Interstellar La la land and Interstellar',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `/${blog.id}${RouterPaths.posts}/000e0000-e00b-00d0-a000-000000000000`,
       )
@@ -423,7 +372,7 @@ describe('/Testing posts', () => {
         'La la land and Interstellar La la land and Interstellar La la land and Interstellar La la land and Interstellar',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(
         `${RouterPaths.blogsSA}/000e0000-e00b-00d0-a000-000000000000${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -433,7 +382,7 @@ describe('/Testing posts', () => {
   });
 
   it('should not delete post without AUTH', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
@@ -441,14 +390,14 @@ describe('/Testing posts', () => {
   });
 
   it('should not delete post with incorrect ID (not uuid)', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(`${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/-2222222`)
       .set(authBasicHeader)
       .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('should not delete post with incorrect ID (not uuid)', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/000e0000-e00b-00d0-a000-000000000000`,
       )
@@ -457,14 +406,14 @@ describe('/Testing posts', () => {
   });
 
   it('should delete post with correct ID and AUTH', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(
         `${RouterPaths.blogsSA}/${blog.id}${RouterPaths.posts}/${createdPost2.id}`,
       )
       .set(authBasicHeader)
       .expect(HttpStatus.NO_CONTENT);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.posts)
       .expect(HttpStatus.OK, {
         pagesCount: 1,

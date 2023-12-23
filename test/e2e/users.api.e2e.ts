@@ -1,18 +1,5 @@
 import request from 'supertest';
-import {
-  BadRequestException,
-  HttpStatus,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import cookieParser from 'cookie-parser';
-import {
-  ErrorExceptionFilter,
-  HttpExceptionFilter,
-} from '../../src/middlewares/exception.filter';
-import { useContainer } from 'class-validator';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { RouterPaths } from '../../src/helpers/RouterPaths';
 import { authBasicHeader } from '../utils/export_data_functions';
 import {
@@ -20,61 +7,31 @@ import {
   UserViewModel,
 } from '../../src/features/users/models/users.models.sql';
 import { usersTestManager } from '../utils/usersTestManager';
+import { createTestAPP } from './createTestAPP';
 
 describe('/Testing users', () => {
   let app: INestApplication;
+  let server: any;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
-        // числом, если указано @Params('id') userId: number
-        transform: true,
-        stopAtFirstError: true,
-        exceptionFactory: (errors) => {
-          const errorsForResponse = [];
-
-          errors.forEach((e) => {
-            const constrKeys = Object.keys(e.constraints!);
-            constrKeys.forEach((ckey) => {
-              // @ts-ignore
-              errorsForResponse.push({
-                message: e.constraints![ckey],
-                field: e.property,
-              });
-            });
-          });
-
-          throw new BadRequestException(errorsForResponse);
-        },
-      }),
-    );
-    app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
-    // Эта строка нужна чтобы работал DI в  custom validator декораторе
-    useContainer(app.select(AppModule), { fallbackOnErrors: true });
-    await app.init(); // как await app.listen(port);
+    app = await createTestAPP();
+    server = app.getHttpServer();
   });
 
   it('Delete all data before tests', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(`${RouterPaths.testing}/all-data`)
       .expect(HttpStatus.NO_CONTENT);
   });
 
   it('should return 401 without AUTH', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.users)
       .expect(HttpStatus.UNAUTHORIZED);
   });
 
   it('should return 200 and empty array', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.users)
       .set(authBasicHeader)
       .expect(HttpStatus.OK, {
@@ -95,7 +52,7 @@ describe('/Testing users', () => {
 
     await usersTestManager.createUser(app, data, HttpStatus.UNAUTHORIZED);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.users)
       .set(authBasicHeader)
       .expect(HttpStatus.OK, {
@@ -224,7 +181,7 @@ describe('/Testing users', () => {
       authBasicHeader,
     );
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.users)
       .set(authBasicHeader)
       .expect(HttpStatus.OK, {
@@ -252,7 +209,7 @@ describe('/Testing users', () => {
 
     createdUser1 = createdUser!;
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.users)
       .set(authBasicHeader)
       .expect(HttpStatus.OK, {

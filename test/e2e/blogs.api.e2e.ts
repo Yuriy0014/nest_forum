@@ -1,12 +1,5 @@
 import request from 'supertest';
-import { Test } from '@nestjs/testing';
-import { AppModule } from '../../src/app.module';
-import {
-  BadRequestException,
-  HttpStatus,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { RouterPaths } from '../../src/helpers/RouterPaths';
 import {
   BlogCreateModel,
@@ -15,79 +8,41 @@ import {
 } from '../../src/features/blogs/models/blogs.models-sql';
 import { authBasicHeader } from '../utils/export_data_functions';
 import { blogsTestManager } from '../utils/blogsTestManager';
-import cookieParser from 'cookie-parser';
-import {
-  ErrorExceptionFilter,
-  HttpExceptionFilter,
-} from '../../src/middlewares/exception.filter';
-import { useContainer } from 'class-validator';
+import { createTestAPP } from './createTestAPP';
 
 describe('/Testing blogs', () => {
   let app: INestApplication;
+  let server: any;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
-        // числом, если указано @Params('id') userId: number
-        transform: true,
-        stopAtFirstError: true,
-        exceptionFactory: (errors) => {
-          const errorsForResponse = [];
-
-          errors.forEach((e) => {
-            const constrKeys = Object.keys(e.constraints!);
-            constrKeys.forEach((ckey) => {
-              // @ts-ignore
-              errorsForResponse.push({
-                message: e.constraints![ckey],
-                field: e.property,
-              });
-            });
-          });
-
-          throw new BadRequestException(errorsForResponse);
-        },
-      }),
-    );
-    app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
-    // Эта строка нужна чтобы работал DI в  custom validator декораторе
-    useContainer(app.select(AppModule), { fallbackOnErrors: true });
-    await app.init(); // как await app.listen(port);
+    app = await createTestAPP();
+    server = app.getHttpServer();
   });
 
   it('Delete all data before tests', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .delete(`${RouterPaths.testing}/all-data`)
       .expect(HttpStatus.NO_CONTENT);
   });
 
   it('should return 404 and empty array', async () => {
-    await request(app.getHttpServer())
-      .get(RouterPaths.blogs)
-      .expect(HttpStatus.OK, {
-        pagesCount: 0,
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: [],
-      });
+    await request(server).get(RouterPaths.blogs).expect(HttpStatus.OK, {
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
   });
 
   it('should return 400 for not blogID not uuid', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.blogs}/-22222222220`)
       .expect(HttpStatus.BAD_REQUEST);
   });
 
   it('should return 404 for not existing blog', async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.blogs}/000e0000-e00b-00d0-a000-000000000000`)
       .expect(HttpStatus.NOT_FOUND);
   });
@@ -101,15 +56,13 @@ describe('/Testing blogs', () => {
 
     await blogsTestManager.createBlog(app, data, HttpStatus.UNAUTHORIZED);
 
-    await request(app.getHttpServer())
-      .get(RouterPaths.blogs)
-      .expect(HttpStatus.OK, {
-        pagesCount: 0,
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: [],
-      });
+    await request(server).get(RouterPaths.blogs).expect(HttpStatus.OK, {
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
   });
 
   /*
@@ -141,7 +94,7 @@ describe('/Testing blogs', () => {
 
     createdBlog1 = createdBlog!;
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.blogs)
       .expect(HttpStatus.OK, {
         pagesCount: 1,
@@ -186,7 +139,7 @@ describe('/Testing blogs', () => {
 
     createdBlog2 = createdBlog!;
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(RouterPaths.blogs)
       .expect(HttpStatus.OK, {
         pagesCount: 1,
@@ -221,13 +174,13 @@ describe('/Testing blogs', () => {
       websiteUrl: 'https://telegra.ph/Richard-Fey2222nman-05-11',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(`${RouterPaths.blogsSA}/${createdBlog1.id}`)
       .set(authBasicHeader)
       .send(data)
       .expect(HttpStatus.BAD_REQUEST);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.blogs}/${createdBlog1.id}`)
       .expect(HttpStatus.OK, {
         id: createdBlog1.id,
@@ -246,7 +199,7 @@ describe('/Testing blogs', () => {
       websiteUrl: 'https://telegra.ph/Richard-Fey2222nman-05-11',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(`${RouterPaths.blogsSA}/${createdBlog1.id}`)
       .set(authBasicHeader)
       .send(data)
@@ -255,7 +208,7 @@ describe('/Testing blogs', () => {
     createdBlog1.description = 'Bingo article about Richard Feynman 2222';
     createdBlog1.websiteUrl = 'https://telegra.ph/Richard-Fey2222nman-05-11';
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.blogs}/${createdBlog1.id}`)
       .expect(HttpStatus.OK, createdBlog1);
   });
@@ -267,12 +220,12 @@ describe('/Testing blogs', () => {
       websiteUrl: 'https://telegra.ph/Richard-Fey33333nman-05-11',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(`${RouterPaths.blogsSA}/${createdBlog1.id}`)
       .send(data)
       .expect(HttpStatus.UNAUTHORIZED);
 
-    await request(app.getHttpServer())
+    await request(server)
       .get(`${RouterPaths.blogs}/${createdBlog1.id}`)
       .expect(HttpStatus.OK, createdBlog1);
   });
@@ -284,7 +237,7 @@ describe('/Testing blogs', () => {
       websiteUrl: 'https://telegra.ph/Richard-Fey2222nman-05-11',
     };
 
-    await request(app.getHttpServer())
+    await request(server)
       .put(`${RouterPaths.blogsSA}/000e0000-e00b-00d0-a000-000000000000`)
       .set(authBasicHeader)
       .send(data)

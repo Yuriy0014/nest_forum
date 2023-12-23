@@ -69,7 +69,7 @@ export class CommentsController {
     if (foundComment.commentatorInfo.userId !== req.user.userId) {
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     }
-    const result = this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new UpdateCommentCommand(commentId, updateDTO),
     );
     if (!result) {

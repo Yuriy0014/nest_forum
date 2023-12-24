@@ -35,8 +35,6 @@ import {
   UserSchema,
 } from './features/users/models/domain/users.domain-entities';
 import { ConfigModule } from '@nestjs/config';
-import { EmailManager } from './infrastructure/email/email.manager';
-import { EmailAdapter } from './infrastructure/email/email.adapter';
 import {
   Like,
   LikeSchema,
@@ -108,6 +106,7 @@ import { MapLikeViewModelSQL } from './features/likes/helpers/map-likesViewModel
 import { CommentsQueryRepoSQL } from './features/comments/comments.query-repo-sql';
 import { CommentsRepoSQL } from './features/comments/comments.repo-sql';
 import { MapCommentViewModelSQL } from './features/comments/helpers/map-CommentViewModel-sql';
+import { MailModule } from './infrastructure/mail/mail.module';
 
 const useCases = [
   ///Blogs
@@ -174,6 +173,7 @@ const useCases = [
       { name: Session.name, schema: SessionSchema },
     ]),
     CqrsModule,
+    MailModule,
   ],
   controllers: [
     AppController,
@@ -224,9 +224,6 @@ const useCases = [
     MapUserViewModelMongo,
     MapUserViewModelSQL,
     UserObjectFromRawData,
-    // Email
-    EmailManager,
-    EmailAdapter,
     // JWT
     JwtService,
     // Auth

@@ -1,8 +1,9 @@
-import { EmailManager } from '../../../infrastructure/email/email.manager';
 import { UserCreateModel, UserInputModel } from '../models/users.models.sql';
 import bcrypt from 'bcrypt';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepoSQL } from '../users.repo-sql';
+import { MailService } from '../../../infrastructure/mail/mail.service';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 enum ResultCode {
   success,
@@ -28,7 +29,7 @@ export class CreateUserCommand {
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(
     private readonly usersRepo: UsersRepoSQL,
-    private readonly emailManager: EmailManager,
+    private mailService: MailService,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<Result<string>> {
@@ -49,9 +50,15 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     }
 
     if (!command.isAuthorSuper) {
-      this.emailManager
+      await this.mailService
         .sendEmailConfirmationMessage(createdUser)
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          throw new HttpException(
+            'Не удалось отправить письмо',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
     }
 
     return {

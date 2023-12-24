@@ -1,6 +1,6 @@
-import { EmailManager } from '../../../infrastructure/email/email.manager';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepoSQL } from '../../users/users.repo-sql';
+import { MailService } from '../../../infrastructure/mail/mail.service';
 
 export class ResendEmailCommand {
   constructor(public email: string) {}
@@ -10,7 +10,7 @@ export class ResendEmailCommand {
 export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
   constructor(
     private readonly usersRepo: UsersRepoSQL,
-    private readonly emailManager: EmailManager,
+    private mailService: MailService,
   ) {}
   async execute(command: ResendEmailCommand): Promise<boolean> {
     if (command.email === undefined) return false;
@@ -29,7 +29,7 @@ export class ResendEmailUseCase implements ICommandHandler<ResendEmailCommand> {
     if (updatedUser.emailConfirmationCode !== newConfirmationCode) return false;
 
     try {
-      await this.emailManager.sendEmailConfirmationMessage(updatedUser);
+      await this.mailService.sendEmailConfirmationMessage(updatedUser);
     } catch (e) {
       console.log(e);
       return false;

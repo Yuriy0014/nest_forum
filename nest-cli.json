@@ -5,7 +5,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": [{
-      "include": "**/*.hbs",
+      "include": "/infrastructure/mail/templates",
       "watchAssets": true
     }]
   }

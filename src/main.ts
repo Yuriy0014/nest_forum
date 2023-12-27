@@ -1,48 +1,48 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import {NestFactory} from '@nestjs/core';
+import {AppModule} from './app.module';
 import cookieParser from 'cookie-parser';
 import process from 'process';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import {BadRequestException, ValidationPipe} from '@nestjs/common';
 import {
-  ErrorExceptionFilter,
-  HttpExceptionFilter,
+    ErrorExceptionFilter,
+    HttpExceptionFilter,
 } from './middlewares/exception.filter';
-import { useContainer } from 'class-validator';
+import {useContainer} from 'class-validator';
 
 const port = process.env.PORT || 7200;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  app.use(cookieParser());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
-      // числом, если указано @Params('id') userId: number
-      transform: true,
-      stopAtFirstError: true,
-      exceptionFactory: (errors) => {
-        const errorsForResponse = [];
+    const app = await NestFactory.create(AppModule);
+    app.enableCors();
+    app.use(cookieParser());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            // Автоматически преобразует входящие данные по типам. Например id из params делает из строки
+            // числом, если указано @Params('id') userId: number
+            transform: true,
+            stopAtFirstError: true,
+            exceptionFactory: (errors) => {
+                const errorsForResponse = [];
 
-        errors.forEach((e) => {
-          const constrKeys = Object.keys(e.constraints!);
-          constrKeys.forEach((ckey) => {
-            // @ts-ignore
-            errorsForResponse.push({
-              message: e.constraints![ckey],
-              field: e.property,
-            });
-          });
-        });
+                errors.forEach((e) => {
+                    const constrKeys = Object.keys(e.constraints!);
+                    constrKeys.forEach((ckey) => {
+                        // @ts-ignore
+                        errorsForResponse.push({
+                            message: e.constraints![ckey],
+                            field: e.property,
+                        });
+                    });
+                });
 
-        throw new BadRequestException(errorsForResponse);
-      },
-    }),
-  );
-  app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
-  // Эта строка нужна чтобы работал DI в  custom validator декораторе
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  await app.listen(port);
+                throw new BadRequestException(errorsForResponse);
+            },
+        }),
+    );
+    app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter());
+    // Эта строка нужна чтобы работал DI в  custom validator декораторе
+    useContainer(app.select(AppModule), {fallbackOnErrors: true});
+    await app.listen(port);
 }
+
 bootstrap();
-//TypeORM start

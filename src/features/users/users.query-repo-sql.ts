@@ -40,52 +40,64 @@ export class UsersQueryRepoSQL {
                 ? '%'
                 : `%${queryFilter.searchEmailTerm}%`;
 
-        const orderByClause =
-            '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
+        const orderByField = `u.${queryFilter.sortBy}`;
+        const orderByDirection = queryFilter.sortDirection;
 
 
-        const rawUsers = await this.dataSource
-            .getRepository(UserEntity)
-            .createQueryBuilder("u")
-            .select([
-                "u.id",
-                "u.login",
-                "u.email",
-                "u.password",
-                "u.createdAt",
-                "u.emailConfirmationCode",
-                "u.confirmationCodeExpDate",
-                "u.isEmailConfirmed",
-                "u.passwordRecoveryCode",
-                "u.passwordRecoveryCodeActive"
-            ])
-            .where("u.login ILIKE :login OR u.email ILIKE :email", {login: `%${login_like}%`, email: `%${email_like}%`})
-            .orderBy(orderByClause)
-            .take(queryFilter.pageSize)
-            .skip(queryFilter.pageSize * (queryFilter.pageNumber - 1))
-            .getMany();
+        try {
+            const rawUsers = await this.dataSource
+                .getRepository(UserEntity)
+                .createQueryBuilder("u")
+                .select([
+                    "u.id",
+                    "u.login",
+                    "u.email",
+                    "u.password",
+                    "u.createdAt",
+                    "u.emailConfirmationCode",
+                    "u.confirmationCodeExpDate",
+                    "u.isEmailConfirmed",
+                    "u.passwordRecoveryCode",
+                    "u.passwordRecoveryCodeActive"
+                ])
+                .where("u.login ILIKE :login OR u.email ILIKE :email", {
+                    login: `%${login_like}%`,
+                    email: `%${email_like}%`
+                })
+                .orderBy(orderByField, orderByDirection)
+                .take(queryFilter.pageSize)
+                .skip(queryFilter.pageSize * (queryFilter.pageNumber - 1))
+                .getMany();
 
-        const foundUsers = rawUsers.map((user) =>
-            this.mapUserViewModelSQL.getUserViewModel(user),
-        );
+            const foundUsers = rawUsers.map((user) =>
+                this.mapUserViewModelSQL.getUserViewModel(user),
+            );
 
-        const totalUsers = await this.dataSource
-            .getRepository(UserEntity)
-            .createQueryBuilder("u")
-            .select("u.id")
-            .where("u.login ILIKE :login OR u.email ILIKE :email", {login: `%${login_like}%`, email: `%${email_like}%`})
-            .orderBy(orderByClause) //
-            .getMany();
+            const totalUsers = await this.dataSource
+                .getRepository(UserEntity)
+                .createQueryBuilder("u")
+                .select("u.id")
+                .where("u.login ILIKE :login OR u.email ILIKE :email", {
+                    login: `%${login_like}%`,
+                    email: `%${email_like}%`
+                })
+                .orderBy(orderByField, orderByDirection)
+                .getMany();
 
-        const totalCount = totalUsers.length;
+            const totalCount = totalUsers.length;
 
-        return {
-            pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
-            page: queryFilter.pageNumber,
-            pageSize: queryFilter.pageSize,
-            totalCount: totalCount,
-            items: foundUsers,
-        };
+            return {
+                pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
+                page: queryFilter.pageNumber,
+                pageSize: queryFilter.pageSize,
+                totalCount: totalCount,
+                items: foundUsers,
+            };
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+
     }
 
     async findByLoginOrEmail(

@@ -1,197 +1,217 @@
-import { Injectable } from '@nestjs/common';
-import { UserCreateModel } from './models/users.models.mongo';
-import { v4 as uuidv4 } from 'uuid';
+import {Injectable} from '@nestjs/common';
+import {UserCreateModel} from './models/users.models.mongo';
+import {v4 as uuidv4} from 'uuid';
 import add from 'date-fns/add';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { UserDBModel } from './models/users.models.sql';
-import { UserObjectFromRawData } from './helpers/map-rawsql-to-object';
+import {InjectDataSource} from '@nestjs/typeorm';
+import {DataSource} from 'typeorm';
+import {UserDBModel} from './models/users.models.sql';
+import {UserObjectFromRawData} from './helpers/map-rawsql-to-object';
+import {UserEntity} from "./entities/user.entities";
 
 @Injectable()
 export class UsersRepoSQL {
-  constructor(
-    @InjectDataSource() protected dataSource: DataSource,
-    private readonly rawSqlToObject: UserObjectFromRawData,
-  ) {}
-
-  async createUser(createDTO: UserCreateModel): Promise<string> {
-    const id = uuidv4();
-    await this.dataSource.query(
-      `
-    INSERT INTO public.users(
-    "id",
-    "login", "email", "password", "createdAt", 
-    "emailConfirmationCode", "confirmationCodeExpDate", 
-    "isEmailConfirmed", "passwordRecoveryCode", "passwordRecoveryCodeActive")
-VALUES ($1, $2, $3, $4, $5, $6, $7, false, '', $8);
-    `,
-      [
-        id,
-        createDTO.login,
-        createDTO.email,
-        createDTO.passwordHash,
-        new Date(),
-        uuidv4(),
-        add(new Date(), {
-          hours: 1,
-          minutes: 3,
-        }),
-        createDTO.isAuthorSuper,
-      ],
-    );
-
-    return id;
-  }
-
-  async findUserById(UserId: string): Promise<UserDBModel | null> {
-    const foundUser: UserDBModel = await this.dataSource.query(
-      `
-        SELECT u."id", u."login", u."email", u."password",
-         u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
-          u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
-        FROM public."users" u
-        WHERE (u."id" = $1)`,
-      [UserId],
-    );
-    if (foundUser[0]) {
-      return foundUser[0];
-    } else {
-      return null;
+    constructor(
+        @InjectDataSource() protected dataSource: DataSource,
+        private readonly rawSqlToObject: UserObjectFromRawData,
+    ) {
     }
-  }
 
-  async deleteUser(userId: string): Promise<boolean> {
-    await this.dataSource.query(
-      `
-        DELETE FROM public.users
-        WHERE id = $1`,
-      [userId],
-    );
+    async createUser(createDTO: UserCreateModel): Promise<string> {
+        const id = uuidv4();
 
-    const deletedUser = await this.dataSource.query(
-      `
-        SELECT u."id"
-        FROM public."users" u
-        WHERE u."id" = $1`,
-      [userId],
-    );
+        const user = new UserEntity();
+        user.id = id;
+        user.login = createDTO.login;
+        user.email = createDTO.email;
+        user.password = createDTO.passwordHash;
+        user.createdAt = new Date();
+        user.emailConfirmationCode = uuidv4();
+        user.confirmationCodeExpDate = add(new Date(), {hours: 1, minutes: 3});
+        user.isEmailConfirmed = false;
+        user.passwordRecoveryCode = '';
+        user.passwordRecoveryCodeActive = createDTO.isAuthorSuper;
 
-    return deletedUser.length === 0;
-  }
+        await this.dataSource.getRepository(UserEntity).save(user);
 
-  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
-    const user = await this.dataSource.query(
-      `
-        SELECT u."id", u."login", u."email", u."password",
-         u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
-          u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
-        FROM public."users" u
-        WHERE (u."email" = $1 OR u."login" = $1)`,
-      [loginOrEmail],
-    );
-
-    if (user.length !== 0) {
-      return user[0];
+        return id;
     }
-    return null;
-  }
 
-  async updateUserEmailConfirmationInfo(id: string): Promise<string> {
-    const newCode = uuidv4();
+    async findUserById(UserId: string): Promise<UserDBModel | null> {
 
-    await this.dataSource.query(
-      `
-        UPDATE public.users
-        SET "emailConfirmationCode"= $2, "confirmationCodeExpDate"=$3, "isEmailConfirmed"=false 
-        WHERE "id" = $1 `,
-      [
-        id,
-        newCode,
-        add(new Date(), {
-          hours: 1,
-          minutes: 3,
-        }),
-      ],
-    );
+        const foundUser = await this.dataSource.getRepository(UserEntity)
+            .createQueryBuilder("u")
+            .select(["u.id",
+                "u.login",
+                "u.email",
+                "u.password",
+                "u.createdAt",
+                "u.emailConfirmationCode",
+                "u.confirmationCodeExpDate",
+                "u.isEmailConfirmed",
+                "u.passwordRecoveryCode",
+                "u.passwordRecoveryCodeActive"])
+            .where("u.id = :UserId", {UserId})
+            .getOne()
 
-    return newCode;
-  }
 
-  async findUserByConfirmationCode(code: string): Promise<UserDBModel | null> {
-    const userRaw = await this.dataSource.query(
-      `
-        SELECT u."id", u."login", u."email", u."password",
-         u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
-          u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
-        FROM public."users" u
-        WHERE (u."emailConfirmationCode" = $1 )`,
-      [code],
-    );
-
-    if (userRaw.length !== 0) {
-      return this.rawSqlToObject.createUserFromRawData(userRaw[0]);
+        if (foundUser) {
+            return foundUser;
+        } else {
+            return null;
+        }
     }
-    return null;
-  }
 
-  async addPassRecoveryCode(
-    id: string,
-    passwordRecoveryCode: string,
-  ): Promise<boolean> {
-    const user = await this.dataSource.query(
-      `
-        SELECT u."id"
-        FROM public."users" u
-        WHERE (u."id" = $1 )`,
-      [id],
-    );
-    if (!user) return false;
+    async deleteUser(userId: string): Promise<boolean> {
+        await this.dataSource.getRepository(UserEntity).delete(userId);
 
-    await this.dataSource.query(
-      `
-        UPDATE public.users
-        SET "passwordRecoveryCode" = $2,"passwordRecoveryCodeActive"=true 
-        WHERE "id" = $1 `,
-      [id, passwordRecoveryCode],
-    );
 
-    return true;
-  }
+        const deletedUser = await this.dataSource.getRepository(UserEntity).find({
+            select: ["id"],
+            where: {
+                id: userId
+            }
+        });
 
-  async findUserByPassRecoveryCode(recoveryCode: string) {
-    const user = await this.dataSource.query(
-      `
-        SELECT u."id", u."login", u."email", u."password",
-         u."createdAt", u."emailConfirmationCode", u."confirmationCodeExpDate",
-          u."isEmailConfirmed", u."passwordRecoveryCode", u."passwordRecoveryCodeActive"
-        FROM public."users" u
-        WHERE (u."passwordRecoveryCode" = $1 )`,
-      [recoveryCode],
-    );
-
-    if (user.length !== 0) {
-      return user[0];
+        return deletedUser.length === 0;
     }
-    return null;
-  }
 
-  async confirmEmail(id: string): Promise<void> {
-    await this.dataSource.query(
-      `
-        UPDATE public.users
-        SET "isEmailConfirmed"=true 
-        WHERE "id" = $1 `,
-      [id],
-    );
-  }
+    async findByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
+        const user = await this.dataSource
+            .getRepository(UserEntity)
+            .createQueryBuilder("u")
+            .select([
+                "u.id",
+                "u.login",
+                "u.email",
+                "u.password",
+                "u.createdAt",
+                "u.emailConfirmationCode",
+                "u.confirmationCodeExpDate",
+                "u.isEmailConfirmed",
+                "u.passwordRecoveryCode",
+                "u.passwordRecoveryCodeActive"
+            ])
+            .where("u.login = :loginOrEmail OR u.email = :loginOrEmail", {loginOrEmail})
+            .getOne()
 
-  async updatePass(id: string, passwordHash: string) {
-    await this.dataSource.query(
-      `
-        UPDATE public.users
-        SET "password"= $2, "passwordRecoveryCodeActive" = false
-        WHERE "id" = $1 `,
-      [id, passwordHash],
-    );
-  }
+        return user;
+    }
+
+    async updateUserEmailConfirmationInfo(id: string): Promise<string> {
+        const newCode = uuidv4();
+        const newconfirmationCodeExpDate = add(new Date(), {
+            hours: 1,
+            minutes: 3,
+        })
+
+        await this.dataSource
+            .createQueryBuilder()
+            .update(UserEntity)
+            .set({
+                emailConfirmationCode: newCode,
+                confirmationCodeExpDate: newconfirmationCodeExpDate,
+                isEmailConfirmed: false
+            })
+            .where("id = :id", {id})
+            .execute()
+
+        return newCode;
+    }
+
+    async findUserByConfirmationCode(code: string): Promise<UserDBModel | null> {
+
+        const userRaw = await this.dataSource
+            .getRepository(UserEntity)
+            .createQueryBuilder("u")
+            .select([
+                "u.id",
+                "u.login",
+                "u.email",
+                "u.password",
+                "u.createdAt",
+                "u.emailConfirmationCode",
+                "u.confirmationCodeExpDate",
+                "u.isEmailConfirmed",
+                "u.passwordRecoveryCode",
+                "u.passwordRecoveryCodeActive"
+            ])
+            .where("u.emailConfirmationCode = :code", {code})
+            .getOne()
+
+
+        if (userRaw) {
+            return this.rawSqlToObject.createUserFromRawData(userRaw);
+        }
+        return null;
+    }
+
+    async addPassRecoveryCode(
+        id: string,
+        passwordRecoveryCode: string,
+    ): Promise<boolean> {
+        const user = await this.dataSource.query(
+            `
+                SELECT u."id"
+                FROM public."users" u
+                WHERE (u."id" = $1)`,
+            [id],
+        );
+        if (!user) return false;
+
+        await this.dataSource.query(
+            `
+                UPDATE public.users
+                SET "passwordRecoveryCode"      = $2,
+                    "passwordRecoveryCodeActive"= TRUE
+                WHERE "id" = $1 `,
+            [id, passwordRecoveryCode],
+        );
+
+        return true;
+    }
+
+    async findUserByPassRecoveryCode(recoveryCode: string) {
+        const user = await this.dataSource.query(
+            `
+                SELECT u."id",
+                       u."login",
+                       u."email",
+                       u."password",
+                       u."createdAt",
+                       u."emailConfirmationCode",
+                       u."confirmationCodeExpDate",
+                       u."isEmailConfirmed",
+                       u."passwordRecoveryCode",
+                       u."passwordRecoveryCodeActive"
+                FROM public."users" u
+                WHERE (u."passwordRecoveryCode" = $1)`,
+            [recoveryCode],
+        );
+
+        if (user.length !== 0) {
+            return user[0];
+        }
+        return null;
+    }
+
+    async confirmEmail(id: string): Promise<void> {
+        await this.dataSource.query(
+            `
+                UPDATE public.users
+                SET "isEmailConfirmed"= TRUE
+                WHERE "id" = $1 `,
+            [id],
+        );
+    }
+
+    async updatePass(id: string, passwordHash: string) {
+        await this.dataSource.query(
+            `
+                UPDATE public.users
+                SET "password"= $2,
+                    "passwordRecoveryCodeActive" = FALSE
+                WHERE "id" = $1 `,
+            [id, passwordHash],
+        );
+    }
 }

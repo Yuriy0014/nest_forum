@@ -1,7 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
 
 @Entity()
-export class User {
+export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
         id: string;
 
@@ -31,4 +31,13 @@ export class User {
 
     @Column()
         passwordRecoveryCodeActive: boolean;
+
+
+    canBeConfirmed(code: string): boolean {
+        return (
+            !this.isEmailConfirmed &&
+            this.emailConfirmationCode === code &&
+            new Date(this.confirmationCodeExpDate) >= new Date()
+        );
+    }
 }

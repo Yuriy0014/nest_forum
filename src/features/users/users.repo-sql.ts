@@ -4,15 +4,12 @@ import {v4 as uuidv4} from 'uuid';
 import add from 'date-fns/add';
 import {InjectDataSource} from '@nestjs/typeorm';
 import {DataSource} from 'typeorm';
-import {UserDBModel} from './models/users.models.sql';
-import {UserObjectFromRawData} from './helpers/map-rawsql-to-object';
 import {UserEntity} from "./entities/user.entities";
 
 @Injectable()
 export class UsersRepoSQL {
     constructor(
         @InjectDataSource() protected dataSource: DataSource,
-        private readonly rawSqlToObject: UserObjectFromRawData,
     ) {
     }
 
@@ -36,7 +33,7 @@ export class UsersRepoSQL {
         return id;
     }
 
-    async findUserById(UserId: string): Promise<UserDBModel | null> {
+    async findUserById(UserId: string): Promise<UserEntity | null> {
 
         const foundUser = await this.dataSource.getRepository(UserEntity)
             .createQueryBuilder("u")
@@ -75,7 +72,7 @@ export class UsersRepoSQL {
         return deletedUser.length === 0;
     }
 
-    async findByLoginOrEmail(loginOrEmail: string): Promise<UserDBModel | null> {
+    async findByLoginOrEmail(loginOrEmail: string): Promise<UserEntity | null> {
         const user = await this.dataSource
             .getRepository(UserEntity)
             .createQueryBuilder("u")
@@ -118,7 +115,7 @@ export class UsersRepoSQL {
         return newCode;
     }
 
-    async findUserByConfirmationCode(code: string): Promise<UserDBModel | null> {
+    async findUserByConfirmationCode(code: string): Promise<UserEntity | null> {
 
         const userRaw = await this.dataSource
             .getRepository(UserEntity)
@@ -139,10 +136,7 @@ export class UsersRepoSQL {
             .getOne()
 
 
-        if (userRaw) {
-            return this.rawSqlToObject.createUserFromRawData(userRaw);
-        }
-        return null;
+        return userRaw
     }
 
     async addPassRecoveryCode(

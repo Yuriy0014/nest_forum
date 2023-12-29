@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import {SessionEntity} from "../../auth/entities/sessions.entities";
 
 @Entity({name: "users"})
 export class UserEntity {
@@ -32,6 +33,8 @@ export class UserEntity {
     @Column()
         passwordRecoveryCodeActive: boolean;
 
+    @OneToMany(() => SessionEntity, (session) => session.user)
+        sessions: SessionEntity[]
 
     canBeConfirmed(code: string): boolean {
         return (

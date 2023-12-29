@@ -32,7 +32,7 @@ import {
 import * as process from 'process';
 import {AuthController} from './features/auth/auth.controller';
 import {JwtService} from './infrastructure/jwt/jwt.service';
-import {SessionsRepoMongo} from './features/auth/sessions.repo-mongo.service';
+import {SessionsRepoMongo} from './features/auth/sessions.repo-mongo';
 import {Session, SessionSchema,} from './features/auth/models/domain/session.domain-entities';
 import {BasicStrategy} from './features/auth/strategies/basic.strategy';
 import {PassportModule} from '@nestjs/passport';
@@ -59,7 +59,7 @@ import {ResendEmailUseCase} from './features/auth/use-cases/ResendEmailUseCase';
 import {RegisterSessionUseCase} from './features/auth/use-cases/RegisterSessionUseCase';
 import {CqrsModule} from '@nestjs/cqrs';
 import {DeleteSessionUseCase} from './features/auth/use-cases/DeleteSessionUseCase';
-import {SessionsQueryRepoMongo} from './features/auth/sessions.query-repo-mongo.service';
+import {SessionsQueryRepoMongo} from './features/auth/sessions.query-repo-mongo';
 import {MapSessionViewModelMongo} from './features/auth/helpers/map-SessionViewModel-mongo';
 import {RecoveryPasswordUseCase} from './features/auth/use-cases/RecoveryPasswordUseCase';
 import {UpdatePasswordUseCase} from './features/auth/use-cases/UpdatePasswordUseCase';
@@ -76,7 +76,6 @@ import {UsersRepoSQL} from './features/users/users.repo-sql';
 import {SessionsRepoSQL} from './features/auth/sessions.repo-sql';
 import {SessionsQueryRepoSQL} from './features/auth/sessions.query.repo-sql';
 import {MapSessionViewModelSQL} from './features/auth/helpers/map-SessionViewModel-SQL';
-import {UserObjectFromRawData} from './features/users/helpers/map-rawsql-to-object';
 import {BlogsControllerSa} from './features/blogs/blogs.controller-sa';
 import {MapBlogViewModelSQL} from './features/blogs/helpers/map-BlogViewModelSQL';
 import {BlogsQueryRepoSQL} from './features/blogs/blogs.query-repo-sql';
@@ -92,6 +91,7 @@ import {CommentsQueryRepoSQL} from './features/comments/comments.query-repo-sql'
 import {CommentsRepoSQL} from './features/comments/comments.repo-sql';
 import {MapCommentViewModelSQL} from './features/comments/helpers/map-CommentViewModel-sql';
 import {MailModule} from './infrastructure/mail/mail.module';
+import {join} from "path";
 
 const useCases = [
     ///Blogs
@@ -147,7 +147,8 @@ const useCases = [
             synchronize: true,
             ssl: true,
             logging: true,
-            entities: ["src/**/*.entities{.ts,.js}"]
+            // entities: ["src/**/*.entities{.ts,.js}"]
+            entities: [join(__dirname, '**', '*.entities.{ts,js}')]
         }),
         PassportModule,
         MongooseModule.forFeature([
@@ -210,7 +211,6 @@ const useCases = [
         UsersRepoSQL,
         MapUserViewModelMongo,
         MapUserViewModelSQL,
-        UserObjectFromRawData,
         // JWT
         JwtService,
         // Auth

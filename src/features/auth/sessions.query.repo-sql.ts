@@ -1,57 +1,80 @@
-import { Injectable } from '@nestjs/common';
-import { SessionViewModel } from './models/auth.models-mongo';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { MapSessionViewModelSQL } from './helpers/map-SessionViewModel-SQL';
+import {Injectable} from '@nestjs/common';
+import {SessionViewModel} from './models/auth.models-mongo';
+import {InjectDataSource} from '@nestjs/typeorm';
+import {DataSource} from 'typeorm';
+import {MapSessionViewModelSQL} from './helpers/map-SessionViewModel-SQL';
+import {SessionEntity} from "./entities/sessions.entities";
 
 @Injectable()
 export class SessionsQueryRepoSQL {
-  constructor(
-    @InjectDataSource() protected dataSource: DataSource,
-    private readonly mapSessionViewModel: MapSessionViewModelSQL,
-  ) {}
-
-  async FindAllSessions(userId: string): Promise<Array<SessionViewModel>> {
-    const foundSessions = await this.dataSource.query(
-      `
-        SELECT s."id", s."ip", s."title", s."lastActiveDate", s."deviceId", s."deviceName", 
-        s."userId", s."RFTokenIAT", s."RFTokenObsoleteDate"
-        FROM public.sessions s
-        WHERE (s."userId" = $1)`,
-      [userId],
-    );
-    return foundSessions.map((session) =>
-      this.mapSessionViewModel.getSessionViewModel(session),
-    );
-  }
-
-  async findSessionWithRFToken(RFTIAT: number, deviceId: string) {
-    const foundSession = await this.dataSource.query(
-      `
-        SELECT s."id"
-        FROM public."sessions" s
-        WHERE (s."deviceId" = $1 AND s."RFTokenIAT" = $2)`,
-      [deviceId, new Date(RFTIAT)],
-    );
-    if (foundSession[0]) {
-      return this.mapSessionViewModel.getSessionViewModel(foundSession[0]);
-    } else {
-      return null;
+    constructor(
+        @InjectDataSource() protected dataSource: DataSource,
+        private readonly mapSessionViewModel: MapSessionViewModelSQL,
+    ) {
     }
-  }
 
-  async findUserIdByDeviceId(deviceId: string) {
-    const foundSession = await this.dataSource.query(
-      `
-        SELECT s."userId"
-        FROM public."sessions" s
-        WHERE (s."deviceId" = $1 )`,
-      [deviceId],
-    );
-    if (foundSession[0]) {
-      return foundSession[0].userId;
-    } else {
-      return null;
+    async FindAllSessions(userId: string): Promise<Array<SessionViewModel>> {
+
+
+        const foundSessions = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select([
+                "s.id",
+                "s.ip",
+                "s.title",
+                "s.lastActiveDate",
+                "s.deviceId",
+                "s.deviceName",
+                "s.userId",
+                "s.RFTokenIAT",
+                "s.RFTokenObsoleteDate"
+            ])
+            .where("s.userId = :userId", {userId})
+            .getMany();
+
+        return foundSessions.map((session) =>
+            this.mapSessionViewModel.getSessionViewModel(session),
+        );
     }
-  }
+
+    async findSessionWithRFToken(RFTIAT: number, deviceId: string) {
+
+        const foundSession = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select([
+                "s.id",
+                "s.ip",
+                "s.title",
+                "s.lastActiveDate",
+                "s.deviceId",
+                "s.deviceName",
+                "s.userId",
+                "s.RFTokenIAT",
+                "s.RFTokenObsoleteDate"
+            ])
+            .where("s.deviceId = :deviceId AND s.RFTokenIAT = :RFTokenIAT ", {deviceId, IAt: new Date(RFTIAT)})
+            .getOne()
+
+        if (foundSession) {
+            return this.mapSessionViewModel.getSessionViewModel(foundSession);
+        } else {
+            return null;
+        }
+    }
+
+    async findUserIdByDeviceId(deviceId: string) {
+        const foundSession = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select([
+                "s.id",
+                "s.userId"
+            ]).where("s.deviceId = :deviceId", {deviceId})
+            .getOne()
+
+        if (foundSession) {
+            return foundSession.userId;
+        } else {
+            return null;
+        }
+    }
 }

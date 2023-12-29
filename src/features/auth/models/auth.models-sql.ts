@@ -20,7 +20,7 @@ export class LoginInputDTO {
     })
         password: string;
 }
- 
+
 export class EmailResendInputModel {
     @IsNotEmpty()
     @IsString()
@@ -72,11 +72,18 @@ export type reqSessionDTOType = {
     deviceId: string;
 };
 
-export type SessionIpModel = string | string[];
-export type DeviceNameModel = string | string[];
+export type SessionIpModel = string;
+export type DeviceNameModel = string;
 
 export type SessionUpdateFilterModel = {
     RFTokenIAT: Date;
     deviceId: string;
     userId: string;
+};
+
+export type SessionViewModel = {
+    ip: string;
+    title: string;
+    lastActiveDate: string;
+    deviceId: string;
 };

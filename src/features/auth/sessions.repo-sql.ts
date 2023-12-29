@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import {InjectDataSource} from '@nestjs/typeorm';
 import {DataSource} from 'typeorm';
 import add from 'date-fns/add';
+import {SessionEntity} from "./entities/sessions.entities";
 
 @Injectable()
 export class SessionsRepoSQL {
@@ -16,32 +17,27 @@ export class SessionsRepoSQL {
     async createSessionInfo(sessionDTO: reqSessionDTOType) {
         const id = uuidv4();
 
-        // try {
-        await this.dataSource.query(
-            `
-                INSERT INTO public.sessions("id", "ip", "title",
-                                            "lastActiveDate", "deviceId", "deviceName",
-                                            "userId", "RFTokenIAT", "RFTokenObsoleteDate")
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            `,
-            [
-                id,
-                sessionDTO.loginIp,
-                'Title session',
-                new Date(),
-                sessionDTO.deviceId,
-                sessionDTO.deviceName,
-                sessionDTO.userId,
-                new Date(sessionDTO.refreshTokenIssuedAt),
-                add(new Date(sessionDTO.refreshTokenIssuedAt), {
-                    seconds: 2000,
-                }),
-            ],
-        );
-        // } catch (e) {
-        //   console.log(e);
-        //   return false;
-        // }
+        try {
+            // Создание экземпляра класса
+            const session = new SessionEntity();
+
+            // Задание значений
+            session.id = id;
+            session.ip = sessionDTO.loginIp;
+            session.title = 'Title session';
+            session.lastActiveDate = new Date();
+            session.deviceId = sessionDTO.deviceId;
+            session.deviceName = sessionDTO.deviceName;
+            session.userId = sessionDTO.userId;
+            session.RFTokenIAT = new Date(sessionDTO.refreshTokenIssuedAt);
+            session.RFTokenObsoleteDate = add(new Date(sessionDTO.refreshTokenIssuedAt), {seconds: 2000});
+
+            // Сохранение в базу данных
+            await this.dataSource.getRepository(SessionEntity).save(session);
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
 
         return id;
     }
@@ -49,96 +45,92 @@ export class SessionsRepoSQL {
     async updateSessionInfo(
         filter: SessionUpdateFilterModel,
         updateSessionContent: {
-            ip: string | string[];
-            RFTokenObsoleteDate: Date | any;
-            lastActiveDate: string;
+            ip: string;
+            RFTokenObsoleteDate: Date;
+            lastActiveDate: Date;
             RFTokenIAT: Date;
-            deviceName: string | string[];
+            deviceName: string;
         },
     ) {
         // Проверяем, что сессия существует
-        const foundSession = await this.dataSource.query(
-            `
-                SELECT s."id"
-                FROM public.sessions s
-                WHERE (s."userId" = $1 AND s."deviceId" = $2 AND s."RFTokenIAT" = $3)`,
-            [filter.userId, filter.deviceId, filter.RFTokenIAT],
-        );
-        if (!foundSession[0]) return false;
+        const foundSession = await this.dataSource
+            .getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select("s.id")
+            .where("s.userId = :userId AND s.deviceId = :deviceId AND s.RFTokenIAT = :RFTokenIAT", {
+                userId: filter.userId,
+                deviceId: filter.deviceId,
+                RFTokenIAT: filter.RFTokenIAT
+            })
+            .getOne();
+        if (!foundSession) return false;
 
-        // Обновляем запись
-        await this.dataSource.query(
-            `
-                UPDATE public.sessions
-                SET "ip"=$2,
-                    "lastActiveDate"=$3,
-                    "deviceName"=$4,
-                    "RFTokenIAT"=$5,
-                    "RFTokenObsoleteDate"=$6
-                WHERE "id" = $1
-            `,
-            [
-                foundSession[0].id,
-                updateSessionContent.ip,
-                updateSessionContent.lastActiveDate,
-                updateSessionContent.deviceName,
-                updateSessionContent.RFTokenIAT,
-                updateSessionContent.RFTokenObsoleteDate,
-            ],
-        );
+        // Обновление свойств экземпляра
+        foundSession.ip = updateSessionContent.ip;
+        foundSession.lastActiveDate = updateSessionContent.lastActiveDate;
+        foundSession.deviceName = updateSessionContent.deviceName;
+        foundSession.RFTokenIAT = updateSessionContent.RFTokenIAT;
+        foundSession.RFTokenObsoleteDate = updateSessionContent.RFTokenObsoleteDate;
+
+        // Сохранение обновлений
+        await this.dataSource.getRepository(SessionEntity).save(foundSession);
 
         // Проверяем, что запись обновилась
-        const foundSessionAfterUpdate = await this.dataSource.query(
-            `
-                SELECT s."id"
-                FROM public.sessions s
-                WHERE (s."id" = $1 AND s."deviceId" = $2 AND s."RFTokenIAT" = $3)`,
-            [foundSession[0].id, filter.deviceId, updateSessionContent.RFTokenIAT],
-        );
-        if (!foundSessionAfterUpdate[0]) return false;
+        const foundSessionAfterUpdate = await this.dataSource
+            .getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select("s.id")
+            .where("s.id = :id AND s.deviceId = :deviceId AND s.RFTokenIAT = :RFTokenIAT", {
+                id: foundSession.id, // Убедитесь, что foundSession не массив
+                deviceId: filter.deviceId,
+                RFTokenIAT: updateSessionContent.RFTokenIAT
+            })
+            .getOne();
+        if (!foundSessionAfterUpdate) return false;
 
         return true;
     }
 
     async deleteSessionInfo(currentRFTokenIAT: number, userId: string) {
-        await this.dataSource.query(
-            `
-                DELETE
-                FROM public.sessions
-                WHERE "RFTokenIAT" = $1
-                  AND "userId" = $2;`,
-            [new Date(currentRFTokenIAT), userId],
-        );
+        // Удаление сессии
+        await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder()
+            .delete()
+            .where("RFTokenIAT = :RFTokenIAT AND userId = :userId", {
+                RFTokenIAT: new Date(currentRFTokenIAT),
+                userId
+            })
+            .execute();
 
-        const deletedSession = await this.dataSource.query(
-            `
-                SELECT s."id"
-                FROM public.sessions s
-                WHERE (s."userId" = $1 AND s."RFTokenIAT" = $2)`,
-            [userId, new Date(currentRFTokenIAT)],
-        );
+        // Проверка, что сессия удалена
+        const deletedSession = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select("s.id")
+            .where("s.userId = :userId AND s.RFTokenIAT = :RFTokenIAT", {
+                userId,
+                RFTokenIAT: new Date(currentRFTokenIAT)
+            })
+            .getOne();
 
-        return deletedSession.length === 0;
+        return deletedSession === null;
     }
 
     async deleteSessionByDeviceId(deviceId: string) {
-        await this.dataSource.query(
-            `
-                DELETE
-                FROM public.sessions
-                WHERE "deviceId" = $1;`,
-            [deviceId],
-        );
 
-        const deletedSession = await this.dataSource.query(
-            `
-                SELECT s."id"
-                FROM public.sessions s
-                WHERE (s."deviceId" = $1)`,
-            [deviceId],
-        );
+        await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .delete()
+            .where("s.deviceId = :deviceId", {deviceId})
+            .execute();
 
-        return deletedSession.length === 0;
+
+        const deletedSession = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select(["s.id"])
+            .where("s.deviceId = :deviceId", {deviceId})
+            .getOne();
+
+        return deletedSession === null;
     }
 
     async deleteSessionForUser(
@@ -146,23 +138,28 @@ export class SessionsRepoSQL {
         deviceId: string,
         userId: string,
     ) {
-        await this.dataSource.query(
-            `
-                DELETE
-                FROM public.sessions
-                WHERE "RFTokenIAT" <> $1
-                  AND "userId" = $2
-                  AND "deviceId" <> $3`,
-            [new Date(currentRFTokenIAT), userId, deviceId],
-        );
+        // Удаление сессий
+        await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder()
+            .delete()
+            .from(SessionEntity)
+            .where("RFTokenIAT <> :RFTokenIAT AND userId = :userId AND deviceId <> :deviceId", {
+                RFTokenIAT: new Date(currentRFTokenIAT),
+                userId,
+                deviceId
+            })
+            .execute();
 
-        const deletedSession = await this.dataSource.query(
-            `
-                SELECT s."id"
-                FROM public.sessions s
-                WHERE (s."userId" = $1 AND s."RFTokenIAT" = $2 AND s."deviceId" = $3)`,
-            [userId, new Date(currentRFTokenIAT), deviceId],
-        );
+        // Проверка, что сессия удалена
+        const deletedSession = await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
+            .select("s.id")
+            .where("s.userId = :userId AND s.RFTokenIAT = :RFTokenIAT AND s.deviceId = :deviceId", {
+                userId,
+                RFTokenIAT: new Date(currentRFTokenIAT),
+                deviceId
+            })
+            .getMany();
 
         return deletedSession.length === 1;
     }

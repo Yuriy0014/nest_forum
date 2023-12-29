@@ -1,17 +1,5 @@
 import {IsNotEmpty, IsString, IsUrl, Length, Matches} from 'class-validator';
 
-export class BlogDbModel {
-    constructor(
-        public id: string,
-        public name: string,
-        public description: string,
-        public websiteUrl: string,
-        public createdAt: Date,
-        public isMembership: boolean,
-    ) {
-    }
-}
-
 export class BlogCreateModel {
     @IsString()
     @Length(2, 15)

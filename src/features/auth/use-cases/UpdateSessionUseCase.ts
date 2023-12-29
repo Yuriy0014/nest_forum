@@ -34,7 +34,7 @@ implements ICommandHandler<UpdateSessionCommand> {
             deviceName: command.deviceName,
             RFTokenIAT: new Date(command.RefreshTokenIssuedAt),
             RFTokenObsoleteDate: add(new Date(command.RefreshTokenIssuedAt), {
-                seconds: 2000,
+                seconds: 20,
             }),
         };
 

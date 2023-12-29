@@ -30,7 +30,7 @@ export class SessionsRepoSQL {
             session.deviceName = sessionDTO.deviceName;
             session.userId = sessionDTO.userId;
             session.RFTokenIAT = new Date(sessionDTO.refreshTokenIssuedAt);
-            session.RFTokenObsoleteDate = add(new Date(sessionDTO.refreshTokenIssuedAt), {seconds: 2000});
+            session.RFTokenObsoleteDate = add(new Date(sessionDTO.refreshTokenIssuedAt), {seconds: 20});
 
             // Сохранение в базу данных
             await this.dataSource.getRepository(SessionEntity).save(session);

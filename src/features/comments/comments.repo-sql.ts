@@ -1,98 +1,98 @@
-import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import {
-  CommentDbModel,
-  CommentUpdateModel,
-} from './models/comments.models-sql';
-import { CommentCreateModel } from './models/comments.models-sql';
-import { v4 as uuidv4 } from 'uuid';
+import {Injectable} from '@nestjs/common';
+import {InjectDataSource} from '@nestjs/typeorm';
+import {DataSource} from 'typeorm';
+import {CommentCreateModel, CommentUpdateModel,} from './models/comments.models-sql';
+import {v4 as uuidv4} from 'uuid';
+import {CommentEntity} from "./entities/coments.entities";
 
 @Injectable()
 export class CommentsRepoSQL {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
-
-  async createComment(dto: CommentCreateModel) {
-    const id = uuidv4();
-    try {
-      await this.dataSource.query(
-        `
-                    INSERT INTO public.comments("id", "postId", content, "userId", "userLogin", "createdAt")
-                    VALUES ($1, $2, $3, $4, $5, $6);`,
-        [id, dto.postId, dto.content, dto.userId, dto.userLogin, new Date()],
-      );
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-    return id;
-  }
-
-  async updateComment(commentId: string, updateDTO: CommentUpdateModel) {
-    try {
-      await this.dataSource.query(
-        `
-                    UPDATE public.comments
-                    SET "content"=$1
-                    WHERE "id" = $2;
-                `,
-        [updateDTO.content, commentId],
-      );
-    } catch (e) {
-      console.log(e);
-      return false;
+    constructor(@InjectDataSource() protected dataSource: DataSource) {
     }
 
-    const updatedComment: CommentDbModel[] = await this.dataSource.query(
-      `
-                SELECT "id"
-                FROM public.comments b
-                WHERE ("id" = $1 AND "content" = $2);`,
-      [commentId, updateDTO.content],
-    );
+    async createComment(dto: CommentCreateModel) {
+        const id = uuidv4();
+        try {
+            const comment = new CommentEntity();
+            comment.id = id;
+            comment.postId = dto.postId;
+            comment.content = dto.content;
+            comment.userId = dto.userId;
+            comment.userLogin = dto.userLogin;
+            comment.createdAt = new Date();
 
-    console.log('Коммент обновлён');
-    console.log(new Date().toISOString());
-    return updatedComment.length !== 0;
-  }
+            await this.dataSource.getRepository(CommentEntity).save(comment);
 
-  async findCommentById(commentId: string): Promise<CommentDbModel | null> {
-    const foundComment: CommentDbModel = await this.dataSource.query(
-      `
-                SELECT id, "postId", content, "userId", "userLogin", "createdAt"
-                FROM public."comments"
-                WHERE ("id" = $1)`,
-      [commentId],
-    );
-    if (foundComment[0]) {
-      return foundComment[0];
-    } else {
-      return null;
-    }
-  }
-
-  async deleteComment(commentId: string): Promise<boolean> {
-    try {
-      await this.dataSource.query(
-        `
-                    DELETE
-                    FROM public.comments
-                    WHERE id = $1`,
-        [commentId],
-      );
-    } catch (e) {
-      console.log(e);
-      return false;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
+        return id;
     }
 
-    const deletedComment = await this.dataSource.query(
-      `
-                SELECT c."id"
-                FROM public."comments" c
-                WHERE c."id" = $1`,
-      [commentId],
-    );
+    async updateComment(commentId: string, updateDTO: CommentUpdateModel) {
+        try {
+            // Найти существующий комментарий
+            const comment = await this.dataSource.getRepository(CommentEntity).findOneBy({id: commentId});
 
-    return deletedComment.length === 0;
-  }
+            if (comment) {
+                // Обновить содержание комментария
+                comment.content = updateDTO.content;
+
+                // Сохранить обновленный комментарий
+                await this.dataSource.getRepository(CommentEntity).save(comment);
+            }
+
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        const updatedComment = await this.dataSource.getRepository(CommentEntity)
+            .createQueryBuilder("b")
+            .select("id")
+            .where("b.id = :id AND b.content = :content", {
+                id: commentId,
+                content: updateDTO.content
+            })
+            .getOne();
+
+        console.log(new Date().toISOString());
+        return updatedComment !== null;
+    }
+
+    async findCommentById(commentId: string): Promise<CommentEntity | null> {
+        const foundComment = await this.dataSource.getRepository(CommentEntity)
+            .createQueryBuilder("c")
+            .select(["c.id", "c.postId", "c.content", "c.userId", "c.userLogin", "c.createdAt"])
+            .where("c.id = :id", {id: commentId})
+            .getOne();
+
+        return foundComment
+    }
+
+    async deleteComment(commentId: string): Promise<boolean> {
+        try {
+            // Удаление комментария
+            await this.dataSource.getRepository(CommentEntity)
+                .createQueryBuilder()
+                .delete()
+                .from(CommentEntity)
+                .where("id = :id", {id: commentId})
+                .execute();
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        // Проверка, был ли комментарий удален
+        const deletedComment = await this.dataSource.getRepository(CommentEntity)
+            .createQueryBuilder("c")
+            .select("c.id")
+            .where("c.id = :id", {id: commentId})
+            .getOne();
+
+        return deletedComment === null;
+
+    }
 }

@@ -1,5 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
 import {SessionEntity} from "../../auth/entities/sessions.entities";
+import {CommentEntity} from "../../comments/entities/coments.entities";
 
 @Entity({name: "users"})
 export class UserEntity {
@@ -35,6 +36,9 @@ export class UserEntity {
 
     @OneToMany(() => SessionEntity, (session) => session.user)
         sessions: SessionEntity[]
+
+    @OneToMany(() => CommentEntity, (comment) => comment.user)
+        comments: CommentEntity[];
 
     canBeConfirmed(code: string): boolean {
         return (

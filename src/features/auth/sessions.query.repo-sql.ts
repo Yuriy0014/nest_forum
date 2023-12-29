@@ -52,7 +52,7 @@ export class SessionsQueryRepoSQL {
                 "s.RFTokenIAT",
                 "s.RFTokenObsoleteDate"
             ])
-            .where("s.deviceId = :deviceId AND s.RFTokenIAT = :RFTokenIAT ", {deviceId, IAt: new Date(RFTIAT)})
+            .where("s.deviceId = :deviceId AND s.RFTokenIAT = :IAt ", {deviceId, IAt: new Date(RFTIAT)})
             .getOne()
 
         if (foundSession) {

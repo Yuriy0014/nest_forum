@@ -30,26 +30,23 @@ export class PostsQueryRepoSQL {
         const orderByField = `p.${queryFilter.sortBy}`;
         const orderByDirection = queryFilter.sortDirection;
 
-        let whereClause = 'TRUE';
-
         const params: any[] = [
             queryFilter.pageSize,
             queryFilter.pageSize * (queryFilter.pageNumber - 1),
         ];
 
-        if (queryFilter.blogId !== null) {
-            whereClause = `p."blogId" = $3`;
-            params.push(queryFilter.blogId);
-        }
-
-        const foundPostsSQL = await this.dataSource.getRepository(PostEntity)
+        let query = this.dataSource.getRepository(PostEntity)
             .createQueryBuilder("p")
             .select(["p.id", "p.title", "p.shortDescription", "p.content", "p.blogId", "p.blogName", "p.createdAt"])
-            .where(whereClause)
             .orderBy(orderByField, orderByDirection)
             .limit(params[0])
-            .offset(params[1])
-            .getMany();
+            .offset(params[1]);
+
+        if (queryFilter.blogId !== null) {
+            query = query.where("p.blogId = :blogId", {blogId: queryFilter.blogId});
+        }
+
+        const foundPostsSQL = await query.getMany();
 
 
         /// Код нужен чтобы не ругалось в return в Items т.к. там возвращаются Promises
@@ -63,17 +60,18 @@ export class PostsQueryRepoSQL {
 
         const foundPosts = await foundPostsFunction(foundPostsSQL);
 
-        let query = this.dataSource.getRepository(PostEntity)
+        let query_total = this.dataSource.getRepository(PostEntity)
             .createQueryBuilder("p")
             .select(["p.id", "p.title", "p.shortDescription", "p.content", "p.blogId", "p.blogName", "p.createdAt"]);
 
         if (queryFilter.blogId !== null) {
-            query = query.where("p.blogId = :blogId", {blogId: queryFilter.blogId});
+            query_total = query_total.where("p.blogId = :blogId", {blogId: queryFilter.blogId});
         }
 
-        query = query.orderBy(orderByField, orderByDirection); // Убедитесь, что orderByClause безопасно сформирован
+        query_total = query_total.orderBy(orderByField, orderByDirection);
 
-        const totalPostsRaw = await query.getMany();
+        console.log(query_total)
+        const totalPostsRaw = await query_total.getMany();
 
 
         const totalCount = totalPostsRaw.length;

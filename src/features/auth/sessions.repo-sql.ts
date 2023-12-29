@@ -118,8 +118,8 @@ export class SessionsRepoSQL {
 
     async deleteSessionByDeviceId(deviceId: string) {
 
-        await this.dataSource
-            .createQueryBuilder()
+        await this.dataSource.getRepository(SessionEntity)
+            .createQueryBuilder("s")
             .delete()
             .from(SessionEntity)
             .where("s.deviceId = :deviceId", {deviceId})

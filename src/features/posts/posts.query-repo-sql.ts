@@ -27,7 +27,7 @@ export class PostsQueryRepoSQL {
             throw new Error('Invalid sort field');
         }
 
-        const orderByField = `u.${queryFilter.sortBy}`;
+        const orderByField = `p.${queryFilter.sortBy}`;
         const orderByDirection = queryFilter.sortDirection;
 
         let whereClause = 'TRUE';

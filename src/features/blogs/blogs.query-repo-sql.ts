@@ -46,7 +46,7 @@ export class BlogsQueryRepoSQL {
                 ? '%'
                 : `%${queryFilter.searchNameTerm}%`;
 
-        const orderByField = `u.${queryFilter.sortBy}`;
+        const orderByField = `b.${queryFilter.sortBy}`;
         const orderByDirection = queryFilter.sortDirection;
 
         const rawBlogs = await this.dataSource.getRepository(BlogEntity)

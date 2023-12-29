@@ -1,62 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { PostDbModel, PostViewModel } from '../models/posts.models-sql';
+import {Injectable} from '@nestjs/common';
+import {PostViewModel} from '../models/posts.models-sql';
 import {
-  likeDetailsViewModel,
-  likeStatus,
+    likeDetailsViewModel,
+    likeStatus,
 } from '../../likes/models/likes.models-sql';
-import { LikesQueryRepoSQL } from '../../likes/likes.query-repo-sql';
-import { LikesRepoSQL } from '../../likes/likes.repo-sql';
-import { usersLikesConnectionDBModel } from '../../likes/models/likes.models-sql';
+import {LikesQueryRepoSQL} from '../../likes/likes.query-repo-sql';
+import {LikesRepoSQL} from '../../likes/likes.repo-sql';
+import {usersLikesConnectionDBModel} from '../../likes/models/likes.models-sql';
+import {PostEntity} from "../entities/posts.entities";
 
 @Injectable()
 export class MapPostViewModelSQL {
-  constructor(
-    protected likesQueryRepo: LikesQueryRepoSQL,
-    protected likesRepo: LikesRepoSQL,
-  ) {}
+    constructor(
+        protected likesQueryRepo: LikesQueryRepoSQL,
+        protected likesRepo: LikesRepoSQL,
+    ) {
+    }
 
-  async getPostViewModel(
-    post: PostDbModel,
-    userId?: string | undefined,
-  ): Promise<PostViewModel> {
-    const postId = post.id;
+    async getPostViewModel(
+        post: PostEntity,
+        userId?: string | undefined,
+    ): Promise<PostViewModel> {
+        const postId = post.id;
 
-    const likesInfo = (await this.likesQueryRepo.findLikesByOwnerId(
-      'Post',
-      postId,
-      userId,
-    )) ?? {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: likeStatus.None,
-    };
+        const likesInfo = (await this.likesQueryRepo.findLikesByOwnerId(
+            'Post',
+            postId,
+            userId,
+        )) ?? {
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: likeStatus.None,
+        };
 
-    const likesLastThreeSQl: usersLikesConnectionDBModel[] =
-      await this.likesRepo.findLastThreeLikesPost(postId);
+        const likesLastThreeSQl: usersLikesConnectionDBModel[] =
+            await this.likesRepo.findLastThreeLikesPost(postId);
 
-    const likesLastThree = likesLastThreeSQl.map((value) => {
-      const newItem: likeDetailsViewModel = {
-        addedAt: value.addedAt.toISOString(),
-        userId: value.userId,
-        login: value.userLogin,
-      };
-      return newItem;
-    });
+        const likesLastThree = likesLastThreeSQl.map((value) => {
+            const newItem: likeDetailsViewModel = {
+                addedAt: value.addedAt.toISOString(),
+                userId: value.userId,
+                login: value.userLogin,
+            };
+            return newItem;
+        });
 
-    return {
-      id: postId,
-      title: post.title,
-      shortDescription: post.shortDescription,
-      content: post.content,
-      blogId: post.blogId,
-      blogName: post.blogName,
-      createdAt: post.createdAt.toISOString(),
-      extendedLikesInfo: {
-        likesCount: likesInfo.likesCount,
-        dislikesCount: likesInfo.dislikesCount,
-        myStatus: likesInfo.myStatus,
-        newestLikes: likesLastThree,
-      },
-    };
-  }
+        return {
+            id: postId,
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt.toISOString(),
+            extendedLikesInfo: {
+                likesCount: likesInfo.likesCount,
+                dislikesCount: likesInfo.dislikesCount,
+                myStatus: likesInfo.myStatus,
+                newestLikes: likesLastThree,
+            },
+        };
+    }
 }

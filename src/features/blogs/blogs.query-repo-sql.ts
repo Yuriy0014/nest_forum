@@ -46,14 +46,14 @@ export class BlogsQueryRepoSQL {
                 ? '%'
                 : `%${queryFilter.searchNameTerm}%`;
 
-        const orderByClause =
-            '"' + queryFilter.sortBy + '"' + ' ' + queryFilter.sortDirection;
+        const orderByField = `u.${queryFilter.sortBy}`;
+        const orderByDirection = queryFilter.sortDirection;
 
         const rawBlogs = await this.dataSource.getRepository(BlogEntity)
             .createQueryBuilder("b")
             .select(["b.id", "b.name", "b.description", "b.websiteUrl", "b.createdAt", "b.isMembership"])
             .where("b.name ILIKE :name", {name: name_like})
-            .orderBy(orderByClause) // Убедитесь, что orderByClause правильно форматирован
+            .orderBy(orderByField, orderByDirection) // Убедитесь, что orderByClause правильно форматирован
             .limit(queryFilter.pageSize)
             .offset(queryFilter.pageSize * (queryFilter.pageNumber - 1))
             .getMany();
@@ -63,15 +63,13 @@ export class BlogsQueryRepoSQL {
             this.mapBlogViewModel.getBlogViewModel(Blog),
         );
 
-        const totalBlogs = await this.dataSource.query(
-            `
-                SELECT b."id"
-                FROM public."blogs" b
-                WHERE ("name" ILIKE $1)
-                ORDER BY ${orderByClause}
-            `,
-            [name_like],
-        );
+        const totalBlogs = await this.dataSource.getRepository(BlogEntity)
+            .createQueryBuilder("b")
+            .select("b.id")
+            .where("b.name ILIKE :name", {name: name_like})
+            .orderBy(orderByField, orderByDirection)
+            .getMany();
+
 
         const totalCount = totalBlogs.length;
 

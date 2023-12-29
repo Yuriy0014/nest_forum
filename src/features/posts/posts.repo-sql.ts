@@ -1,121 +1,114 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {
-  PostCreateModelFromBlog,
-  PostDbModel,
-  PostUpdateModel,
+    PostCreateModelFromBlog,
+    PostUpdateModel,
 } from './models/posts.models-sql';
-import { v4 as uuidv4 } from 'uuid';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import {v4 as uuidv4} from 'uuid';
+import {InjectDataSource} from '@nestjs/typeorm';
+import {DataSource} from 'typeorm';
+import {PostEntity} from "./entities/posts.entities";
 
 @Injectable()
 export class PostsRepoSQL {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
-
-  async createPost(
-    dto: PostCreateModelFromBlog,
-    blogName: string,
-  ): Promise<string | null> {
-    const id = uuidv4();
-    try {
-      await this.dataSource.query(
-        `
-    INSERT INTO public.posts(
-    "id",
-    "title", "shortDescription", "content", "blogId", 
-    "blogName","createdAt")
-     VALUES ($1, $2, $3, $4, $5, $6, $7);
-    `,
-        [
-          id,
-          dto.title,
-          dto.shortDescription,
-          dto.content,
-          dto.blogId,
-          blogName,
-          new Date(),
-        ],
-      );
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-    return id;
-  }
-
-  async updatePost(
-    blogId: string,
-    postId: string,
-    updateDTO: PostUpdateModel,
-  ): Promise<boolean> {
-    try {
-      await this.dataSource.query(
-        `
-        UPDATE public.posts
-        SET "title"=$1, "shortDescription"=$2, "content"=$3,"blogId"=$4
-        WHERE "id" = $5;
-    `,
-        [
-          updateDTO.title,
-          updateDTO.shortDescription,
-          updateDTO.content,
-          blogId,
-          postId,
-        ],
-      );
-    } catch (e) {
-      console.log(e);
-      return false;
+    constructor(@InjectDataSource() protected dataSource: DataSource) {
     }
 
-    const updatedPost: PostDbModel[] = await this.dataSource.query(
-      `
-        SELECT p."id"
-        FROM public.posts p
-        WHERE (p."id" = $1 AND p."title"=$2 AND p."shortDescription"=$3 AND p."content"=$4 AND p."blogId" = $5);`,
-      [
-        postId,
-        updateDTO.title,
-        updateDTO.shortDescription,
-        updateDTO.content,
-        blogId,
-      ],
-    );
+    async createPost(
+        dto: PostCreateModelFromBlog,
+        blogName: string,
+    ): Promise<string | null> {
+        const id = uuidv4();
+        try {
+            const post = new PostEntity();
+            post.id = id;
+            post.title = dto.title;
+            post.shortDescription = dto.shortDescription;
+            post.content = dto.content;
+            post.blogId = dto.blogId;
+            post.blogName = blogName;
+            post.createdAt = new Date();
 
-    return updatedPost.length !== 0;
-  }
+            await this.dataSource.getRepository(PostEntity).save(post);
 
-  async deletePost(postId: string) {
-    await this.dataSource.query(
-      `
-        DELETE FROM public.posts
-        WHERE id = $1`,
-      [postId],
-    );
-
-    const deletedPost = await this.dataSource.query(
-      `
-        SELECT p."id"
-        FROM public."posts" p
-        WHERE p."id" = $1`,
-      [postId],
-    );
-
-    return deletedPost.length === 0;
-  }
-
-  async findPostById(id: string) {
-    const post: PostDbModel[] = await this.dataSource.query(
-      `
-        SELECT p."id", p."title", p."shortDescription", p."content", p."blogId", p."blogName", p."createdAt"
-        FROM public.posts p
-        WHERE (p."id" = $1);`,
-      [id],
-    );
-    if (post[0]) {
-      return post[0];
-    } else {
-      return null;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
+        return id;
     }
-  }
+
+    async updatePost(
+        blogId: string,
+        postId: string,
+        updateDTO: PostUpdateModel,
+    ): Promise<boolean> {
+        try {
+            // Найти существующий пост
+            const post = await this.dataSource.getRepository(PostEntity).findOneBy({id: postId});
+
+            if (post) {
+                // Обновить поля поста
+                post.title = updateDTO.title;
+                post.shortDescription = updateDTO.shortDescription;
+                post.content = updateDTO.content;
+                post.blogId = blogId;
+
+                // Сохранить обновленный пост
+                await this.dataSource.getRepository(PostEntity).save(post);
+            }
+
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        const updatedPost = await this.dataSource.getRepository(PostEntity)
+            .createQueryBuilder("p")
+            .select("p.id")
+            .where("p.id = :id AND p.title = :title AND p.shortDescription = :shortDescription AND p.content = :content AND p.blogId = :blogId", {
+                id: postId,
+                title: updateDTO.title,
+                shortDescription: updateDTO.shortDescription,
+                content: updateDTO.content,
+                blogId: blogId
+            })
+            .getOne();
+
+
+        return updatedPost == null;
+    }
+
+    async deletePost(postId: string) {
+        // Удаление поста
+        await this.dataSource.getRepository(PostEntity)
+            .createQueryBuilder()
+            .delete()
+            .from(PostEntity)
+            .where("id = :id", {id: postId})
+            .execute();
+
+        // Проверка, был ли пост удален
+        const deletedPost = await this.dataSource.getRepository(PostEntity)
+            .createQueryBuilder("p")
+            .select("p.id")
+            .where("p.id = :id", {id: postId})
+            .getOne();
+
+        return deletedPost === null;
+
+    }
+
+    async findPostById(id: string) {
+        const post = await this.dataSource.getRepository(PostEntity)
+            .createQueryBuilder("p")
+            .select(["p.id", "p.title", "p.shortDescription", "p.content", "p.blogId", "p.blogName", "p.createdAt"])
+            .where("p.id = :id", {id})
+            .getOne();
+
+        if (post) {
+            return post;
+        } else {
+            return null;
+        }
+    }
 }

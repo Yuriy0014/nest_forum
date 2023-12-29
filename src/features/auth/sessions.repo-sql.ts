@@ -96,6 +96,7 @@ export class SessionsRepoSQL {
         await this.dataSource.getRepository(SessionEntity)
             .createQueryBuilder()
             .delete()
+            .from(SessionEntity)
             .where("RFTokenIAT = :RFTokenIAT AND userId = :userId", {
                 RFTokenIAT: new Date(currentRFTokenIAT),
                 userId
@@ -117,9 +118,10 @@ export class SessionsRepoSQL {
 
     async deleteSessionByDeviceId(deviceId: string) {
 
-        await this.dataSource.getRepository(SessionEntity)
-            .createQueryBuilder("s")
+        await this.dataSource
+            .createQueryBuilder()
             .delete()
+            .from(SessionEntity)
             .where("s.deviceId = :deviceId", {deviceId})
             .execute();
 

@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {MapCommentViewModelSQL} from './helpers/map-CommentViewModel-sql';
-import {CommentsFilterModel,} from './models/comments.models-sql';
+import {CommentsFilterModel} from './models/comments.models-sql';
 import {InjectDataSource} from '@nestjs/typeorm';
 import {DataSource} from 'typeorm';
 import {CommentEntity} from "./entities/coments.entities";

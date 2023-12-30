@@ -21,7 +21,7 @@ export class LikeInfoEntity {
         dislikesCount: number
 }
 
-@Entity({name: "likes"})
+@Entity({name: "userslikesconnection"})
 export class UsersLikesConnectionEntity {
     @PrimaryGeneratedColumn('uuid')
         id: string;

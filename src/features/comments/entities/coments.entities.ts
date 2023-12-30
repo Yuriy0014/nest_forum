@@ -9,9 +9,6 @@ export class CommentEntity {
         id: string;
 
     @Column()
-        name: string
-
-    @Column()
         postId: string
 
     @Column()
@@ -25,7 +22,6 @@ export class CommentEntity {
 
     @Column()
         createdAt: Date
-
 
     @ManyToOne(() => PostEntity, (post) => post.comments)
         post: PostEntity

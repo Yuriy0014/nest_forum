@@ -25,9 +25,9 @@ export class TestingController {
         await this.dataSource.query(`DELETE
                                      FROM public.users`);
         await this.dataSource.query(`DELETE
-                                     FROM public.blogs`);
-        await this.dataSource.query(`DELETE
                                      FROM public.posts`);
+        await this.dataSource.query(`DELETE
+                                     FROM public.blogs`);
         await this.dataSource.query(`DELETE
                                      FROM public.likes`);
     }

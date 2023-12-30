@@ -19,6 +19,10 @@ export class TestingController {
         await this.dataSource.query(`DELETE
                                      FROM public.sessions`);
         await this.dataSource.query(`DELETE
+                                     FROM public.userslikesconnection`);
+        await this.dataSource.query(`DELETE
+                                     FROM public.comments`);
+        await this.dataSource.query(`DELETE
                                      FROM public.users`);
         await this.dataSource.query(`DELETE
                                      FROM public.blogs`);
@@ -26,10 +30,5 @@ export class TestingController {
                                      FROM public.posts`);
         await this.dataSource.query(`DELETE
                                      FROM public.likes`);
-        await this.dataSource.query(`DELETE
-                                     FROM public.userslikesconnection`);
-        await this.dataSource.query(`DELETE
-                                     FROM public.comments`);
-
     }
 }

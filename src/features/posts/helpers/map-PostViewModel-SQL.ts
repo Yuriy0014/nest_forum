@@ -6,8 +6,8 @@ import {
 } from '../../likes/models/likes.models-sql';
 import {LikesQueryRepoSQL} from '../../likes/likes.query-repo-sql';
 import {LikesRepoSQL} from '../../likes/likes.repo-sql';
-import {usersLikesConnectionDBModel} from '../../likes/models/likes.models-sql';
 import {PostEntity} from "../entities/posts.entities";
+import {UsersLikesConnectionEntity} from "../../likes/entities/likes.entities";
 
 @Injectable()
 export class MapPostViewModelSQL {
@@ -33,7 +33,7 @@ export class MapPostViewModelSQL {
             myStatus: likeStatus.None,
         };
 
-        const likesLastThreeSQl: usersLikesConnectionDBModel[] =
+        const likesLastThreeSQl: UsersLikesConnectionEntity[] =
             await this.likesRepo.findLastThreeLikesPost(postId);
 
         const likesLastThree = likesLastThreeSQl.map((value) => {

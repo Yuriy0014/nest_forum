@@ -1,20 +1,22 @@
 import {
-    likeDBModel,
     likesInfoViewModel,
     likeStatus,
-    ownerTypeModel,
-    usersLikesConnectionDBModel,
+    ownerTypeModel
 } from './models/likes.models-sql';
 import {Injectable} from '@nestjs/common';
 import {MapLikeViewModelSQL} from './helpers/map-likesViewModel-sql';
-import {InjectDataSource} from '@nestjs/typeorm';
-import {DataSource} from 'typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
+import {LikeInfoEntity, UsersLikesConnectionEntity} from "./entities/likes.entities";
 
 @Injectable()
 export class LikesQueryRepoSQL {
     constructor(
-        private readonly mapLikeViewModel: MapLikeViewModelSQL,
-        @InjectDataSource() protected dataSource: DataSource,
+        @InjectRepository(LikeInfoEntity)
+        private likeInfoRepository: Repository<LikeInfoEntity>,
+        @InjectRepository(UsersLikesConnectionEntity)
+        private usersLikesConnectionRepository: Repository<UsersLikesConnectionEntity>,
+        private mapLikeViewModel: MapLikeViewModelSQL,
     ) {
     }
 
@@ -24,53 +26,38 @@ export class LikesQueryRepoSQL {
         ownerId: string,
         userId: string | undefined = undefined,
     ): Promise<likesInfoViewModel | null> {
-        const foundLikes: likeDBModel[] = await this.dataSource.query(
-            `
-                SELECT l."id", l."ownerType", l."ownerId", l."likesCount", l."dislikesCount"
-                FROM public.likes l
-                WHERE (l."ownerId" = $1);`,
-            [ownerId],
-        );
+        // Получение информации о лайках
+        const foundLikes = await this.likeInfoRepository.find({
+            where: {ownerId: ownerId},
+            select: ["id", "ownerType", "ownerId", "likesCount", "dislikesCount"]
+        });
 
         if (!foundLikes[0]) return null;
-        //  Получаем информацию о статусе лайка для текущего польхователя
-        // Пустой ID это тот случай, когда user не авторизован
-        let foundStatus:
-            | usersLikesConnectionDBModel[]
-            | { status: likeStatus.None };
-        if (userId === undefined) {
-            foundStatus = {
-                status: likeStatus.None,
-            };
 
-            return this.mapLikeViewModel.getLikesInfoViewModel(
-                foundLikes[0],
-                foundStatus,
-            );
+        // Получаем информацию о статусе лайка для текущего пользователя
+        // Пустой ID это тот случай, когда user не авторизован
+        let foundStatus: UsersLikesConnectionEntity[] | { status: likeStatus.None };
+
+        if (userId === undefined) {
+            foundStatus = {status: likeStatus.None};
+            return this.mapLikeViewModel.getLikesInfoViewModel(foundLikes[0], foundStatus);
         }
 
-        foundStatus = await this.dataSource.query(
-            `
-                SELECT c."status"
-                FROM public."userslikesconnection" c
-                WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
-            [userId, ownerId, ownerType],
-        );
+        foundStatus = await this.usersLikesConnectionRepository.find({
+            where: {
+                userId: userId,
+                likedObjectId: ownerId,
+                likedObjectType: ownerType
+            },
+            select: ["status"]
+        });
 
         if (!foundStatus[0]) {
-            foundStatus = {
-                status: likeStatus.None,
-            };
-
-            return this.mapLikeViewModel.getLikesInfoViewModel(
-                foundLikes[0],
-                foundStatus,
-            );
+            foundStatus = {status: likeStatus.None};
+            return this.mapLikeViewModel.getLikesInfoViewModel(foundLikes[0], foundStatus);
         }
 
-        return this.mapLikeViewModel.getLikesInfoViewModel(
-            foundLikes[0],
-            foundStatus[0],
-        );
+        return this.mapLikeViewModel.getLikesInfoViewModel(foundLikes[0], foundStatus[0]);
+
     }
 }

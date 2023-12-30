@@ -1,6 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
 import {SessionEntity} from "../../auth/entities/sessions.entities";
 import {CommentEntity} from "../../comments/entities/coments.entities";
+import {UsersLikesConnectionEntity} from "../../likes/entities/likes.entities";
 
 @Entity({name: "users"})
 export class UserEntity {
@@ -39,6 +40,9 @@ export class UserEntity {
 
     @OneToMany(() => CommentEntity, (comment) => comment.user)
         comments: CommentEntity[];
+
+    @OneToMany(() => UsersLikesConnectionEntity, (usersLikes) => usersLikes.user)
+        usersLikes: UsersLikesConnectionEntity[]
 
     canBeConfirmed(code: string): boolean {
         return (

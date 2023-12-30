@@ -1,247 +1,202 @@
-import { Injectable } from '@nestjs/common';
-import {
-  likeDBModel,
-  LikeObjectTypeEnum,
-  likeStatus,
-  usersLikesConnectionDBModel,
-} from './models/likes.models-sql';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import {Injectable} from '@nestjs/common';
+import {LikeObjectTypeEnum, likeStatus} from './models/likes.models-sql';
+import {InjectDataSource} from '@nestjs/typeorm';
+import {DataSource} from 'typeorm';
+import {LikeInfoEntity, UsersLikesConnectionEntity} from "./entities/likes.entities";
 
 @Injectable()
 export class LikesRepoSQL {
-  constructor(@InjectDataSource() protected dataSource: DataSource) {}
-
-  async Like(
-    ownerType: LikeObjectTypeEnum,
-    ownerId: string,
-    userId: string,
-    userLogin: string,
-  ): Promise<boolean> {
-    const likesIfoInstance: likeDBModel[] = await this.dataSource.query(
-      `
-        SELECT  l."likesCount"
-        FROM public.likes l
-        WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
-      [ownerId, ownerType],
-    );
-    if (!likesIfoInstance) return false;
-
-    try {
-      // Увеличиваем количество лайков на 1
-      await this.dataSource.query(
-        `
-        UPDATE public.likes
-        SET "likesCount"=$3
-        WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
-        [ownerId, ownerType, likesIfoInstance[0].likesCount + 1],
-      );
-
-      const userStatusInstance: usersLikesConnectionDBModel[] =
-        await this.dataSource.query(
-          `
-        SELECT c."id"
-        FROM public.userslikesconnection c
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
-          [userId, ownerId, ownerType],
-        );
-
-      // Если пользователь никогда раньше лайк не ставил - в таблице нет записи и нам нужно ее создать
-      if (!userStatusInstance[0]) {
-        await this.dataSource.query(
-          `
-        INSERT INTO public."userslikesconnection"(
-        "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1, $2, $3, $4, $5, $6);`,
-          [userId, userLogin, new Date(), ownerId, ownerType, likeStatus.Like],
-        );
-      } else {
-        await this.dataSource.query(
-          `
-        UPDATE public."userslikesconnection"
-        SET "status"=$1
-        WHERE ("userId" = $2 AND "likedObjectId" = $3 AND "likedObjectType" = $4);`,
-          [likeStatus.Like, userId, ownerId, ownerType],
-        );
-      }
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
+    constructor(@InjectDataSource() protected dataSource: DataSource) {
     }
-  }
 
-  async Dislike(
-    ownerType: LikeObjectTypeEnum,
-    ownerId: string,
-    userId: string,
-    userLogin: string,
-  ): Promise<boolean> {
-    const likesIfoInstance: likeDBModel[] = await this.dataSource.query(
-      `
-        SELECT  l."dislikesCount"
-        FROM public.likes l
-        WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
-      [ownerId, ownerType],
-    );
-    if (!likesIfoInstance) return false;
+    async Like(
+        ownerType: LikeObjectTypeEnum,
+        ownerId: string,
+        userId: string,
+        userLogin: string,
+    ): Promise<boolean> {
+        try {
+            const likeInfo = await this.dataSource.getRepository(LikeInfoEntity)
+                .findOneBy({
+                    ownerId: ownerId,
+                    ownerType: ownerType
+                });
 
-    try {
-      // Увеличиваем количество дизлайков на 1
-      await this.dataSource.query(
-        `
-        UPDATE public.likes
-        SET "dislikesCount"=$3
-        WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
-        [ownerId, ownerType, likesIfoInstance[0].dislikesCount + 1],
-      );
+            if (!likeInfo) return false;
+            // Увеличиваем количество лайков на 1
+            likeInfo.likesCount += 1;
+            await this.dataSource.getRepository(LikeInfoEntity).save(likeInfo);
 
-      const userStatusInstance: usersLikesConnectionDBModel[] =
-        await this.dataSource.query(
-          `
-        SELECT c."id"
-        FROM public.userslikesconnection c
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
-          [userId, ownerId, ownerType],
-        );
+            const userStatus = await this.dataSource.getRepository(UsersLikesConnectionEntity)
+                .findOneBy({
+                    userId: userId,
+                    likedObjectId: ownerId,
+                    likedObjectType: ownerType
+                });
 
-      // Если пользователь никогда раньше лайк не ставил - в таблице нет записи и нам нужно ее создать
-      if (!userStatusInstance[0]) {
-        await this.dataSource.query(
-          `
-        INSERT INTO public."userslikesconnection"(
-        "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1, $2, $3, $4, $5, $6);`,
-          [
-            userId,
-            userLogin,
-            new Date(),
-            ownerId,
-            ownerType,
-            likeStatus.Dislike,
-          ],
-        );
-      } else {
-        await this.dataSource.query(
-          `
-        UPDATE public."userslikesconnection"
-        SET "status"=$1
-        WHERE ("userId" = $2 AND "likedObjectId" = $3 AND "likedObjectType" = $4);`,
-          [likeStatus.Dislike, userId, ownerId, ownerType],
-        );
-      }
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
+            // Если пользователь никогда раньше лайк не ставил - в таблице нет записи и нам нужно ее создать
+            if (!userStatus) {
+                const newUserStatus = new UsersLikesConnectionEntity();
+                newUserStatus.userId = userId;
+                newUserStatus.userLogin = userLogin;
+                newUserStatus.addedAt = new Date();
+                newUserStatus.likedObjectId = ownerId;
+                newUserStatus.likedObjectType = ownerType;
+                newUserStatus.status = likeStatus.Like;
+                await this.dataSource.getRepository(UsersLikesConnectionEntity).save(newUserStatus);
+            } else {
+                userStatus.status = likeStatus.Like;
+                await this.dataSource.getRepository(UsersLikesConnectionEntity).save(userStatus);
+            }
+            return true;
+
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     }
-  }
 
-  async Reset(
-    ownerType: LikeObjectTypeEnum,
-    ownerId: string,
-    userId: string,
-    userLogin: string,
-    savedStatus: string,
-  ): Promise<boolean> {
-    const likesIfoInstance: likeDBModel[] = await this.dataSource.query(
-      `
-        SELECT  l."likesCount", l."dislikesCount"
-        FROM public.likes l
-        WHERE (l."ownerId" = $1 AND l."ownerType" = $2);`,
-      [ownerId, ownerType],
-    );
-    if (!likesIfoInstance) return false;
+    async Dislike(
+        ownerType: LikeObjectTypeEnum,
+        ownerId: string,
+        userId: string,
+        userLogin: string,
+    ): Promise<boolean> {
+        const likeInfo = await this.dataSource.getRepository(LikeInfoEntity)
+            .findOneBy({
+                ownerId: ownerId,
+                ownerType: ownerType
+            });
 
-    try {
-      // уменьшаем счетчик лайков/дизлайков
-      let typeOfLikeForUpdate = 'None';
-      if (savedStatus === likeStatus.Like) {
-        typeOfLikeForUpdate = 'likesCount';
-      }
-      if (savedStatus === likeStatus.Dislike) {
-        typeOfLikeForUpdate = 'dislikesCount';
-      }
-      if (typeOfLikeForUpdate !== 'None') {
-        const updatedValue =
-          typeOfLikeForUpdate === 'likesCount'
-            ? likesIfoInstance[0].likesCount - 1
-            : likesIfoInstance[0].dislikesCount - 1;
+        if (!likeInfo) return false;
 
-        await this.dataSource.query(
-          `
-                UPDATE public.likes
-                SET "${typeOfLikeForUpdate}"= $3
-                WHERE ("ownerId" = $1 AND "ownerType" = $2);`,
-          [ownerId, ownerType, updatedValue],
-        );
-      }
+        try {
+            // Увеличиваем количество дизлайков на 1
+            likeInfo.dislikesCount += 1;
+            await this.dataSource.getRepository(LikeInfoEntity).save(likeInfo);
 
-      const userStatusInstance: usersLikesConnectionDBModel[] =
-        await this.dataSource.query(
-          `
-        SELECT c."id"
-        FROM public.userslikesconnection c
-        WHERE (c."userId" = $1 AND c."likedObjectId" = $2 AND c."likedObjectType" = $3);`,
-          [userId, ownerId, ownerType],
-        );
+            let userStatus = await this.dataSource.getRepository(UsersLikesConnectionEntity)
+                .findOneBy({
+                    userId: userId,
+                    likedObjectId: ownerId,
+                    likedObjectType: ownerType
+                });
 
-      // Если пользователь никогда раньше лайк не ставил - в таблице нет записи и нам нужно ее создать
-      if (!userStatusInstance[0]) {
-        await this.dataSource.query(
-          `
-        INSERT INTO public."userslikesconnection"(
-        "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status")
-        VALUES ($1, $2, $3, $4, $5, $6);`,
-          [userId, userLogin, new Date(), ownerId, ownerType, likeStatus.None],
-        );
-      } else {
-        await this.dataSource.query(
-          `
-        UPDATE public."userslikesconnection"
-        SET "status"=$1
-        WHERE ("userId" = $2 AND "likedObjectId" = $3 AND "likedObjectType" = $4);`,
-          [likeStatus.None, userId, ownerId, ownerType],
-        );
-      }
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
+            // Если пользователь никогда раньше лайк не ставил - в таблице нет записи и нам нужно ее создать
+            if (!userStatus) {
+                userStatus = new UsersLikesConnectionEntity();
+                userStatus.userId = userId;
+                userStatus.userLogin = userLogin;
+                userStatus.addedAt = new Date();
+                userStatus.likedObjectId = ownerId;
+                userStatus.likedObjectType = ownerType;
+                userStatus.status = likeStatus.Dislike;
+            } else {
+                // Обновляем статус лайка на дизлайк
+                userStatus.status = likeStatus.Dislike;
+            }
+
+            await this.dataSource.getRepository(UsersLikesConnectionEntity).save(userStatus);
+
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+
     }
-  }
 
-  async createLikesInfo(
-    ownerId: string,
-    ownerType: LikeObjectTypeEnum,
-  ): Promise<boolean> {
-    try {
-      await this.dataSource.query(
-        `
-            INSERT INTO public.likes(
-            "ownerType", "ownerId", "likesCount", "dislikesCount")
-            VALUES ($1, $2, $3, $4);`,
-        [ownerType, ownerId, 0, 0],
-      );
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
+    async Reset(
+        ownerType: LikeObjectTypeEnum,
+        ownerId: string,
+        userId: string,
+        userLogin: string,
+        savedStatus: string,
+    ): Promise<boolean> {
+
+        try {
+            // Получение информации о лайках
+            const likeInfo = await this.dataSource.getRepository(LikeInfoEntity).findOneBy({ownerId, ownerType});
+            if (!likeInfo) return false;
+
+            // Обновление счетчика лайков или дизлайков
+            if (savedStatus === likeStatus.Like) {
+                likeInfo.likesCount = likeInfo.likesCount - 1;
+            } else if (savedStatus === likeStatus.Dislike) {
+                likeInfo.dislikesCount = likeInfo.dislikesCount - 1;
+            }
+
+            await this.dataSource.getRepository(LikeInfoEntity).save(likeInfo);
+
+            // Обработка статуса лайка пользователя
+            let userStatus = await this.dataSource.getRepository(UsersLikesConnectionEntity).findOneBy({
+                userId,
+                likedObjectId: ownerId,
+                likedObjectType: ownerType
+            });
+
+            if (!userStatus) {
+                // Создание записи, если она не существует
+                userStatus = this.dataSource.getRepository(UsersLikesConnectionEntity).create({
+                    userId,
+                    userLogin,
+                    addedAt: new Date(),
+                    likedObjectId: ownerId,
+                    likedObjectType: ownerType,
+                    status: likeStatus.None
+                });
+            } else {
+                // Обновление статуса пользователя
+                userStatus.status = likeStatus.None;
+            }
+
+            await this.dataSource.getRepository(UsersLikesConnectionEntity).save(userStatus);
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
     }
-  }
 
-  async findLastThreeLikesPost(postId: string) {
-    const likesData = await this.dataSource.query(
-      `
-        SELECT "id", "userId", "userLogin", "addedAt", "likedObjectId", "likedObjectType", "status"
-        FROM public."userslikesconnection"
-        WHERE ("likedObjectId" = $1 AND "likedObjectType" = $2 AND "status" = $3)
-        ORDER BY "addedAt" desc
-        LIMIT 3
-        ;`,
-      [postId, 'Post', likeStatus.Like],
-    );
+    async createLikesInfo(
+        ownerId: string,
+        ownerType: LikeObjectTypeEnum,
+    ): Promise<boolean> {
+        try {
+            // Создание нового экземпляра LikeInfoEntity
+            const newLike = new LikeInfoEntity();
+            newLike.ownerType = ownerType;
+            newLike.ownerId = ownerId;
+            newLike.likesCount = 0;
+            newLike.dislikesCount = 0;
 
-    return likesData;
-  }
+            // Сохранение экземпляра в базе данных
+            await this.dataSource.getRepository(LikeInfoEntity).save(newLike);
+            return true;
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+    }
+
+    async findLastThreeLikesPost(postId: string) {
+        // Использование Query Builder для выполнения запроса
+        const likesData = await this.dataSource.getRepository(UsersLikesConnectionEntity)
+            .createQueryBuilder("ul")
+            .select(["ul.id",
+                "ul.userId",
+                "ul.userLogin",
+                "ul.addedAt",
+                "ul.likedObjectId",
+                "ul.likedObjectType",
+                "ul.status"])
+            .where("ul.likedObjectId = :postId", {postId})
+            .andWhere("ul.likedObjectType = :type", {type: 'Post'})
+            .andWhere("ul.status = :status", {status: likeStatus.Like})
+            .orderBy("ul.addedAt", "DESC")
+            .limit(3)
+            .getMany();
+
+        return likesData;
+    }
 }

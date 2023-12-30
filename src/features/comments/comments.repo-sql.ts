@@ -50,7 +50,7 @@ export class CommentsRepoSQL {
 
         const updatedComment = await this.dataSource.getRepository(CommentEntity)
             .createQueryBuilder("b")
-            .select("id")
+            .select("b.id")
             .where("b.id = :id AND b.content = :content", {
                 id: commentId,
                 content: updateDTO.content

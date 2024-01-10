@@ -1,7 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeorm';
 import {SessionEntity} from "../../auth/entities/sessions.entities";
 import {CommentEntity} from "../../comments/entities/coments.entities";
 import {UsersLikesConnectionEntity} from "../../likes/entities/likes.entities";
+import {ActivePairEntity} from "../../pairquizgame/entities/quiz-pair.entities";
 
 @Entity({name: "users"})
 export class UserEntity {
@@ -43,6 +44,12 @@ export class UserEntity {
 
     @OneToMany(() => UsersLikesConnectionEntity, (usersLikes) => usersLikes.user)
         usersLikes: UsersLikesConnectionEntity[]
+
+    @OneToOne(() => ActivePairEntity, activePair => activePair.firstPlayerId)
+        pairAsPlayer1: ActivePairEntity;
+
+    @OneToOne(() => ActivePairEntity, activePair => activePair.secondPlayerId)
+        pairAsPlayer2: ActivePairEntity;
 
     canBeConfirmed(code: string): boolean {
         return (

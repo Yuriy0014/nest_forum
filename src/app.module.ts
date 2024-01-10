@@ -94,6 +94,7 @@ import {join} from "path";
 import {LikeInfoEntity, UsersLikesConnectionEntity} from "./features/likes/entities/likes.entities";
 import {PostsController} from "./features/posts/posts.controller";
 import { PairQuizGameController } from './features/pairquizgame/pairquizgame.controller';
+import {QuizQuestionsController} from './features/quizquestions/quizquestions.controller';
 
 const useCases = [
     ///Blogs
@@ -177,6 +178,7 @@ const useCases = [
         AuthController,
         SecurityController,
         PairQuizGameController,
+        QuizQuestionsController,
     ],
     providers: [
         AppService,

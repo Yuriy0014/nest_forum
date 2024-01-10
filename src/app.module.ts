@@ -93,6 +93,7 @@ import {MailModule} from "./infrastructure/mail/mail.module";
 import {join} from "path";
 import {LikeInfoEntity, UsersLikesConnectionEntity} from "./features/likes/entities/likes.entities";
 import {PostsController} from "./features/posts/posts.controller";
+import { PairQuizGameController } from './features/pairquizgame/pairquizgame.controller';
 
 const useCases = [
     ///Blogs
@@ -175,6 +176,7 @@ const useCases = [
         UsersController,
         AuthController,
         SecurityController,
+        PairQuizGameController,
     ],
     providers: [
         AppService,

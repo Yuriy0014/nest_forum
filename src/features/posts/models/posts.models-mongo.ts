@@ -89,14 +89,14 @@ export type PostViewModel = {
     blogName: string;
     createdAt: string;
     extendedLikesInfo: extendedLikesInfoViewModel;
-};
+}
 
 export type URIParamsPostIdModel = {
     /*
      * id of existing post :)
      */
     id: string;
-};
+}
 
 export type PostsWithPaginationModel = {
     pagesCount: number;
@@ -104,4 +104,4 @@ export type PostsWithPaginationModel = {
     pageSize: number;
     totalCount: number;
     items: PostViewModel[];
-};
+}

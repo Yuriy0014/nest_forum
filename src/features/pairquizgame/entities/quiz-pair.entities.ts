@@ -16,8 +16,7 @@ enum gameStatus {
     end = "GameOver"
 }
 
-@Entity({name: "activepairs"})
-export class ActivePairEntity {
+export abstract class PairBase {
     @PrimaryGeneratedColumn('uuid')
         id: string;
 
@@ -122,5 +121,12 @@ export class ActivePairEntity {
 
     @OneToMany(() => CommentEntity, (comment) => comment.post)
         comments: CommentEntity[];
-
 }
+
+
+@Entity({name: "activepairs"})
+export class ActivePairEntity extends PairBase {}
+
+
+@Entity({name: "finishedpairs"})
+export class FinishedPairEntity extends PairBase {}

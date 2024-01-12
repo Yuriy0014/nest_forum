@@ -6,20 +6,20 @@ import { CommandBus } from '@nestjs/cqrs';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly commandBus: CommandBus) {
-    super({ usernameField: 'loginOrEmail' });
-  }
-
-  async validate(loginOrEmail: string, password: string): Promise<any> {
-    const user = await this.commandBus.execute(
-      new CheckCredentialsCommand({
-        loginOrEmail,
-        password,
-      }),
-    );
-    if (!user) {
-      throw new UnauthorizedException();
+    constructor(private readonly commandBus: CommandBus) {
+        super({ usernameField: 'loginOrEmail' });
     }
-    return { id: user.id };
-  }
+
+    async validate(loginOrEmail: string, password: string): Promise<any> {
+        const user = await this.commandBus.execute(
+            new CheckCredentialsCommand({
+                loginOrEmail,
+                password, 
+            }),
+        );
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        return { id: user.id };
+    }
 }

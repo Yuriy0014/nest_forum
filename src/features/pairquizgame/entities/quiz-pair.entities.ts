@@ -124,9 +124,9 @@ export abstract class PairBase {
 }
 
 
-@Entity({name: "activepairs"})
+@Entity({name: "quiz_active_pairs"})
 export class ActivePairEntity extends PairBase {}
 
 
-@Entity({name: "finishedpairs"})
+@Entity({name: "quiz_finished_pairs"})
 export class FinishedPairEntity extends PairBase {}

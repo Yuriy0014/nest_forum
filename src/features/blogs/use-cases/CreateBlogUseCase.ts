@@ -5,36 +5,36 @@ import { BlogViewModel, BlogCreateModel } from '../models/blogs.models-sql';
 import { Result, ResultCode } from '../../helpers/result_types';
 
 export class CreateBlogCommand {
-  constructor(public BlogCreateModelDTO: BlogCreateModel) {}
+    constructor(public BlogCreateModelDTO: BlogCreateModel) {}
 }
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
-  constructor(
+    constructor(
     private readonly blogsRepo: BlogsRepoSQL,
     private readonly mapBlogViewModel: MapBlogViewModelSQL,
-  ) {}
+    ) {}
 
-  async execute(command: CreateBlogCommand): Promise<Result<BlogViewModel>> {
-    const blogId = await this.blogsRepo.createBlog(command.BlogCreateModelDTO);
-    if (!blogId) {
-      return {
-        resultCode: ResultCode.internalServerError,
-        data: null,
-        errorMessage: 'Возникла ошибка при создании блога',
-      };
+    async execute(command: CreateBlogCommand): Promise<Result<BlogViewModel>> {
+        const blogId = await this.blogsRepo.createBlog(command.BlogCreateModelDTO);
+        if (!blogId) {
+            return {
+                resultCode: ResultCode.internalServerError,
+                data: null,
+                errorMessage: 'Возникла ошибка при создании блога',
+            };
+        }
+        const createdBlog = await this.blogsRepo.findBlogById(blogId);
+        if (!createdBlog) {
+            return {
+                resultCode: ResultCode.internalServerError,
+                data: null,
+                errorMessage: 'Возникла ошибка при получении созданного блога',
+            };
+        }
+        return {
+            resultCode: ResultCode.success,
+            data: this.mapBlogViewModel.getBlogViewModel(createdBlog),
+        };
     }
-    const createdBlog = await this.blogsRepo.findBlogById(blogId);
-    if (!createdBlog) {
-      return {
-        resultCode: ResultCode.internalServerError,
-        data: null,
-        errorMessage: 'Возникла ошибка при получении созданного блога',
-      };
-    }
-    return {
-      resultCode: ResultCode.success,
-      data: this.mapBlogViewModel.getBlogViewModel(createdBlog),
-    };
-  }
 }

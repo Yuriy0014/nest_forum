@@ -4,7 +4,7 @@ import {ActivePairEntity} from "../entities/quiz-pair.entities";
 
 @Injectable()
 export class MapPairViewModelSQL {
-    getActivePairViewModel = (pair: ActivePairEntity): ActivePairViewModel => {
+    getPairViewModel = (pair: ActivePairEntity): ActivePairViewModel => {
 
         const answersPlayer1: Answer[] = [];
         const answersPlayer2: Answer[] = [];

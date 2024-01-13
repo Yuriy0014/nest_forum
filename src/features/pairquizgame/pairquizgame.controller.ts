@@ -1,4 +1,4 @@
-import {Controller, Get, Post, UseGuards} from '@nestjs/common';
+import {Controller, Get, NotFoundException, Post, Request, UseGuards} from '@nestjs/common';
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {PairQuizQueryRepoSQL} from "./pairquizgame.query-repo";
 
@@ -11,8 +11,14 @@ export class PairQuizGameController {
     }
 
     @Get('my-current')
-    async getCurrentPair(){
-        return true
+    async getCurrentPair(@Request() req: any){
+        const activePair = await this.pairQuizQueryRepoSQL.findActivePair(req.userId)
+
+        if (!activePair) {
+            throw new NotFoundException('Для текущего юзера нет активной пары')
+        }
+
+        return activePair
     }
 
     @Get(':id')

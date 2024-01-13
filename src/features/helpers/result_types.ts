@@ -1,12 +1,7 @@
-export enum ResultCode {
-  success,
-  internalServerError,
-  badRequest,
-  incorrectEmail,
-}
+import {HttpStatus} from "@nestjs/common";
 
 export type Result<T> = {
-  resultCode: ResultCode;
+  resultCode: HttpStatus;
   data: T | null;
   errorMessage?: string;
 };

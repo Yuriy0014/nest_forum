@@ -3,17 +3,20 @@ import {
     CreateDateColumn,
     Entity,
     JoinColumn,
-    OneToMany,
     OneToOne,
     PrimaryGeneratedColumn
 } from 'typeorm';
-import {CommentEntity} from "../../comments/entities/coments.entities";
 import {UserEntity} from "../../users/entities/user.entities";
 
-enum gameStatus {
+export enum gameStatus {
     pending = "PendingSecondPlayer",
     active = "GameInProgress",
     end = "GameOver"
+}
+
+export enum answerStatus {
+    Correct = "Correct",
+    Incorrect ="Incorrect"
 }
 
 export abstract class PairBase {
@@ -24,21 +27,33 @@ export abstract class PairBase {
     @JoinColumn()
         firstPlayerId: string
 
+    @Column()
+        firstPlayerLogin: string
+
+    @Column()
+        firstPlayerScore: number
+
     @OneToOne(() => UserEntity)
     @JoinColumn()
         secondPlayerId: string
 
     @Column()
+        secondPlayerLogin: string
+
+    @Column()
+        secondPlayerScore: number
+
+    @Column()
         question_1_id: string
 
     @Column()
-        question_1_player1_status: string
+        question_1_player1_status: answerStatus
 
     @Column()
         question_1_player1_answ_date: Date
 
     @Column()
-        question_1_player2_status: string
+        question_1_player2_status: answerStatus
 
     @Column()
         question_1_player2_answ_date: Date
@@ -47,13 +62,13 @@ export abstract class PairBase {
         question_2_id: string
 
     @Column()
-        question_2_player1_status: string
+        question_2_player1_status: answerStatus
 
     @Column()
         question_2_player1_answ_date: Date
 
     @Column()
-        question_2_player2_status: string
+        question_2_player2_status: answerStatus
 
     @Column()
         question_2_player2_answ_date: Date
@@ -62,13 +77,13 @@ export abstract class PairBase {
         question_3_id: string
 
     @Column()
-        question_3_player1_status: string
+        question_3_player1_status: answerStatus
 
     @Column()
         question_3_player1_answ_date: Date
 
     @Column()
-        question_3_player2_status: string
+        question_3_player2_status: answerStatus
 
     @Column()
         question_3_player2_answ_date: Date
@@ -77,13 +92,13 @@ export abstract class PairBase {
         question_4_id: string
 
     @Column()
-        question_4_player1_status: string
+        question_4_player1_status: answerStatus
 
     @Column()
         question_4_player1_answ_date: Date
 
     @Column()
-        question_4_player2_status: string
+        question_4_player2_status: answerStatus
 
     @Column()
         question_4_player2_answ_date: Date
@@ -92,13 +107,13 @@ export abstract class PairBase {
         question_5_id: string
 
     @Column()
-        question_5_player1_status: string
+        question_5_player1_status: answerStatus
 
     @Column()
         question_5_player1_answ_date: Date
 
     @Column()
-        question_5_player2_status: string
+        question_5_player2_status: answerStatus
 
     @Column()
         question_5_player2_answ_date: Date
@@ -119,14 +134,10 @@ export abstract class PairBase {
     @Column()
         finishGameDate: Date
 
-    @OneToMany(() => CommentEntity, (comment) => comment.post)
-        comments: CommentEntity[];
 }
-
 
 @Entity({name: "quiz_active_pairs"})
 export class ActivePairEntity extends PairBase {}
-
 
 @Entity({name: "quiz_finished_pairs"})
 export class FinishedPairEntity extends PairBase {}

@@ -48,14 +48,9 @@ export class UserEntity {
     @OneToOne(() => ActivePairEntity, activePair => activePair.firstPlayerId)
         pairAsPlayer1: ActivePairEntity;
 
-    @OneToOne(() => ActivePairEntity, activePair => activePair.secondPlayerId)
-        pairAsPlayer2: ActivePairEntity;
-
     @OneToMany(() => FinishedPairEntity, finishedPair => finishedPair.firstPlayerId)
         pairsAsPlayer1: FinishedPairEntity[];
 
-    @OneToMany(() => FinishedPairEntity, finishedPair => finishedPair.secondPlayerId)
-        pairsAsPlayer2: FinishedPairEntity[];
 
     canBeConfirmed(code: string): boolean {
         return (

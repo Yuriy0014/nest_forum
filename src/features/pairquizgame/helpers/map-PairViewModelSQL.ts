@@ -1,10 +1,10 @@
 import {Injectable} from '@nestjs/common';
-import {ActivePairViewModel, Answer, Question} from "../models/pairquizgame.models";
-import {ActivePairEntity} from "../entities/quiz-pair.entities";
+import {PairViewModel, Answer, Question} from "../models/pairquizgame.models";
+import {ActivePairEntity, FinishedPairEntity} from "../entities/quiz-pair.entities";
 
 @Injectable()
 export class MapPairViewModelSQL {
-    getPairViewModel = (pair: ActivePairEntity): ActivePairViewModel => {
+    getPairViewModel = (pair: ActivePairEntity | FinishedPairEntity): PairViewModel => {
 
         const answersPlayer1: Answer[] = [];
         const answersPlayer2: Answer[] = [];

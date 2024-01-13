@@ -20,7 +20,7 @@ export class Question  {
     body: string;
 }
 
-export class ActivePairViewModel {
+export class PairViewModel {
     id: string;
     firstPlayerProgress: PlayerProgress
     secondPlayerProgress: PlayerProgress;
@@ -29,4 +29,5 @@ export class ActivePairViewModel {
     pairCreatedDate: string;
     startGameDate: string;
     finishGameDate: string;
+
 }

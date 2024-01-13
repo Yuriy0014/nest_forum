@@ -33,8 +33,7 @@ export abstract class PairBase {
     @Column()
         firstPlayerScore: number
 
-    @OneToOne(() => UserEntity)
-    @JoinColumn()
+    @Column()
         secondPlayerId: string
 
     @Column()
@@ -43,76 +42,76 @@ export abstract class PairBase {
     @Column()
         secondPlayerScore: number
 
-    @Column()
+    @Column({nullable: true})
         question_1_id: string
 
-    @Column()
+    @Column({nullable: true})
         question_1_player1_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_1_player1_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_1_player2_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_1_player2_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_2_id: string
 
-    @Column()
+    @Column({nullable: true})
         question_2_player1_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_2_player1_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_2_player2_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_2_player2_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_3_id: string
 
-    @Column()
+    @Column({nullable: true})
         question_3_player1_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_3_player1_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_3_player2_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_3_player2_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_4_id: string
 
-    @Column()
+    @Column({nullable: true})
         question_4_player1_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_4_player1_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_4_player2_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_4_player2_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_5_id: string
 
-    @Column()
+    @Column({nullable: true})
         question_5_player1_status: answerStatus
 
-    @Column()
+    @Column({nullable: true})
         question_5_player1_answ_date: Date
 
-    @Column()
+    @Column({nullable: true})
         question_5_player2_status: answerStatus
 
     @Column()

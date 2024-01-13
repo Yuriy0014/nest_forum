@@ -1,4 +1,4 @@
-import {Controller, Get, NotFoundException, Post, Request, UseGuards} from '@nestjs/common';
+import {Controller, ForbiddenException, Get, NotFoundException, Param, Post, Request, UseGuards} from '@nestjs/common';
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {PairQuizQueryRepoSQL} from "./pairquizgame.query-repo";
 
@@ -22,8 +22,21 @@ export class PairQuizGameController {
     }
 
     @Get(':id')
-    async getPairById(){
-        return true
+    async getFinishedPairById(@Param('id') id: string,
+                      @Request() req: any){
+        const foundPair = await this.pairQuizQueryRepoSQL.findFinishedPairById(id)
+
+        if (!foundPair) {
+            throw new NotFoundException('Не найдена игра с таким id')
+        }
+
+        if(req.userId !== foundPair.firstPlayerProgress.player.id
+            || req.userId !== foundPair.secondPlayerProgress.player.id ) {
+
+            throw new ForbiddenException('Вы не участвовали вы этой игре. Резултаты недоступны')
+        }
+
+        return foundPair
     }
 
     @Post('connection')

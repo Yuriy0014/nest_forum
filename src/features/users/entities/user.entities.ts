@@ -2,7 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeo
 import {SessionEntity} from "../../auth/entities/sessions.entities";
 import {CommentEntity} from "../../comments/entities/coments.entities";
 import {UsersLikesConnectionEntity} from "../../likes/entities/likes.entities";
-import {ActivePairEntity} from "../../pairquizgame/entities/quiz-pair.entities";
+import {ActivePairEntity, FinishedPairEntity} from "../../pairquizgame/entities/quiz-pair.entities";
 
 @Entity({name: "users"})
 export class UserEntity {
@@ -50,6 +50,12 @@ export class UserEntity {
 
     @OneToOne(() => ActivePairEntity, activePair => activePair.secondPlayerId)
         pairAsPlayer2: ActivePairEntity;
+
+    @OneToMany(() => FinishedPairEntity, finishedPair => finishedPair.firstPlayerId)
+        pairsAsPlayer1: FinishedPairEntity[];
+
+    @OneToMany(() => FinishedPairEntity, finishedPair => finishedPair.secondPlayerId)
+        pairsAsPlayer2: FinishedPairEntity[];
 
     canBeConfirmed(code: string): boolean {
         return (

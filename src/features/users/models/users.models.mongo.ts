@@ -1,20 +1,20 @@
 import mongoose from 'mongoose';
 import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
+    IsEmail,
+    IsNotEmpty,
+    IsString,
+    Matches,
+    MaxLength,
+    MinLength,
 } from 'class-validator';
 
 export class UserDBModel {
-  constructor(
+    constructor(
     public _id: mongoose.Types.ObjectId,
     public accountData: accountDataModel,
     public emailConfirmation: emailConfirmationModel,
     public passwordRecovery: passwordRecoveryModel,
-  ) {}
+    ) {}
 }
 
 type accountDataModel = {
@@ -63,21 +63,21 @@ export class UserInputModel {
   @MinLength(3)
   @MaxLength(10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
-  login: string;
+      login: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
   @MaxLength(20)
   @Matches(/.*\S+.*/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
-  password: string;
+      password: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(5)
   @MaxLength(50)
   @IsEmail()
-  email: string;
+      email: string;
 }

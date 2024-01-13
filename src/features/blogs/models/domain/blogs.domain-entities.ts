@@ -4,42 +4,42 @@ import { BlogCreateModel, BlogUpdateModel } from '../blogs.models-mongo';
 
 @Schema()
 export class Blog {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
+      required: true,
   })
-  name: string;
+      name: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  description: string;
+      description: string;
   //
   @Prop({
-    required: true,
+      required: true,
   })
-  websiteUrl: string;
+      websiteUrl: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  createdAt: string;
+      createdAt: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  isMembership: boolean;
+      isMembership: boolean;
 
   static createBlog(
-    dto: BlogCreateModel,
-    blogModel: BlogModelType,
+      dto: BlogCreateModel,
+      blogModel: BlogModelType,
   ): BlogDocument {
-    const blogInstance = new blogModel();
-    blogInstance._id = new mongoose.Types.ObjectId();
-    blogInstance.name = dto.name;
-    blogInstance.description = dto.description;
-    blogInstance.websiteUrl = dto.websiteUrl;
-    blogInstance.createdAt = new Date().toISOString();
-    blogInstance.isMembership = false;
+      const blogInstance = new blogModel();
+      blogInstance._id = new mongoose.Types.ObjectId();
+      blogInstance.name = dto.name;
+      blogInstance.description = dto.description;
+      blogInstance.websiteUrl = dto.websiteUrl;
+      blogInstance.createdAt = new Date().toISOString();
+      blogInstance.isMembership = false;
 
-    return blogInstance;
+      return blogInstance;
   }
 }
 export type BlogModelType = Model<Blog> & BlogModelStaticType;
@@ -50,11 +50,11 @@ export type blogDBMethodsType = {
 };
 
 BlogSchema.methods = {
-  updateBlog: function updateBlog(updateDTO: BlogUpdateModel): void {
-    this.name = updateDTO.name;
-    this.description = updateDTO.description;
-    this.websiteUrl = updateDTO.websiteUrl;
-  },
+    updateBlog: function updateBlog(updateDTO: BlogUpdateModel): void {
+        this.name = updateDTO.name;
+        this.description = updateDTO.description;
+        this.websiteUrl = updateDTO.websiteUrl;
+    },
 };
 
 export type BlogModelStaticType = {
@@ -62,7 +62,7 @@ export type BlogModelStaticType = {
 };
 
 const blogStaticMethods: BlogModelStaticType = {
-  createBlog: Blog.createBlog,
+    createBlog: Blog.createBlog,
 };
 
 BlogSchema.statics = blogStaticMethods;

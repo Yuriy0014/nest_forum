@@ -3,21 +3,21 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionsRepoSQL } from '../sessions.repo-sql';
 
 export class RegisterSessionCommand {
-  constructor(public sessionDTO: reqSessionDTOType) {}
+    constructor(public sessionDTO: reqSessionDTOType) {}
 }
 
 @CommandHandler(RegisterSessionCommand)
 export class RegisterSessionUseCase
-  implements ICommandHandler<RegisterSessionCommand>
+implements ICommandHandler<RegisterSessionCommand>
 {
-  constructor(private readonly sessionRepo: SessionsRepoSQL) {}
+    constructor(private readonly sessionRepo: SessionsRepoSQL) {}
 
-  async execute(command: RegisterSessionCommand): Promise<boolean> {
-    try {
-      await this.sessionRepo.createSessionInfo(command.sessionDTO);
-      return true;
-    } catch (e) {
-      return false;
+    async execute(command: RegisterSessionCommand): Promise<boolean> {
+        try {
+            await this.sessionRepo.createSessionInfo(command.sessionDTO);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
-  }
 }

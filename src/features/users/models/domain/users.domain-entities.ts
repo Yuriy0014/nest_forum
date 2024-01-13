@@ -7,47 +7,47 @@ import add from 'date-fns/add';
 @Schema()
 class AccountData {
   @Prop({
-    required: true,
+      required: true,
   })
-  login: string;
+      login: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  email: string;
+      email: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  password: string;
+      password: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  createdAt: string;
+      createdAt: string;
 }
 
 @Schema()
 class EmailConfirmation {
   @Prop({
-    required: true,
+      required: true,
   })
-  confirmationCode: string;
+      confirmationCode: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  expirationDate: string;
+      expirationDate: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  isConfirmed: boolean;
+      isConfirmed: boolean;
 }
 
 @Schema()
 class PasswordRecovery {
   @Prop()
-  passwordRecoveryCode: string;
+      passwordRecoveryCode: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  active: boolean;
+      active: boolean;
 }
 
 export const AccountDataSchema = SchemaFactory.createForClass(AccountData);
@@ -58,71 +58,71 @@ export const PasswordRecoverySchema =
 
 @Schema()
 export class User {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
-    type: AccountDataSchema,
+      required: true,
+      type: AccountDataSchema,
   })
-  accountData: AccountData;
+      accountData: AccountData;
   @Prop({
-    required: true,
-    type: EmailConfirmationSchema,
+      required: true,
+      type: EmailConfirmationSchema,
   })
-  emailConfirmation: EmailConfirmation;
+      emailConfirmation: EmailConfirmation;
   //
   @Prop({
-    required: true,
-    type: PasswordRecoverySchema,
+      required: true,
+      type: PasswordRecoverySchema,
   })
-  passwordRecovery: PasswordRecovery;
+      passwordRecovery: PasswordRecovery;
 
   canBeConfirmed(code: string): boolean {
-    return (
-      !this.emailConfirmation.isConfirmed &&
+      return (
+          !this.emailConfirmation.isConfirmed &&
       this.emailConfirmation.confirmationCode === code &&
       new Date(this.emailConfirmation.expirationDate) >= new Date()
-    );
+      );
   }
 
   updatePass(passHash: string): void {
-    this.accountData.password = passHash;
-    this.passwordRecovery.active = false;
+      this.accountData.password = passHash;
+      this.passwordRecovery.active = false;
   }
 
   static createUser(
-    dto: UserCreateModel,
-    userModel: UserModelType,
+      dto: UserCreateModel,
+      userModel: UserModelType,
   ): UserDocument {
-    const userInstance = new userModel();
-    userInstance._id = new mongoose.Types.ObjectId();
-    userInstance.accountData = {
-      login: dto.login,
-      email: dto.email,
-      password: dto.passwordHash,
-      createdAt: new Date().toISOString(),
-    };
-    userInstance.emailConfirmation = {
-      confirmationCode: uuidv4(),
-      expirationDate: add(new Date(), {
-        hours: 1,
-        minutes: 3,
-      }).toISOString(),
-      isConfirmed: false,
-    };
-    userInstance.passwordRecovery = {
-      passwordRecoveryCode: '',
-      active: dto.isAuthorSuper,
-    };
+      const userInstance = new userModel();
+      userInstance._id = new mongoose.Types.ObjectId();
+      userInstance.accountData = {
+          login: dto.login,
+          email: dto.email,
+          password: dto.passwordHash,
+          createdAt: new Date().toISOString(),
+      };
+      userInstance.emailConfirmation = {
+          confirmationCode: uuidv4(),
+          expirationDate: add(new Date(), {
+              hours: 1,
+              minutes: 3,
+          }).toISOString(),
+          isConfirmed: false,
+      };
+      userInstance.passwordRecovery = {
+          passwordRecoveryCode: '',
+          active: dto.isAuthorSuper,
+      };
 
-    return userInstance;
+      return userInstance;
   }
 }
 export type UserModelType = Model<User> & UserModelStaticType;
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.methods = {
-  canBeConfirmed: User.prototype.canBeConfirmed,
-  updatePass: User.prototype.updatePass,
+    canBeConfirmed: User.prototype.canBeConfirmed,
+    updatePass: User.prototype.updatePass,
 };
 
 export type UserModelStaticType = {
@@ -130,7 +130,7 @@ export type UserModelStaticType = {
 };
 
 const UserStaticMethods: UserModelStaticType = {
-  createUser: User.createUser,
+    createUser: User.createUser,
 };
 
 UserSchema.statics = UserStaticMethods;

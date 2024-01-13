@@ -2,19 +2,19 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionsRepoSQL } from '../sessions.repo-sql';
 
 export class DeleteSessionCommand {
-  constructor(public currentRFTokenIAT: number, public userId: string) {}
+    constructor(public currentRFTokenIAT: number, public userId: string) {}
 }
 
 @CommandHandler(DeleteSessionCommand)
 export class DeleteSessionUseCase
-  implements ICommandHandler<DeleteSessionCommand>
+implements ICommandHandler<DeleteSessionCommand>
 {
-  constructor(private readonly sessionRepo: SessionsRepoSQL) {}
+    constructor(private readonly sessionRepo: SessionsRepoSQL) {}
 
-  async execute(command: DeleteSessionCommand): Promise<boolean> {
-    return this.sessionRepo.deleteSessionInfo(
-      command.currentRFTokenIAT,
-      command.userId,
-    );
-  }
+    async execute(command: DeleteSessionCommand): Promise<boolean> {
+        return this.sessionRepo.deleteSessionInfo(
+            command.currentRFTokenIAT,
+            command.userId,
+        );
+    }
 }

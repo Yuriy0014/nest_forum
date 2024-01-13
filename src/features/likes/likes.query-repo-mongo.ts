@@ -1,76 +1,76 @@
 import {
-  likesInfoViewModel,
-  likeStatus,
-  ownerTypeModel,
-  usersLikesConnectionDBModel,
+    likesInfoViewModel,
+    likeStatus,
+    ownerTypeModel,
+    usersLikesConnectionDBModel,
 } from './models/likes.models-mongo';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  Like,
-  LikeModelType,
-  UsersLikesConnection,
-  UsersLikesConnectionType,
+    Like,
+    LikeModelType,
+    UsersLikesConnection,
+    UsersLikesConnectionType,
 } from './models/domain/likes.domain-entities';
 import { MapLikeViewModelMongo } from './helpers/map-likesViewModel-mongo';
 
 @Injectable()
 export class LikesQueryRepoMongo {
-  constructor(
+    constructor(
     @InjectModel(Like.name)
     private readonly likeModel: LikeModelType,
     @InjectModel(UsersLikesConnection.name)
     private readonly usersLikesConnectionModel: UsersLikesConnectionType,
     private readonly mapCommentViewModel: MapLikeViewModelMongo,
-  ) {}
+    ) {}
 
-  async findLikesByOwnerId(
-    ownerType: ownerTypeModel,
-    ownerId: string,
-    userId: string | undefined = undefined,
-  ): Promise<likesInfoViewModel | null> {
-    const foundLikes: Like | null = await this.likeModel
-      .findOne({
-        ownerType: ownerType,
-        ownerId: ownerId,
-      })
-      .lean();
+    async findLikesByOwnerId(
+        ownerType: ownerTypeModel,
+        ownerId: string,
+        userId: string | undefined = undefined,
+    ): Promise<likesInfoViewModel | null> {
+        const foundLikes: Like | null = await this.likeModel
+            .findOne({
+                ownerType: ownerType,
+                ownerId: ownerId,
+            })
+            .lean();
 
-    if (!foundLikes) return null;
+        if (!foundLikes) return null;
 
-    // Пустой ID это тот случай, когда user не авторизован
-    let foundStatus:
+        // Пустой ID это тот случай, когда user не авторизован
+        let foundStatus:
       | usersLikesConnectionDBModel
       | null
       | { status: likeStatus.None };
-    if (userId === undefined) {
-      foundStatus = {
-        status: likeStatus.None,
-      };
+        if (userId === undefined) {
+            foundStatus = {
+                status: likeStatus.None,
+            };
 
-      return this.mapCommentViewModel.getLikesInfoViewModel(
-        foundLikes,
-        foundStatus,
-      );
+            return this.mapCommentViewModel.getLikesInfoViewModel(
+                foundLikes,
+                foundStatus,
+            );
+        }
+
+        foundStatus = await this.usersLikesConnectionModel
+            .findOne({
+                userId: userId,
+                likedObjectId: ownerId,
+                likedObjectType: ownerType,
+            })
+            .lean();
+
+        if (!foundStatus) {
+            foundStatus = {
+                status: likeStatus.None,
+            };
+        }
+
+        return this.mapCommentViewModel.getLikesInfoViewModel(
+            foundLikes,
+            foundStatus,
+        );
     }
-
-    foundStatus = await this.usersLikesConnectionModel
-      .findOne({
-        userId: userId,
-        likedObjectId: ownerId,
-        likedObjectType: ownerType,
-      })
-      .lean();
-
-    if (!foundStatus) {
-      foundStatus = {
-        status: likeStatus.None,
-      };
-    }
-
-    return this.mapCommentViewModel.getLikesInfoViewModel(
-      foundLikes,
-      foundStatus,
-    );
-  }
 }

@@ -1,20 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
 import {
-  CommentCreateModel,
-  CommentUpdateModel,
+    CommentCreateModel,
+    CommentUpdateModel,
 } from '../comments.models-mongo';
 
 @Schema()
 class CommentatorInfo {
   @Prop({
-    required: true,
+      required: true,
   })
-  userId: string;
+      userId: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  userLogin: string;
+      userLogin: string;
 }
 
 export const CommentatorInfoSchema =
@@ -22,40 +22,40 @@ export const CommentatorInfoSchema =
 
 @Schema()
 export class Comment {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
+      required: true,
   })
-  postId: string;
+      postId: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  content: string;
+      content: string;
   @Prop({
-    required: true,
-    type: CommentatorInfoSchema,
+      required: true,
+      type: CommentatorInfoSchema,
   })
-  commentatorInfo: CommentatorInfo;
+      commentatorInfo: CommentatorInfo;
 
   @Prop({
-    required: true,
+      required: true,
   })
-  createdAt: string;
+      createdAt: string;
 
   static createComment(
-    dto: CommentCreateModel,
-    commentModel: CommentModelType,
+      dto: CommentCreateModel,
+      commentModel: CommentModelType,
   ): CommentDocument {
-    const commentInstance = new commentModel();
-    commentInstance._id = new mongoose.Types.ObjectId();
-    commentInstance.postId = dto.postId;
-    commentInstance.content = dto.content;
-    commentInstance.commentatorInfo = {
-      userId: dto.userId,
-      userLogin: dto.userLogin,
-    };
-    commentInstance.createdAt = new Date().toISOString();
-    return commentInstance;
+      const commentInstance = new commentModel();
+      commentInstance._id = new mongoose.Types.ObjectId();
+      commentInstance.postId = dto.postId;
+      commentInstance.content = dto.content;
+      commentInstance.commentatorInfo = {
+          userId: dto.userId,
+          userLogin: dto.userLogin,
+      };
+      commentInstance.createdAt = new Date().toISOString();
+      return commentInstance;
   }
 }
 export type CommentModelType = Model<Comment & commentDBMethodsType> &
@@ -67,9 +67,9 @@ export type commentDBMethodsType = {
 };
 
 CommentSchema.methods = {
-  updateComment: function updateComment(updateDTO: CommentUpdateModel): void {
-    this.content = updateDTO.content;
-  },
+    updateComment: function updateComment(updateDTO: CommentUpdateModel): void {
+        this.content = updateDTO.content;
+    },
 };
 
 export type CommentModelStaticType = {
@@ -80,7 +80,7 @@ export type CommentModelStaticType = {
 };
 
 const commentStaticMethods: CommentModelStaticType = {
-  createComment: Comment.createComment,
+    createComment: Comment.createComment,
 };
 
 CommentSchema.statics = commentStaticMethods;

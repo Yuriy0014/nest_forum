@@ -1,71 +1,71 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
 import {
-  DeviceNameModel,
-  reqSessionDTOType,
-  SessionIpModel,
+    DeviceNameModel,
+    reqSessionDTOType,
+    SessionIpModel,
 } from '../auth.models-mongo';
 import add from 'date-fns/add';
 
 @Schema()
 export class Session {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
-    type: [String, [String]],
+      required: true,
+      type: [String, [String]],
   })
-  ip: SessionIpModel;
+      ip: SessionIpModel;
   @Prop({
-    required: true,
+      required: true,
   })
-  title: string;
+      title: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  lastActiveDate: string;
+      lastActiveDate: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  deviceId: string;
+      deviceId: string;
   @Prop({
-    required: true,
-    type: [String, [String]],
+      required: true,
+      type: [String, [String]],
   })
-  deviceName: DeviceNameModel;
+      deviceName: DeviceNameModel;
   @Prop({
-    required: true,
+      required: true,
   })
-  userId: string;
+      userId: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  RFTokenIAT: Date;
+      RFTokenIAT: Date;
   @Prop({
-    required: true,
+      required: true,
   })
-  RFTokenObsoleteDate: Date;
+      RFTokenObsoleteDate: Date;
 
   static createSession(
-    sessionDTO: reqSessionDTOType,
-    SessionModel: SessionModelType,
+      sessionDTO: reqSessionDTOType,
+      SessionModel: SessionModelType,
   ): SessionDocument {
-    const SessionInstance = new SessionModel();
-    SessionInstance._id = new mongoose.Types.ObjectId();
-    SessionInstance.ip = sessionDTO.loginIp;
-    SessionInstance.title = 'Title for Session. Need to change in future';
-    SessionInstance.lastActiveDate = new Date().toISOString();
-    SessionInstance.deviceId = sessionDTO.deviceId;
-    SessionInstance.deviceName = sessionDTO.deviceName;
-    SessionInstance.userId = sessionDTO.userId;
-    SessionInstance.RFTokenIAT = new Date(sessionDTO.refreshTokenIssuedAt);
-    SessionInstance.RFTokenObsoleteDate = add(
-      new Date(sessionDTO.refreshTokenIssuedAt),
-      {
-        seconds: 20,
-      },
-    );
+      const SessionInstance = new SessionModel();
+      SessionInstance._id = new mongoose.Types.ObjectId();
+      SessionInstance.ip = sessionDTO.loginIp;
+      SessionInstance.title = 'Title for Session. Need to change in future';
+      SessionInstance.lastActiveDate = new Date().toISOString();
+      SessionInstance.deviceId = sessionDTO.deviceId;
+      SessionInstance.deviceName = sessionDTO.deviceName;
+      SessionInstance.userId = sessionDTO.userId;
+      SessionInstance.RFTokenIAT = new Date(sessionDTO.refreshTokenIssuedAt);
+      SessionInstance.RFTokenObsoleteDate = add(
+          new Date(sessionDTO.refreshTokenIssuedAt),
+          {
+              seconds: 20,
+          },
+      );
 
-    return SessionInstance;
+      return SessionInstance;
   }
 }
 
@@ -80,7 +80,7 @@ export type SessionModelStaticType = {
 };
 
 const SessionStaticMethods: SessionModelStaticType = {
-  createSession: Session.createSession,
+    createSession: Session.createSession,
 };
 
 SessionSchema.statics = SessionStaticMethods;

@@ -9,40 +9,40 @@ export enum LikeObjectTypeEnum {
 
 @Schema()
 export class Like {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
-    type: String,
-    enum: LikeObjectTypeEnum,
+      required: true,
+      type: String,
+      enum: LikeObjectTypeEnum,
   })
-  ownerType: LikeObjectTypeEnum;
+      ownerType: LikeObjectTypeEnum;
   @Prop({
-    required: true,
+      required: true,
   })
-  ownerId: string;
+      ownerId: string;
   //
   @Prop({
-    required: true,
+      required: true,
   })
-  likesCount: number;
+      likesCount: number;
   @Prop({
-    required: true,
+      required: true,
   })
-  dislikesCount: number;
+      dislikesCount: number;
 
   static createLikesInfo(
-    ownerId: string,
-    ownerType: LikeObjectTypeEnum,
-    likeModel: LikeModelType,
+      ownerId: string,
+      ownerType: LikeObjectTypeEnum,
+      likeModel: LikeModelType,
   ): LikeDocument {
-    const likesInfoInstance = new likeModel();
-    likesInfoInstance._id = new mongoose.Types.ObjectId();
-    likesInfoInstance.ownerType = ownerType;
-    likesInfoInstance.ownerId = ownerId;
-    likesInfoInstance.likesCount = 0;
-    likesInfoInstance.dislikesCount = 0;
+      const likesInfoInstance = new likeModel();
+      likesInfoInstance._id = new mongoose.Types.ObjectId();
+      likesInfoInstance.ownerType = ownerType;
+      likesInfoInstance.ownerId = ownerId;
+      likesInfoInstance.likesCount = 0;
+      likesInfoInstance.dislikesCount = 0;
 
-    return likesInfoInstance;
+      return likesInfoInstance;
   }
 }
 
@@ -57,7 +57,7 @@ export type likeModelStaticType = {
 };
 
 const likeStaticMethods: likeModelStaticType = {
-  createLikesInfo: Like.createLikesInfo,
+    createLikesInfo: Like.createLikesInfo,
 };
 LikeSchema.statics = likeStaticMethods;
 
@@ -71,36 +71,36 @@ export type LikeDocument = HydratedDocument<Like>;
 
 @Schema()
 export class UsersLikesConnection {
-  _id: mongoose.Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
   @Prop({
-    required: true,
+      required: true,
   })
-  userId: string;
+      userId: string;
   //
   @Prop({
-    required: true,
+      required: true,
   })
-  likedObjectId: string;
+      likedObjectId: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  userLogin: string;
+      userLogin: string;
   @Prop({
-    required: true,
+      required: true,
   })
-  addedAt: Date;
+      addedAt: Date;
   @Prop({
-    required: true,
-    type: String,
-    enum: LikeObjectTypeEnum,
+      required: true,
+      type: String,
+      enum: LikeObjectTypeEnum,
   })
-  likedObjectType: LikeObjectTypeEnum;
+      likedObjectType: LikeObjectTypeEnum;
   @Prop({
-    required: true,
-    type: String,
-    enum: likeStatus,
+      required: true,
+      type: String,
+      enum: likeStatus,
   })
-  status: likeStatus;
+      status: likeStatus;
 }
 export type UsersLikesConnectionType = Model<UsersLikesConnection>;
 export const UsersLikesConnectionSchema =

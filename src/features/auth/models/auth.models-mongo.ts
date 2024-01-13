@@ -1,25 +1,25 @@
 import mongoose from 'mongoose';
 import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
+    IsEmail,
+    IsNotEmpty,
+    IsString,
+    Matches,
+    MaxLength,
+    MinLength,
 } from 'class-validator';
 
 export class LoginInputDTO {
   @IsString()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
-  loginOrEmail: string;
+      loginOrEmail: string;
 
   @IsString()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
-  password: string;
+      password: string;
 }
 
 export class EmailResendInputModel {
@@ -28,7 +28,7 @@ export class EmailResendInputModel {
   @MinLength(5)
   @MaxLength(50)
   @IsEmail()
-  email: string;
+      email: string;
 }
 
 export class EmailForPasswordRecoveryInputModel {
@@ -37,32 +37,32 @@ export class EmailForPasswordRecoveryInputModel {
   @MinLength(5)
   @MaxLength(50)
   @IsEmail()
-  email: string;
+      email: string;
 }
 
 export class ConfirmationCodeInputModel {
   @IsNotEmpty()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
   @IsString()
-  code: string;
+      code: string;
 }
 
 export class NewPasswordInputModel {
   @IsString()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
   @MinLength(6)
   @MaxLength(20)
-  newPassword: string;
+      newPassword: string;
 
   @IsString()
   @Matches(/^\S+$/, {
-    message: 'Title should not consist of whitespace characters',
+      message: 'Title should not consist of whitespace characters',
   })
-  recoveryCode: string;
+      recoveryCode: string;
 }
 
 /////////////////
@@ -70,7 +70,7 @@ export class NewPasswordInputModel {
 ////////////////
 
 export class SessionDBModel {
-  constructor(
+    constructor(
     public _id: mongoose.Types.ObjectId,
     public ip: SessionIpModel,
     public title: string,
@@ -80,7 +80,7 @@ export class SessionDBModel {
     public userId: string,
     public RFTokenIAT: Date,
     public RFTokenObsoleteDate: Date,
-  ) {}
+    ) {}
 }
 
 export type reqSessionDTOType = {

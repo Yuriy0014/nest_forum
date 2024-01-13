@@ -16,22 +16,22 @@ export class likeInputModel {
   @IsString()
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'likeStatus should not consist of whitespace characters',
+      message: 'likeStatus should not consist of whitespace characters',
   })
   @IsEnum(likeStatus)
-  likeStatus: likeStatusModel;
+      likeStatus: likeStatusModel;
 }
 
 export type ownerTypeModel = 'Comment' | 'Post';
 
 export class likesDBModel {
-  constructor(
+    constructor(
     public _id: mongoose.Types.ObjectId,
     public ownerType: ownerTypeModel,
     public ownerId: string,
     public likesCount: number,
     public dislikesCount: number,
-  ) {}
+    ) {}
 }
 
 export type likesInfoViewModel = {
@@ -62,7 +62,7 @@ export type likeDetailsViewModel = {
 //////////////////////////////////
 
 export class usersLikesConnectionDBModel {
-  constructor(
+    constructor(
     public _id: mongoose.Types.ObjectId,
     public userId: string,
     public userLogin: string,
@@ -70,5 +70,5 @@ export class usersLikesConnectionDBModel {
     public likedObjectId: string,
     public likedObjectType: string,
     public status: likeStatusModel,
-  ) {}
+    ) {}
 }

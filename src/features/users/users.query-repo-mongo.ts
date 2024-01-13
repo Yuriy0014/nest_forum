@@ -8,76 +8,76 @@ import { MapUserViewModelMongo } from './helpers/map-UserViewModel-mongo';
 
 @Injectable()
 export class UsersQueryRepoMongo {
-  constructor(
+    constructor(
     @InjectModel(User.name)
     private readonly userModel: UserModelType,
     private readonly mapUserViewModel: MapUserViewModelMongo,
-  ) {}
+    ) {}
 
-  async FindAllUsers(queryFilter: UserFilterModel) {
-    const findFilter: FilterQuery<UserDBModel> = {
-      $or: [
-        {
-          'accountData.login': {
-            $regex: queryFilter.searchLoginTerm ?? '',
-            $options: 'i',
-          },
-        },
-        {
-          'accountData.email': {
-            $regex: queryFilter.searchEmailTerm ?? '',
-            $options: 'i',
-          },
-        },
-      ],
-    };
-    const sortFilter: any = {
-      ['accountData.' + queryFilter.sortBy]: queryFilter.sortDirection,
-    };
+    async FindAllUsers(queryFilter: UserFilterModel) {
+        const findFilter: FilterQuery<UserDBModel> = {
+            $or: [
+                {
+                    'accountData.login': {
+                        $regex: queryFilter.searchLoginTerm ?? '',
+                        $options: 'i',
+                    },
+                },
+                {
+                    'accountData.email': {
+                        $regex: queryFilter.searchEmailTerm ?? '',
+                        $options: 'i',
+                    },
+                },
+            ],
+        };
+        const sortFilter: any = {
+            ['accountData.' + queryFilter.sortBy]: queryFilter.sortDirection,
+        };
 
-    const foundUsersMongoose = await this.userModel
-      .find(findFilter)
-      .lean()
-      .sort(sortFilter)
-      .skip((queryFilter.pageNumber - 1) * queryFilter.pageSize)
-      .limit(queryFilter.pageSize);
+        const foundUsersMongoose = await this.userModel
+            .find(findFilter)
+            .lean()
+            .sort(sortFilter)
+            .skip((queryFilter.pageNumber - 1) * queryFilter.pageSize)
+            .limit(queryFilter.pageSize);
 
-    const foundUsers = foundUsersMongoose.map((user) =>
-      this.mapUserViewModel.getUserViewModel(user),
-    );
+        const foundUsers = foundUsersMongoose.map((user) =>
+            this.mapUserViewModel.getUserViewModel(user),
+        );
 
-    const totalCount = await this.userModel.countDocuments(findFilter);
+        const totalCount = await this.userModel.countDocuments(findFilter);
 
-    return {
-      pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
-      page: queryFilter.pageNumber,
-      pageSize: queryFilter.pageSize,
-      totalCount: totalCount,
-      items: foundUsers,
-    };
-  }
-
-  async findUserById(id: string) {
-    const user = await this.userModel.findById(id);
-    if (user) {
-      return this.mapUserViewModel.getUserViewModel(user);
-    } else {
-      return null;
+        return {
+            pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
+            page: queryFilter.pageNumber,
+            pageSize: queryFilter.pageSize,
+            totalCount: totalCount,
+            items: foundUsers,
+        };
     }
-  }
 
-  async findByLoginOrEmail(
-    loginOrEmail: string,
-  ): Promise<UserViewModel | null> {
-    const user = await this.userModel.findOne({
-      $or: [
-        { 'accountData.email': loginOrEmail },
-        { 'accountData.login': loginOrEmail },
-      ],
-    });
-    if (user) {
-      return this.mapUserViewModel.getUserViewModel(user);
+    async findUserById(id: string) {
+        const user = await this.userModel.findById(id);
+        if (user) {
+            return this.mapUserViewModel.getUserViewModel(user);
+        } else {
+            return null;
+        }
     }
-    return null;
-  }
+
+    async findByLoginOrEmail(
+        loginOrEmail: string,
+    ): Promise<UserViewModel | null> {
+        const user = await this.userModel.findOne({
+            $or: [
+                { 'accountData.email': loginOrEmail },
+                { 'accountData.login': loginOrEmail },
+            ],
+        });
+        if (user) {
+            return this.mapUserViewModel.getUserViewModel(user);
+        }
+        return null;
+    }
 }

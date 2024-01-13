@@ -2,14 +2,14 @@ import mongoose from 'mongoose';
 import { IsNotEmpty, IsString, IsUrl, Length, Matches } from 'class-validator';
 
 export class BlogDbModel {
-  constructor(
+    constructor(
     public _id: mongoose.Types.ObjectId,
     public name: string,
     public description: string,
     public websiteUrl: string,
     public createdAt: string,
     public isMembership: boolean,
-  ) {}
+    ) {}
 }
 
 export class BlogCreateModel {
@@ -17,23 +17,23 @@ export class BlogCreateModel {
   @Length(2, 15)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+      message: 'name should not consist of whitespace characters',
   })
-  name: string;
+      name: string;
 
   @IsString()
   @Length(2, 500)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'description should not consist of whitespace characters',
+      message: 'description should not consist of whitespace characters',
   })
-  description: string;
+      description: string;
 
   @IsNotEmpty()
   @IsString()
   @IsUrl()
   @Length(5, 100)
-  websiteUrl: string;
+      websiteUrl: string;
 }
 
 export class BlogUpdateModel {
@@ -41,23 +41,23 @@ export class BlogUpdateModel {
   @Length(2, 15)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+      message: 'name should not consist of whitespace characters',
   })
-  name: string;
+      name: string;
 
   @IsString()
   @Length(2, 500)
   @IsNotEmpty()
   @Matches(/.*\S+.*/, {
-    message: 'name should not consist of whitespace characters',
+      message: 'name should not consist of whitespace characters',
   })
-  description: string;
+      description: string;
 
   @IsNotEmpty()
   @IsString()
   @IsUrl()
   @Length(5, 100)
-  websiteUrl: string;
+      websiteUrl: string;
 }
 
 export type BlogViewModel = {

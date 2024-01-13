@@ -2,7 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { MapBlogViewModelSQL } from '../helpers/map-BlogViewModelSQL';
 import { BlogsRepoSQL } from '../blogs.repo-sql';
 import { BlogViewModel, BlogCreateModel } from '../models/blogs.models-sql';
-import { Result, ResultCode } from '../../helpers/result_types';
+import { Result } from '../../helpers/result_types';
+import {HttpStatus} from "@nestjs/common";
 
 export class CreateBlogCommand {
     constructor(public BlogCreateModelDTO: BlogCreateModel) {}
@@ -19,7 +20,7 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
         const blogId = await this.blogsRepo.createBlog(command.BlogCreateModelDTO);
         if (!blogId) {
             return {
-                resultCode: ResultCode.internalServerError,
+                resultCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 data: null,
                 errorMessage: 'Возникла ошибка при создании блога',
             };
@@ -27,13 +28,13 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
         const createdBlog = await this.blogsRepo.findBlogById(blogId);
         if (!createdBlog) {
             return {
-                resultCode: ResultCode.internalServerError,
+                resultCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 data: null,
                 errorMessage: 'Возникла ошибка при получении созданного блога',
             };
         }
         return {
-            resultCode: ResultCode.success,
+            resultCode: HttpStatus.OK,
             data: this.mapBlogViewModel.getBlogViewModel(createdBlog),
         };
     }

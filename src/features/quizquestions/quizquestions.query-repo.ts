@@ -10,4 +10,19 @@ export class QuestionQuizQueryRepoSQL {
     constructor(@InjectDataSource() protected dataSource: DataSource) {
         this.questionRepository = dataSource.getRepository(QuestionEntity);
     }
+
+    async getRandomQuestion(usedQuestionsId: string[] = []){
+        const query = this.questionRepository
+            .createQueryBuilder("question")
+            .where("question.published = TRUE");
+
+        if (usedQuestionsId.length > 0) {
+            query.andWhere("question.id NOT IN (:...ids)", { ids: usedQuestionsId });
+        }
+
+        return await query
+            .orderBy('RANDOM()') // Функция для случайного выбора в PostgreSQL
+            .getOne();
+
+    }
 }

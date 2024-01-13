@@ -119,4 +119,25 @@ export class PairQuizQueryRepoSQL {
             throw new InternalServerErrorException(e);
         }
     }
+
+    async findPendingPair(): Promise<string | null> {
+        try {
+            const foundPair = await this.activePairRepository
+                .createQueryBuilder('ap')
+                .select([
+                    'ap.id'
+                ])
+                .where("ap.status = :pendingStatus", {pendingStatus: "PendingSecondPlayer"})
+                .getOne()
+
+            if (foundPair) {
+                return foundPair.id;
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.log(e);
+            throw new InternalServerErrorException(e);
+        }
+    }
 }

@@ -12,3 +12,13 @@ export class createPairDTO {
     secondPlayerScore: number
     status: gameStatus
 }
+
+export class addSecondPlayerDTO {
+    pairId: string
+    secondPlayerId: string
+    secondPlayerLogin: string
+    status: gameStatus
+    startGameDate: Date
+    firstQuestionId: string
+
+}

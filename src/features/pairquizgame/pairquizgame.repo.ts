@@ -2,7 +2,7 @@ import {Injectable, InternalServerErrorException} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {ActivePairEntity, FinishedPairEntity} from "./entities/quiz-pair.entities";
-import {createPairDTO} from "./dto/quiz.dto";
+import {addSecondPlayerDTO, createPairDTO} from "./dto/quiz.dto";
 
 @Injectable()
 export class PairQuizRepoSQL {
@@ -14,7 +14,7 @@ export class PairQuizRepoSQL {
         this.finishedPairRepository = dataSource.getRepository(FinishedPairEntity);
     }
 
-    async createPair(createDTO: createPairDTO):Promise<void> {
+    async createPair(createDTO: createPairDTO): Promise<void> {
         try {
             await this.activePairRepository
                 .createQueryBuilder()
@@ -32,6 +32,30 @@ export class PairQuizRepoSQL {
                 ])
                 .execute()
         } catch (e) {
+            console.log(e);
+            throw new InternalServerErrorException(e);
+        }
+    }
+
+    async addSecondPlayer(addSecondPlayerDTO: addSecondPlayerDTO) {
+        try {
+            const result =  await this.activePairRepository
+                .createQueryBuilder()
+                .update(ActivePairEntity)
+                .set({
+                    secondPlayerId: addSecondPlayerDTO.secondPlayerId,
+                    secondPlayerLogin: addSecondPlayerDTO.secondPlayerLogin,
+                    question_1_id: addSecondPlayerDTO.firstQuestionId,
+                    status: addSecondPlayerDTO.status,
+                    startGameDate: addSecondPlayerDTO.startGameDate
+
+                })
+                .where("id = :id", {id: addSecondPlayerDTO.pairId})
+                .returning("*")
+                .execute();
+
+            return result.raw[0]
+        } catch(e) {
             console.log(e);
             throw new InternalServerErrorException(e);
         }

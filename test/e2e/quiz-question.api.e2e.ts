@@ -1,9 +1,13 @@
 import request from 'supertest';
 import {HttpStatus, INestApplication} from '@nestjs/common';
 import {RouterPaths} from '../../src/helpers/RouterPaths';
-import {authBasicHeader} from '../utils/export_data_functions';
+import {authBasicHeader, generateString} from '../utils/export_data_functions';
 import {createTestAPP} from '../utils/createTestAPP';
-import {QuestionCreateDTO, QuestionUpdateDTO} from "../../src/features/quizquestions/dto/question.dto";
+import {
+    QuestionCreateDTO,
+    QuestionPublishStatusDTO,
+    QuestionUpdateDTO
+} from "../../src/features/quizquestions/dto/question.dto";
 import {questionsTestManager} from "../utils/questionsTestManager";
 import {QuestionEntity} from "../../src/features/quizquestions/entities/quiz-question.entities";
 
@@ -149,16 +153,16 @@ describe('/Testing quiz questions', () => {
             });
     });
 
-    it('should not update question with AUTH and incorrect input data', async () => {
-        const data: QuestionUpdateDTO = {
-            body: 'Есть ли жизнь на Марсе ?',
-            correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
+    it('should not update question publish status with AUTH and incorrect input data', async () => {
+
+        const data1 = {
+            published: 'true'
         };
 
         await request(server)
             .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
             .set(authBasicHeader)
-            .send(data)
+            .send(data1)
             .expect(HttpStatus.BAD_REQUEST);
 
         await request(server)
@@ -171,6 +175,175 @@ describe('/Testing quiz questions', () => {
                 createdAt: createdQuestion1.createdAt,
                 updatedAt: createdQuestion1.updatedAt,
             });
+
+        const data2 = {
+            published: 1
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data2)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+    });
+
+    it('should not update question publish status without AUTH and correct input data', async () => {
+        const data: QuestionPublishStatusDTO = {
+            published: true
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}/publish`)
+            .send(data)
+            .expect(HttpStatus.UNAUTHORIZED);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, createdQuestion1);
+    });
+
+    it('should update question publish status with AUTH and correct input data', async () => {
+        const data: QuestionPublishStatusDTO = {
+            published: true
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}/publish`)
+            .set(authBasicHeader)
+            .send(data)
+            .expect(HttpStatus.NO_CONTENT);
+
+        createdQuestion1.published = data.published
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, createdQuestion1);
+    });
+
+    it('should not update question with AUTH and incorrect input data', async () => {
+
+        const data1= {
+            body: 'Есть ли жизнь на Марсе ?',
+            correctAnswers: 'ДА',
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data1)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+
+        const data2= {
+            body: 228,
+            correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data2)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+
+        const data3= {
+            body: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
+            correctAnswers: 'Есть ли жизнь на Марсе ?',
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data3)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+
+        const data4= {
+            body: 'less10?',
+            correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data4)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+
+        const data5= {
+            body: generateString(501),
+            correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
+        };
+
+        await request(server)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
+            .send(data5)
+            .expect(HttpStatus.BAD_REQUEST);
+
+        await request(server)
+            .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .expect(HttpStatus.OK, {
+                id: createdQuestion1.id,
+                body: createdQuestion1.body,
+                correctAnswers: createdQuestion1.correctAnswers,
+                published: createdQuestion1.published,
+                createdAt: createdQuestion1.createdAt,
+                updatedAt: createdQuestion1.updatedAt,
+            });
+
+
     });
 
     it('should update question with AUTH and correct input data', async () => {

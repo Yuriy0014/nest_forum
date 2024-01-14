@@ -16,7 +16,7 @@ export enum gameStatus {
 
 export enum answerStatus {
     Correct = "Correct",
-    Incorrect ="Incorrect"
+    Incorrect = "Incorrect"
 }
 
 export abstract class PairBase {

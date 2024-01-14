@@ -1,7 +1,9 @@
 import {
+    Body,
     Controller,
     ForbiddenException,
-    Get, HttpException,
+    Get,
+    HttpException,
     NotFoundException,
     Param,
     Post,
@@ -14,6 +16,8 @@ import {Result} from "../helpers/result_types";
 import {CommandBus} from "@nestjs/cqrs";
 import {ActivePairEntity} from "./entities/quiz-pair.entities";
 import {ConnectToQuizCommand} from "./use-cases/ConnectToQuizUseCase";
+import {SendAnswerQuizCommand} from "./use-cases/SendAnswerQuizUseCase";
+import {AnswerDTO} from "./dto/quiz.dto";
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -69,8 +73,19 @@ export class PairQuizGameController {
     }
 
     @Post('my-current/answers')
-    async sendAnswer() {
-        return true
+    async sendAnswer(@Request() req: any,
+                     @Body() inputAnswer: AnswerDTO) {
+        const answerSendResult: Result<ActivePairEntity> = await this.commandBus.execute(
+            new SendAnswerQuizCommand(req.userId,inputAnswer),
+        );
+
+        if (answerSendResult.data === null) {
+            throw new HttpException(
+                answerSendResult.errorMessage!,
+                answerSendResult.resultCode,
+            );
+        }
+        return answerSendResult.data;
     }
 
 

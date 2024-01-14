@@ -11,19 +11,6 @@ import {UsersRepoSQL} from '../../users/users.repo-sql';
 import {SessionsQueryRepoSQL} from '../sessions.query.repo-sql';
 import {UserEntity} from "../../users/entities/user.entities";
 
-// @Injectable()
-// export class AuthGuardBase implements CanActivate {
-//   canActivate(
-//     context: ExecutionContext,
-//   ): boolean | Promise<boolean> | Observable<boolean> {
-//     const request = context.switchToHttp().getRequest();
-//     if (request.headers['authorization'] !== 'Basic YWRtaW46cXdlcnR5') {
-//       throw new UnauthorizedException([{ message: 'UnauthorizedException' }]);
-//     } else {
-//       return true;
-//     }
-//   }
-// }
 
 @Injectable()
 export class ExistingEmailGuard implements CanActivate {

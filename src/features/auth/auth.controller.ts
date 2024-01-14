@@ -14,10 +14,7 @@ import {
     UnauthorizedException,
     UseGuards,
 } from '@nestjs/common';
-import {
-    UserInputModel,
-    UserViewModel,
-} from '../users/models/users.models.mongo';
+import {UserInputModel,} from '../users/models/users.models.mongo';
 import {
     ConfirmationCodeInputModel,
     EmailForPasswordRecoveryInputModel,
@@ -37,7 +34,6 @@ import {
 import {LocalAuthGuard} from './guards/local-auth.guard';
 import {CommandBus} from '@nestjs/cqrs';
 import {CreateUserCommand} from '../users/use-cases/CreateUserUseCase';
-import {CheckCredentialsCommand} from './use-cases/CheckCredentialsUseCase';
 import {ConfirmEmailCommand} from './use-cases/ConfirmEmailUseCase';
 import {RegisterSessionCommand} from './use-cases/RegisterSessionUseCase';
 import {ResendEmailCommand} from './use-cases/ResendEmailUseCase';
@@ -104,59 +100,53 @@ export class AuthController {
         @Body() loginDTO: LoginInputDTO,
         @Headers() loginHeaders: any,
         @Ip() IP: string,
-        @Res({passthrough: true}) response: Response,
+        @Res({passthrough: true},) response: Response,
+        @Request() req: any
     ): Promise<any> {
-        const user: UserViewModel | null = await this.commandBus.execute(
-            new CheckCredentialsCommand(loginDTO),
+        const user = req.user
+
+        const accessToken = await this.jwtService.createJWT(user);
+        const deviceId = (+new Date()).toString();
+        const refreshToken = await this.jwtService.createJWTRefresh(
+            user,
+            deviceId,
         );
 
-        if (user) {
-            const accessToken = await this.jwtService.createJWT(user);
-            const deviceId = (+new Date()).toString();
-            const refreshToken = await this.jwtService.createJWTRefresh(
-                user,
-                deviceId,
-            );
-
-            // Подготавливаем данные для записи в таблицу сессий
-            const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
-                refreshToken,
-            );
-            if (RFTokenInfo === null) {
-                throw new HttpException('RFToken not provided', HttpStatus.BAD_REQUEST);
-            }
-            const loginIp = IP || loginHeaders['x-forwarded-for'] || 'IP undefined';
-            const deviceName: string =
-                loginHeaders['user-agent'] || 'deviceName undefined';
-
-            // Фиксируем сессию
-            const sessionDTO: reqSessionDTOType = {
-                loginIp: loginIp,
-                refreshTokenIssuedAt: RFTokenInfo.iat,
-                deviceName: deviceName,
-                userId: user.id,
-                deviceId,
-            };
-            const sessionRegInfo = await this.commandBus.execute(
-                new RegisterSessionCommand(sessionDTO),
-            );
-            if (sessionRegInfo === false) {
-                throw new HttpException(
-                    'Не удалось залогиниться. Попроубуйте позднее',
-                    HttpStatus.UNAUTHORIZED,
-                );
-            }
-
-            response.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: true,
-            });
-            return {accessToken: accessToken};
+        // Подготавливаем данные для записи в таблицу сессий
+        const RFTokenInfo = await this.jwtService.getInfoFromRFToken(
+            refreshToken,
+        );
+        if (RFTokenInfo === null) {
+            throw new HttpException('RFToken not provided', HttpStatus.BAD_REQUEST);
         }
-        throw new HttpException(
-            'Не удалось залогиниться. Попроубуйте позднее',
-            HttpStatus.UNAUTHORIZED,
+        const loginIp = IP || loginHeaders['x-forwarded-for'] || 'IP undefined';
+        const deviceName: string =
+            loginHeaders['user-agent'] || 'deviceName undefined';
+
+        // Фиксируем сессию
+        const sessionDTO: reqSessionDTOType = {
+            loginIp: loginIp,
+            refreshTokenIssuedAt: RFTokenInfo.iat,
+            deviceName: deviceName,
+            userId: user.id,
+            deviceId,
+        };
+        const sessionRegInfo = await this.commandBus.execute(
+            new RegisterSessionCommand(sessionDTO),
         );
+        if (sessionRegInfo === false) {
+            throw new HttpException(
+                'Не удалось залогиниться. Попроубуйте позднее',
+                HttpStatus.UNAUTHORIZED,
+            );
+        }
+
+        response.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+        });
+        return {accessToken: accessToken};
+
     }
 
     @Post('logout')

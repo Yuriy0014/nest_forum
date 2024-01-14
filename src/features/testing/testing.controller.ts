@@ -1,10 +1,4 @@
-import {
-    Controller,
-    Delete,
-    HttpCode,
-    HttpException,
-    HttpStatus,
-} from '@nestjs/common';
+import {Controller, Delete, HttpCode,} from '@nestjs/common';
 import {InjectDataSource} from '@nestjs/typeorm';
 import {DataSource} from 'typeorm';
 

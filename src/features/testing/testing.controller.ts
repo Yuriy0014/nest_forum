@@ -30,5 +30,11 @@ export class TestingController {
                                      FROM public.blogs`);
         await this.dataSource.query(`DELETE
                                      FROM public.likes`);
+        await this.dataSource.query(`DELETE
+                                     FROM public.quiz_finished_pairs`);
+        await this.dataSource.query(`DELETE
+                                     FROM public.quiz_active_pairs`);
+        await this.dataSource.query(`DELETE
+                                     FROM public.quiz_questions`);
     }
 }

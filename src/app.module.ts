@@ -95,6 +95,15 @@ import {LikeInfoEntity, UsersLikesConnectionEntity} from "./features/likes/entit
 import {PostsController} from "./features/posts/posts.controller";
 import { PairQuizGameController } from './features/pairquizgame/pairquizgame.controller';
 import {QuizQuestionsController} from './features/quizquestions/quizquestions.controller';
+import {ActivePairEntity, FinishedPairEntity} from "./features/pairquizgame/entities/quiz-pair.entities";
+import {QuestionEntity} from "./features/quizquestions/entities/quiz-question.entities";
+import {SendAnswerQuizUseCase} from "./features/pairquizgame/use-cases/SendAnswerQuizUseCase";
+import {ConnectToQuizUseCase} from "./features/pairquizgame/use-cases/ConnectToQuizUseCase";
+import {PairQuizQueryRepoSQL} from "./features/pairquizgame/pairquizgame.query-repo";
+import {PairQuizRepoSQL} from "./features/pairquizgame/pairquizgame.repo";
+import {QuestionQuizQueryRepoSQL} from "./features/quizquestions/quizquestions.query-repo";
+import {QuestionQuizRepoSQL} from "./features/quizquestions/quizquestions.repo";
+import {MapPairViewModelSQL} from "./features/pairquizgame/helpers/map-PairViewModelSQL";
 
 const useCases = [
     ///Blogs
@@ -126,6 +135,9 @@ const useCases = [
     // Security
     DeleteAllSessionsUseCase,
     DeleteDeviceSessionsUseCase,
+    // Quiz
+    SendAnswerQuizUseCase,
+    ConnectToQuizUseCase
 ];
 
 @Module({
@@ -150,10 +162,9 @@ const useCases = [
             synchronize: true,
             ssl: true,
             logging: true,
-            // entities: ["src/**/*.entities{.ts,.js}"]
             entities: [join(__dirname, '**', '*.entities.{ts,js}')]
         }),
-        TypeOrmModule.forFeature([LikeInfoEntity, UsersLikesConnectionEntity]),
+        TypeOrmModule.forFeature([LikeInfoEntity, UsersLikesConnectionEntity,ActivePairEntity,FinishedPairEntity,QuestionEntity]),
         PassportModule,
         MongooseModule.forFeature([
             {name: Blog.name, schema: BlogSchema},
@@ -231,6 +242,12 @@ const useCases = [
         MapSessionViewModelSQL,
         ///
         ExistingBlogConstraint,
+        // Quiz
+        PairQuizQueryRepoSQL,
+        PairQuizRepoSQL,
+        QuestionQuizQueryRepoSQL,
+        QuestionQuizRepoSQL,
+        MapPairViewModelSQL,
         /// UseCases
         ...useCases,
     ],

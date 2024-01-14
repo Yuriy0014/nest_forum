@@ -16,7 +16,7 @@ export class SendAnswerQuizCommand {
 }
 
 @CommandHandler(SendAnswerQuizCommand)
-export class ConnectToQuizUseCase implements ICommandHandler<SendAnswerQuizCommand> {
+export class SendAnswerQuizUseCase implements ICommandHandler<SendAnswerQuizCommand> {
     constructor(
         private readonly questionQuizQueryRepoSQL: QuestionQuizQueryRepoSQL,
         private readonly pairQuizRepoSQL: PairQuizRepoSQL,

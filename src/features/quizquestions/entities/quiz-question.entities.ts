@@ -18,5 +18,5 @@ export class QuestionEntity {
         createdAt: Date
 
     @Column({nullable: true})
-        updatedAt: Date | null
+        updatedAt: Date
 }

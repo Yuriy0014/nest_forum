@@ -11,12 +11,12 @@ export class QuestionEntity {
     @Column("text", { array: true })
         correctAnswers: string[]
 
-    @Column()
+    @Column({default: false})
         published: boolean
 
     @Column()
         createdAt: Date
 
-    @Column()
-        updatedAt: Date
+    @Column({nullable: true})
+        updatedAt: Date | null
 }

@@ -5,6 +5,7 @@ export const RouterPaths = {
     comments: '/comments',
     users: '/sa/users',
     auth: '/auth',
+    quizquestions: '/sa/quiz/questions',
     securityDevices: '/security/devices',
     testing: '/testing',
 };

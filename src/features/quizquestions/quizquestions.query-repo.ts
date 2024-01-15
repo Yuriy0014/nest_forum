@@ -3,14 +3,14 @@ import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {QuestionEntity} from "./entities/quiz-question.entities";
 import {questionFilterModel} from "./helpers/filter";
-import {MapQuestionViewModel} from "./helpers/map-QuestionViewModel";
+import {MapQuestionViewModelSQL} from "./helpers/map-QuestionViewModel";
 
 @Injectable()
 export class QuestionQuizQueryRepoSQL {
     private questionRepository: Repository<QuestionEntity>;
 
     constructor(@InjectDataSource() protected dataSource: DataSource,
-                private readonly  mapQuestionViewModel: MapQuestionViewModel) {
+                private readonly  mapQuestionViewModel: MapQuestionViewModelSQL) {
         this.questionRepository = dataSource.getRepository(QuestionEntity);
     }
 

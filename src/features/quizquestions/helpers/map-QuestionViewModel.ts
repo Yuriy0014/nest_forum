@@ -1,10 +1,10 @@
 import {Injectable} from '@nestjs/common';
 import {QuestionEntity} from "../entities/quiz-question.entities";
-import {QuestionsVewModel} from "../models/question.model";
+import {QuestionsViewModel} from "../models/question.model";
 
 @Injectable()
-export class MapQuestionViewModel {
-    getQuestionViewModel = (blog: QuestionEntity): QuestionsVewModel => {
+export class MapQuestionViewModelSQL {
+    getQuestionViewModel = (blog: QuestionEntity): QuestionsViewModel => {
         return {
             id: blog.id,
             body: blog.body,

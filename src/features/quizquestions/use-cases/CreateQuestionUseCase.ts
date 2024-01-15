@@ -2,7 +2,7 @@ import {CommandHandler, ICommandHandler} from '@nestjs/cqrs';
 import {Result} from '../../helpers/result_types';
 import {HttpStatus} from "@nestjs/common";
 import {inputQuestionCreateDTO, QuestionCreateDTO} from "../dto/question.dto";
-import {MapQuestionViewModel} from "../helpers/map-QuestionViewModel";
+import {MapQuestionViewModelSQL} from "../helpers/map-QuestionViewModel";
 import {QuestionsViewModel} from "../models/question.model";
 import {QuestionQuizRepoSQL} from "../quizquestions.repo";
 
@@ -15,7 +15,7 @@ export class CreateQuestionCommand {
 export class CreateQuestionUseCase implements ICommandHandler<CreateQuestionCommand> {
     constructor(
         private readonly questionRepo: QuestionQuizRepoSQL,
-        private readonly mapQuestionViewModel: MapQuestionViewModel,
+        private readonly mapQuestionViewModel: MapQuestionViewModelSQL,
     ) {
     }
 

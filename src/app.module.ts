@@ -110,6 +110,7 @@ import {
     UpdateQuestionPublicationStatusUseCase
 } from "./features/quizquestions/use-cases/UpdateQuestionPublicationStatusUseCase";
 import {UpdateQuestionUseCase} from "./features/quizquestions/use-cases/UpdateQuestionUseCase";
+import {MapQuestionViewModelSQL} from "./features/quizquestions/helpers/map-QuestionViewModel";
 
 const useCases = [
     ///Blogs
@@ -258,6 +259,7 @@ const useCases = [
         QuestionQuizQueryRepoSQL,
         QuestionQuizRepoSQL,
         MapPairViewModelSQL,
+        MapQuestionViewModelSQL,
         /// UseCases
         ...useCases,
     ],

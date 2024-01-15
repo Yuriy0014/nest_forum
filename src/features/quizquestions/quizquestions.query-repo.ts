@@ -3,12 +3,14 @@ import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {QuestionEntity} from "./entities/quiz-question.entities";
 import {questionFilterModel} from "./helpers/filter";
+import {MapQuestionViewModel} from "./helpers/map-QuestionViewModel";
 
 @Injectable()
 export class QuestionQuizQueryRepoSQL {
     private questionRepository: Repository<QuestionEntity>;
 
-    constructor(@InjectDataSource() protected dataSource: DataSource) {
+    constructor(@InjectDataSource() protected dataSource: DataSource,
+                private readonly  mapQuestionViewModel: MapQuestionViewModel) {
         this.questionRepository = dataSource.getRepository(QuestionEntity);
     }
 
@@ -69,7 +71,7 @@ export class QuestionQuizQueryRepoSQL {
         const orderByField = `b.${queryFilter.sortBy}`;
         const orderByDirection = queryFilter.sortDirection;
 
-        const [foundQuestions, totalCount] = await this.dataSource.getRepository(QuestionEntity)
+        const [foundQuestionsDB, totalCount] = await this.dataSource.getRepository(QuestionEntity)
             .createQueryBuilder("q")
             .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"])
             .where("q.name ILIKE :name and q.published = :publStatus", {name: body_like, publStatus: queryFilter.publishedStatus })
@@ -77,6 +79,10 @@ export class QuestionQuizQueryRepoSQL {
             .limit(queryFilter.pageSize)
             .offset(queryFilter.pageSize * (queryFilter.pageNumber - 1))
             .getManyAndCount();
+
+        const foundQuestions = foundQuestionsDB.map((question) =>
+            this.mapQuestionViewModel.getQuestionViewModel(question),
+        );
 
 
         return {

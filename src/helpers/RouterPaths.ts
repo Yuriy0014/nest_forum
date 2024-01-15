@@ -6,6 +6,7 @@ export const RouterPaths = {
     users: '/sa/users',
     auth: '/auth',
     quizquestions: '/sa/quiz/questions',
+    quizPairs: '/pair-game-quiz/pairs',
     securityDevices: '/security/devices',
     testing: '/testing',
 };

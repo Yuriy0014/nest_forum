@@ -5,7 +5,7 @@ import {authBasicHeader, generateString} from '../utils/export_data_functions';
 import {createTestAPP} from '../utils/createTestAPP';
 import {
     inputQuestionCreateDTO,
-    QuestionPublishStatusDTO,
+    inputQuestionPublishStatusDTO,
     inputQuestionUpdateDTO
 } from "../../src/features/quizquestions/dto/question.dto";
 import {questionsTestManager} from "../utils/questionsTestManager";
@@ -27,13 +27,15 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should return 404 and empty array', async () => {
-        await request(server).get(RouterPaths.quizquestions).expect(HttpStatus.OK, {
-            pagesCount: 0,
-            page: 1,
-            pageSize: 10,
-            totalCount: 0,
-            items: [],
-        });
+        await request(server)
+            .get(RouterPaths.quizquestions).set(authBasicHeader)
+            .expect(HttpStatus.OK, {
+                pagesCount: 0,
+                page: 1,
+                pageSize: 10,
+                totalCount: 0,
+                items: [],
+            });
     });
 
     it('should not create question without AUTH', async () => {
@@ -44,7 +46,7 @@ describe('/Testing quiz questions', () => {
 
         await questionsTestManager.createQuestion(app, data, HttpStatus.UNAUTHORIZED);
 
-        await request(server).get(RouterPaths.quizquestions).expect(HttpStatus.OK, {
+        await request(server).get(RouterPaths.quizquestions).set(authBasicHeader).expect(HttpStatus.OK, {
             pagesCount: 0,
             page: 1,
             pageSize: 10,
@@ -82,7 +84,7 @@ describe('/Testing quiz questions', () => {
         createdQuestion1 = createdQuestion!;
 
         await request(server)
-            .get(RouterPaths.quizquestions)
+            .get(RouterPaths.quizquestions).set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 pagesCount: 1,
                 page: 1,
@@ -126,7 +128,7 @@ describe('/Testing quiz questions', () => {
         createdQuestion2 = createdQuestion!;
 
         await request(server)
-            .get(RouterPaths.quizquestions)
+            .get(RouterPaths.quizquestions).set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 pagesCount: 1,
                 page: 1,
@@ -160,13 +162,14 @@ describe('/Testing quiz questions', () => {
         };
 
         await request(server)
-            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .put(`${RouterPaths.quizquestions}/${createdQuestion1.id}/publish`)
             .set(authBasicHeader)
             .send(data1)
             .expect(HttpStatus.BAD_REQUEST);
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -188,6 +191,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -199,7 +203,7 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should not update question publish status without AUTH and correct input data', async () => {
-        const data: QuestionPublishStatusDTO = {
+        const data: inputQuestionPublishStatusDTO = {
             published: true
         };
 
@@ -210,11 +214,12 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, createdQuestion1);
     });
 
     it('should update question publish status with AUTH and correct input data', async () => {
-        const data: QuestionPublishStatusDTO = {
+        const data: inputQuestionPublishStatusDTO = {
             published: true
         };
 
@@ -226,9 +231,21 @@ describe('/Testing quiz questions', () => {
 
         createdQuestion1.published = data.published
 
-        await request(server)
+
+        const response1 = await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
-            .expect(HttpStatus.OK, createdQuestion1);
+            .set(authBasicHeader)
+            .expect(HttpStatus.OK)
+            .expect(response => {
+                expect(response.body.id).toEqual(createdQuestion1.id);
+                expect(response.body.body).toEqual(createdQuestion1.body);
+                expect(response.body.correctAnswers).toEqual(createdQuestion1.correctAnswers);
+                expect(response.body.published).toEqual(createdQuestion1.published);
+                expect(response.body.createdAt).toEqual(createdQuestion1.createdAt);
+                expect(response.body.updatedAt).toEqual(expect.any(String));
+            });
+
+        createdQuestion1.updatedAt = response1.body.updatedAt
     });
 
     it('should not update question with AUTH and incorrect input data', async () => {
@@ -246,6 +263,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -268,6 +286,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -290,6 +309,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -312,6 +332,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -334,6 +355,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, {
                 id: createdQuestion1.id,
                 body: createdQuestion1.body,
@@ -361,9 +383,21 @@ describe('/Testing quiz questions', () => {
         createdQuestion1.body = data.body;
         createdQuestion1.correctAnswers = data.correctAnswers;
 
-        await request(server)
+        const response1 = await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
-            .expect(HttpStatus.OK, createdQuestion1);
+            .set(authBasicHeader)
+            .expect(HttpStatus.OK)
+            .expect(response => {
+                expect(response.body.id).toEqual(createdQuestion1.id);
+                expect(response.body.body).toEqual(createdQuestion1.body);
+                expect(response.body.correctAnswers).toEqual(createdQuestion1.correctAnswers);
+                expect(response.body.published).toEqual(createdQuestion1.published);
+                expect(response.body.createdAt).toEqual(createdQuestion1.createdAt);
+                expect(response.body.updatedAt).toEqual(expect.any(String));
+            });
+
+        createdQuestion1.updatedAt = response1.body.updatedAt
+
     });
 
     it('should not update question without AUTH and correct input data', async () => {
@@ -379,6 +413,7 @@ describe('/Testing quiz questions', () => {
 
         await request(server)
             .get(`${RouterPaths.quizquestions}/${createdQuestion1.id}`)
+            .set(authBasicHeader)
             .expect(HttpStatus.OK, createdQuestion1);
     });
 

@@ -1,4 +1,4 @@
-import {IsBoolean, IsNotEmpty, IsString, Length, Matches} from "class-validator";
+import {IsArray, IsBoolean, IsNotEmpty, IsString, Length, Matches} from "class-validator";
 
 export class inputQuestionCreateDTO {
     @IsString()
@@ -28,7 +28,8 @@ export class inputQuestionUpdateDTO {
     })
         body: string;
 
-    correctAnswers: string[]
+    @IsArray()
+        correctAnswers: string[]
 }
 
 export class QuestionUpdateDTO {

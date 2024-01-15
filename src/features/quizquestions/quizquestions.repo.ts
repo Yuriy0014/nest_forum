@@ -36,7 +36,7 @@ export class QuestionQuizRepoSQL {
         const question = await this.questionRepository
             .createQueryBuilder("q")
             .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"])
-            .where("q.id = :id", {questionId})
+            .where("q.id = :questionId", {questionId})
             .getOne();
 
         if (question) {
@@ -87,11 +87,11 @@ export class QuestionQuizRepoSQL {
         const updatedQuestion = await this.questionRepository
             .createQueryBuilder("q")
             .select(["q.id"])
-            .where("q.id = :id AND b.updatedAt = :updatedAt AND b.body = :body AND b.correctAnswers = :correctAnswers", {
+            .where("q.id = :id AND q.updatedAt = :updatedAt AND q.body = :body AND q.correctAnswers = :correctAnswers", {
                 id: questionId,
-                name: updateDTO.body,
-                description: updateDTO.correctAnswers,
-                updatedAt: updateDTO.updatedAt
+                updatedAt: updateDTO.updatedAt,
+                body: updateDTO.body,
+                correctAnswers: updateDTO.correctAnswers,
             })
             .getMany();
 
@@ -119,7 +119,7 @@ export class QuestionQuizRepoSQL {
         const updatedQuestion = await this.questionRepository
             .createQueryBuilder("q")
             .select(["q.id"])
-            .where("q.id = :id AND b.updatedAt = :updatedAt AND b.published = :published", {
+            .where("q.id = :id AND q.updatedAt = :updatedAt AND q.published = :published", {
                 id: questionId,
                 published: updateDTO.published,
                 updatedAt: updateDTO.updatedAt

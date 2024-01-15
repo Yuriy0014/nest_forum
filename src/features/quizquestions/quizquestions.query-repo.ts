@@ -10,11 +10,11 @@ export class QuestionQuizQueryRepoSQL {
     private questionRepository: Repository<QuestionEntity>;
 
     constructor(@InjectDataSource() protected dataSource: DataSource,
-                private readonly  mapQuestionViewModel: MapQuestionViewModelSQL) {
+                private readonly mapQuestionViewModel: MapQuestionViewModelSQL) {
         this.questionRepository = dataSource.getRepository(QuestionEntity);
     }
 
-    async getRandomQuestion(usedQuestionsId: string[] = []){
+    async getRandomQuestion(usedQuestionsId: string[] = []) {
         try {
             const query = this.questionRepository
                 .createQueryBuilder("question")
@@ -34,11 +34,11 @@ export class QuestionQuizQueryRepoSQL {
 
     }
 
-    async checkAnswer(questionId: string, answer: string): Promise<boolean>{
-        try{
+    async checkAnswer(questionId: string, answer: string): Promise<boolean> {
+        try {
             const query = this.questionRepository
                 .createQueryBuilder("question")
-                .where("question.id  = :questionId AND :answer = ANY(question.correctAnswers)", {questionId,answer})
+                .where("question.id  = :questionId AND :answer = ANY(question.correctAnswers)", {questionId, answer})
                 .getOne()
 
             return query !== null
@@ -63,18 +63,27 @@ export class QuestionQuizQueryRepoSQL {
             throw new Error('Invalid sort field');
         }
 
-        const body_like =
-            queryFilter.bodySearchTerm === null
-                ? '%'
-                : `%${queryFilter.bodySearchTerm}%`;
+        const body_like = queryFilter.bodySearchTerm ? `%${queryFilter.bodySearchTerm}%` : null;
 
-        const orderByField = `b.${queryFilter.sortBy}`;
-        const orderByDirection = queryFilter.sortDirection;
-
-        const [foundQuestionsDB, totalCount] = await this.dataSource.getRepository(QuestionEntity)
+        const queryBuilder = this.dataSource.getRepository(QuestionEntity)
             .createQueryBuilder("q")
-            .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"])
-            .where("q.name ILIKE :name and q.published = :publStatus", {name: body_like, publStatus: queryFilter.publishedStatus })
+            .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"]);
+
+        // Добавляем условие для body_like, если оно не null
+        if (body_like) {
+            queryBuilder.andWhere("q.body ILIKE :body_like", {body_like});
+        }
+
+        // Добавляем условие на publishedStatus, если оно не 'all'
+        if (queryFilter.publishedStatus !== 'all') {
+            const publStatus = queryFilter.publishedStatus === 'published';
+            queryBuilder.andWhere("q.published = :publStatus", {publStatus});
+        }
+
+        const orderByField = `q.${queryFilter.sortBy}`;
+        const orderByDirection = queryFilter.sortDirection === 'ASC' ? 'ASC' : 'DESC';
+
+        const [foundQuestionsDB, totalCount] = await queryBuilder
             .orderBy(orderByField, orderByDirection)
             .limit(queryFilter.pageSize)
             .offset(queryFilter.pageSize * (queryFilter.pageNumber - 1))
@@ -94,5 +103,19 @@ export class QuestionQuizQueryRepoSQL {
         };
 
 
+    }
+
+    async findQuestionById(questionId: string) {
+        const question = await this.questionRepository
+            .createQueryBuilder("q")
+            .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"])
+            .where("q.id = :questionId", {questionId})
+            .getOne();
+
+        if (question) {
+            return this.mapQuestionViewModel.getQuestionViewModel(question);
+        } else {
+            return null;
+        }
     }
 }

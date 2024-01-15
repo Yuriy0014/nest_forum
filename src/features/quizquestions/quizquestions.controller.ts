@@ -20,18 +20,15 @@ import {CommandBus} from "@nestjs/cqrs";
 import {inputQuestionCreateDTO, inputQuestionPublishStatusDTO, inputQuestionUpdateDTO} from "./dto/question.dto";
 import {CreateQuestionCommand} from "./use-cases/CreateQuestionUseCase";
 import {QuestionsViewModel} from "./models/question.model";
-import {QuestionQuizRepoSQL} from "./quizquestions.repo";
-import {QuestionEntity} from "./entities/quiz-question.entities";
 import {DeleteQuestionCommand} from "./use-cases/DeleteQuestionUseCase";
 import {UpdateQuestionCommand} from "./use-cases/UpdateQuestionUseCase";
 import {UpdateQuestionPublicationStatusCommand} from "./use-cases/UpdateQuestionPublicationStatusUseCase";
 
 @UseGuards(BasicAuthGuard)
-@Controller('quiz/questions')
+@Controller('/sa/quiz/questions')
 export class QuizQuestionsController {
     constructor(
         private readonly questionsQueryRepo: QuestionQuizQueryRepoSQL,
-        private readonly questionsRepo: QuestionQuizRepoSQL,
         private commandBus: CommandBus,
     ) {
     }
@@ -53,6 +50,17 @@ export class QuizQuestionsController {
         return foundQuestions
     }
 
+    @Get(':id')
+    async findQuestionById(
+        @Param('id') questionId: string) {
+        const foundQuestion = this.questionsQueryRepo.findQuestionById(questionId)
+
+        if(!foundQuestion) {
+            throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        }
+        return foundQuestion
+    }
+
     @Post()
     async createQuestion(
         @Body() inputModel: inputQuestionCreateDTO,
@@ -72,8 +80,8 @@ export class QuizQuestionsController {
     @Delete(':id')
     @HttpCode(204)
     async deleteQuestion(@Param('id') questionId: string) {
-        const foundQuestion: QuestionEntity | null =
-            await this.questionsRepo.findQuestionById(questionId);
+        const foundQuestion: QuestionsViewModel | null =
+            await this.questionsQueryRepo.findQuestionById(questionId);
         if (!foundQuestion) {
             throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
         }

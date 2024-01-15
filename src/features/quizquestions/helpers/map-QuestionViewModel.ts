@@ -4,14 +4,15 @@ import {QuestionsViewModel} from "../models/question.model";
 
 @Injectable()
 export class MapQuestionViewModelSQL {
-    getQuestionViewModel = (blog: QuestionEntity): QuestionsViewModel => {
+    getQuestionViewModel = (question: QuestionEntity): QuestionsViewModel => {
+
         return {
-            id: blog.id,
-            body: blog.body,
-            correctAnswers: blog.correctAnswers,
-            published: blog.published,
-            createdAt: blog.createdAt.toISOString(),
-            updatedAt: blog.updatedAt.toISOString()
+            id: question.id,
+            body: question.body,
+            correctAnswers: question.correctAnswers,
+            published: question.published,
+            createdAt: question.createdAt.toISOString(),
+            updatedAt: question.updatedAt === null ? 'null' : question.updatedAt.toISOString()
         };
     };
 }

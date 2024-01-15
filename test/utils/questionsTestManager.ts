@@ -15,6 +15,8 @@ export const questionsTestManager = {
             .post(RouterPaths.quizquestions)
             .set(headers)
             .send(data)
+
+        // console.log(response.body)
             .expect(expectedStatusCode);
 
         let createdQuestion = null;
@@ -25,7 +27,12 @@ export const questionsTestManager = {
             expect(createdQuestion).toEqual({
                 id: expect.any(String),
                 body: data.body,
-                correctAnswers: data.correctAnswers
+                correctAnswers: data.correctAnswers,
+                published: false,
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
+
+
             });
         }
 

@@ -31,6 +31,12 @@ export class inputQuestionUpdateDTO {
     correctAnswers: string[]
 }
 
+export class QuestionUpdateDTO {
+    body: string;
+    correctAnswers: string[];
+    updatedAt: Date
+}
+
 export class inputQuestionPublishStatusDTO {
     @IsBoolean()
         published: boolean

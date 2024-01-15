@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {QuestionEntity} from "./entities/quiz-question.entities";
-import {QuestionCreateDTO} from "./dto/question.dto";
+import {QuestionCreateDTO, QuestionUpdateDTO} from "./dto/question.dto";
 import {v4 as uuidv4} from "uuid";
 
 @Injectable()
@@ -63,5 +63,38 @@ export class QuestionQuizRepoSQL {
 
 
         return deletedQuestion === null;
+    }
+
+    async updateQuestion(questionId: string, updateDTO: QuestionUpdateDTO): Promise<boolean> {
+        try {
+            // Найти существующий вопрос
+            const question = await this.questionRepository.findOneBy({id: questionId});
+
+            if (question) {
+                // Обновить поля вопросв
+                question.body = updateDTO.body;
+                question.correctAnswers = updateDTO.correctAnswers;
+                question.updatedAt = updateDTO.updatedAt;
+
+                // Сохранить обновленный вопрос
+                await this.questionRepository.save(question);
+            }
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        const updatedQuestion = await this.questionRepository
+            .createQueryBuilder("q")
+            .select(["q.id"])
+            .where("q.id = :id AND b.updatedAt = :updatedAt AND b.body = :body AND b.correctAnswers = :correctAnswers", {
+                id: questionId,
+                name: updateDTO.body,
+                description: updateDTO.correctAnswers,
+                createdAt: updateDTO.updatedAt
+            })
+            .getMany();
+
+        return updatedQuestion.length !== 0;
     }
 }

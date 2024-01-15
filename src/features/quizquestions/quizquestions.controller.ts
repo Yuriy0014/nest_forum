@@ -17,13 +17,14 @@ import {queryQuestionsPagination} from "./helpers/filter";
 import {QuestionQuizQueryRepoSQL} from "./quizquestions.query-repo";
 import {Result} from "../helpers/result_types";
 import {CommandBus} from "@nestjs/cqrs";
-import {inputQuestionCreateDTO, inputQuestionUpdateDTO} from "./dto/question.dto";
+import {inputQuestionCreateDTO, inputQuestionPublishStatusDTO, inputQuestionUpdateDTO} from "./dto/question.dto";
 import {CreateQuestionCommand} from "./use-cases/CreateQuestionUseCase";
 import {QuestionsViewModel} from "./models/question.model";
 import {QuestionQuizRepoSQL} from "./quizquestions.repo";
 import {QuestionEntity} from "./entities/quiz-question.entities";
 import {DeleteQuestionCommand} from "./use-cases/DeleteQuestionUseCase";
 import {UpdateQuestionCommand} from "./use-cases/UpdateQuestionUseCase";
+import {UpdateQuestionPublicationStatusCommand} from "./use-cases/UpdateQuestionPublicationStatusUseCase";
 
 @UseGuards(BasicAuthGuard)
 @Controller('quiz/questions')
@@ -96,6 +97,24 @@ export class QuizQuestionsController {
     ) {
         const updateResult = await this.commandBus.execute(
             new UpdateQuestionCommand(questionId, updateDTO),
+        );
+
+        if (updateResult.data === null) {
+            throw new HttpException(
+                updateResult.errorMessage!,
+                updateResult.resultCode,
+            );
+        }
+    }
+
+    @Put(':id/publish')
+    @HttpCode(204)
+    async updateQuestionPublicationStatus(
+        @Param('id') questionId: string,
+        @Body() updateDTO: inputQuestionPublishStatusDTO,
+    ) {
+        const updateResult = await this.commandBus.execute(
+            new UpdateQuestionPublicationStatusCommand(questionId, updateDTO),
         );
 
         if (updateResult.data === null) {

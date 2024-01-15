@@ -41,3 +41,8 @@ export class inputQuestionPublishStatusDTO {
     @IsBoolean()
         published: boolean
 }
+
+export class QuestionPublishStatusDTO {
+    published: boolean
+    updatedAt: Date
+}

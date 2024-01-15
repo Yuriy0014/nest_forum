@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {QuestionEntity} from "./entities/quiz-question.entities";
-import {QuestionCreateDTO, QuestionUpdateDTO} from "./dto/question.dto";
+import {QuestionCreateDTO, QuestionPublishStatusDTO, QuestionUpdateDTO} from "./dto/question.dto";
 import {v4 as uuidv4} from "uuid";
 
 @Injectable()
@@ -91,7 +91,38 @@ export class QuestionQuizRepoSQL {
                 id: questionId,
                 name: updateDTO.body,
                 description: updateDTO.correctAnswers,
-                createdAt: updateDTO.updatedAt
+                updatedAt: updateDTO.updatedAt
+            })
+            .getMany();
+
+        return updatedQuestion.length !== 0;
+    }
+
+    async updateQuestionPublishStatus(questionId: string, updateDTO: QuestionPublishStatusDTO) {
+        try {
+            // Найти существующий вопрос
+            const question = await this.questionRepository.findOneBy({id: questionId});
+
+            if (question) {
+                // Обновить поля вопросв
+                question.published = updateDTO.published;
+                question.updatedAt = updateDTO.updatedAt;
+
+                // Сохранить обновленный вопрос
+                await this.questionRepository.save(question);
+            }
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
+
+        const updatedQuestion = await this.questionRepository
+            .createQueryBuilder("q")
+            .select(["q.id"])
+            .where("q.id = :id AND b.updatedAt = :updatedAt AND b.published = :published", {
+                id: questionId,
+                published: updateDTO.published,
+                updatedAt: updateDTO.updatedAt
             })
             .getMany();
 

@@ -2,6 +2,7 @@ import {Injectable, InternalServerErrorException} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import {DataSource, Repository} from "typeorm";
 import {QuestionEntity} from "./entities/quiz-question.entities";
+import {questionFilterModel} from "./helpers/filter";
 
 @Injectable()
 export class QuestionQuizQueryRepoSQL {
@@ -43,6 +44,49 @@ export class QuestionQuizQueryRepoSQL {
             console.log(e);
             throw new InternalServerErrorException(e);
         }
+
+    }
+
+    async findAllQuestions(queryFilter: questionFilterModel) {
+
+        const validSortFields = [
+            'id',
+            'body',
+            'correctAnswers',
+            'published',
+            'createdAt',
+            'updatedAt',
+        ];
+        if (!validSortFields.includes(queryFilter.sortBy)) {
+            throw new Error('Invalid sort field');
+        }
+
+        const body_like =
+            queryFilter.bodySearchTerm === null
+                ? '%'
+                : `%${queryFilter.bodySearchTerm}%`;
+
+        const orderByField = `b.${queryFilter.sortBy}`;
+        const orderByDirection = queryFilter.sortDirection;
+
+        const [foundQuestions, totalCount] = await this.dataSource.getRepository(QuestionEntity)
+            .createQueryBuilder("q")
+            .select(["q.id", "q.body", "q.correctAnswers", "q.published", "q.createdAt", "q.updatedAt"])
+            .where("q.name ILIKE :name and q.published = :publStatus", {name: body_like, publStatus: queryFilter.publishedStatus })
+            .orderBy(orderByField, orderByDirection)
+            .limit(queryFilter.pageSize)
+            .offset(queryFilter.pageSize * (queryFilter.pageNumber - 1))
+            .getManyAndCount();
+
+
+        return {
+            pagesCount: Math.ceil(totalCount / queryFilter.pageSize),
+            page: queryFilter.pageNumber,
+            pageSize: queryFilter.pageSize,
+            totalCount: totalCount,
+            items: foundQuestions,
+        };
+
 
     }
 }

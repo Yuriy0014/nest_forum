@@ -30,7 +30,7 @@ export class PairQuizGameController {
 
     @Get('my-current')
     async getCurrentPair(@Request() req: any) {
-        const activePair = await this.pairQuizQueryRepoSQL.findActivePair(req.userId)
+        const activePair = await this.pairQuizQueryRepoSQL.findActivePair(req.user.userId)
 
         if (!activePair) {
             throw new NotFoundException('Для текущего юзера нет активной пары')
@@ -48,8 +48,8 @@ export class PairQuizGameController {
             throw new NotFoundException('Не найдена игра с таким id')
         }
 
-        if (req.userId !== foundPair.firstPlayerProgress.player.id
-            || req.userId !== foundPair.secondPlayerProgress.player.id) {
+        if (req.user.userId !== foundPair.firstPlayerProgress.player.id
+            || req.user.userId !== foundPair.secondPlayerProgress.player.id) {
 
             throw new ForbiddenException('Вы не участвовали вы этой игре. Резултаты недоступны')
         }
@@ -60,7 +60,7 @@ export class PairQuizGameController {
     @Post('connection')
     async connectToPair(@Request() req: any) {
         const connection: Result<ActivePairEntity> = await this.commandBus.execute(
-            new ConnectToQuizCommand(req.userId),
+            new ConnectToQuizCommand(req.user.userId),
         );
 
         if (connection.data === null) {
@@ -76,7 +76,7 @@ export class PairQuizGameController {
     async sendAnswer(@Request() req: any,
                      @Body() inputAnswer: AnswerDTO) {
         const answerSendResult: Result<ActivePairEntity> = await this.commandBus.execute(
-            new SendAnswerQuizCommand(req.userId,inputAnswer),
+            new SendAnswerQuizCommand(req.user.userId,inputAnswer),
         );
 
         if (answerSendResult.data === null) {

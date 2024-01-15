@@ -88,7 +88,6 @@ describe('/Testing likes', () => {
         post = createdPost!;
 
         //Создаем юзера1, чтобы оставлять комменты и лайки
-
         const dataUser: UserInputModel = {
             login: 'User01',
             password: 'Password01',

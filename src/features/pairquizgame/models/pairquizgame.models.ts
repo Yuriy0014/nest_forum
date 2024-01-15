@@ -15,7 +15,7 @@ type PlayerProgress = {
     score: number;
 };
 
-export class Question  {
+export class Question {
     id: string;
     body: string;
 }

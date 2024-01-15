@@ -104,6 +104,12 @@ import {PairQuizRepoSQL} from "./features/pairquizgame/pairquizgame.repo";
 import {QuestionQuizQueryRepoSQL} from "./features/quizquestions/quizquestions.query-repo";
 import {QuestionQuizRepoSQL} from "./features/quizquestions/quizquestions.repo";
 import {MapPairViewModelSQL} from "./features/pairquizgame/helpers/map-PairViewModelSQL";
+import {CreateQuestionUseCase} from "./features/quizquestions/use-cases/CreateQuestionUseCase";
+import {DeleteQuestionUseCase} from "./features/quizquestions/use-cases/DeleteQuestionUseCase";
+import {
+    UpdateQuestionPublicationStatusUseCase
+} from "./features/quizquestions/use-cases/UpdateQuestionPublicationStatusUseCase";
+import {UpdateQuestionUseCase} from "./features/quizquestions/use-cases/UpdateQuestionUseCase";
 
 const useCases = [
     ///Blogs
@@ -137,8 +143,12 @@ const useCases = [
     DeleteDeviceSessionsUseCase,
     // Quiz
     SendAnswerQuizUseCase,
-    ConnectToQuizUseCase
-];
+    ConnectToQuizUseCase,
+    CreateQuestionUseCase,
+    DeleteQuestionUseCase,
+    UpdateQuestionPublicationStatusUseCase,
+    UpdateQuestionUseCase,
+]
 
 @Module({
     imports: [

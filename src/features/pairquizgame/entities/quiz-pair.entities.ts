@@ -24,8 +24,11 @@ export abstract class PairBase {
         id: string;
 
     @OneToOne(() => UserEntity)
-    @JoinColumn()
-        firstPlayerId: string
+    @JoinColumn({ name: 'firstPlayerId' })
+        firstPlayer: UserEntity;
+
+    @Column({ type: 'uuid', name: 'firstPlayerId', insert: false, update: false })
+        firstPlayerId: string;
 
     @Column()
         firstPlayerLogin: string
@@ -33,7 +36,7 @@ export abstract class PairBase {
     @Column()
         firstPlayerScore: number
 
-    @Column()
+    @Column({type: 'uuid'})
         secondPlayerId: string
 
     @Column()
@@ -42,7 +45,7 @@ export abstract class PairBase {
     @Column()
         secondPlayerScore: number
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'uuid'})
         question_1_id: string
 
     @Column({nullable: true})
@@ -57,7 +60,7 @@ export abstract class PairBase {
     @Column({nullable: true})
         question_1_player2_answ_date: Date
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'uuid'})
         question_2_id: string
 
     @Column({nullable: true})
@@ -72,7 +75,7 @@ export abstract class PairBase {
     @Column({nullable: true})
         question_2_player2_answ_date: Date
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'uuid'})
         question_3_id: string
 
     @Column({nullable: true})
@@ -87,7 +90,7 @@ export abstract class PairBase {
     @Column({nullable: true})
         question_3_player2_answ_date: Date
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'uuid'})
         question_4_id: string
 
     @Column({nullable: true})
@@ -102,7 +105,7 @@ export abstract class PairBase {
     @Column({nullable: true})
         question_4_player2_answ_date: Date
 
-    @Column({nullable: true})
+    @Column({nullable: true, type: 'uuid'})
         question_5_id: string
 
     @Column({nullable: true})

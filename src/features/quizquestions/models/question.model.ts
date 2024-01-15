@@ -1,4 +1,4 @@
-export class QuestionsVewModel {
+export class QuestionsViewModel {
     id: string;
     body: string
     correctAnswers: string[]

@@ -2,12 +2,12 @@ import request from 'supertest';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { HttpStatusType } from './export_data_functions';
 import { RouterPaths } from '../../src/helpers/RouterPaths';
-import {QuestionCreateDTO} from "../../src/features/quizquestions/dto/question.dto";
+import {inputQuestionCreateDTO} from "../../src/features/quizquestions/dto/question.dto";
 
 export const questionsTestManager = {
     async createQuestion(
         app: INestApplication,
-        data: QuestionCreateDTO,
+        data: inputQuestionCreateDTO,
         expectedStatusCode: HttpStatusType = HttpStatus.CREATED,
         headers = {},
     ) {

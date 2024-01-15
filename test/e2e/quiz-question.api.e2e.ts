@@ -4,9 +4,9 @@ import {RouterPaths} from '../../src/helpers/RouterPaths';
 import {authBasicHeader, generateString} from '../utils/export_data_functions';
 import {createTestAPP} from '../utils/createTestAPP';
 import {
-    QuestionCreateDTO,
+    inputQuestionCreateDTO,
     QuestionPublishStatusDTO,
-    QuestionUpdateDTO
+    inputQuestionUpdateDTO
 } from "../../src/features/quizquestions/dto/question.dto";
 import {questionsTestManager} from "../utils/questionsTestManager";
 import {QuestionEntity} from "../../src/features/quizquestions/entities/quiz-question.entities";
@@ -37,7 +37,7 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should not create question without AUTH', async () => {
-        const data: QuestionCreateDTO = {
+        const data: inputQuestionCreateDTO = {
             body: 'Кто проживает на дне океана ?',
             correctAnswers: ['Спанч Боб', 'Патрик', 'Сквидвард', 'Мистер Крабс'],
         };
@@ -67,7 +67,7 @@ describe('/Testing quiz questions', () => {
     };
 
     it('should create question with AUTH and correct input data', async () => {
-        const data: QuestionCreateDTO = {
+        const data: inputQuestionCreateDTO = {
             body: 'Кто проживает на дне океана ?',
             correctAnswers: ['Спанч Боб', 'Патрик', 'Сквидвард', 'Мистер Крабс'],
         };
@@ -111,7 +111,7 @@ describe('/Testing quiz questions', () => {
     };
 
     it('should create one more question with AUTH and correct input data', async () => {
-        const data: QuestionCreateDTO = {
+        const data: inputQuestionCreateDTO = {
             body: 'Кто дружит с осликом Иа ?',
             correctAnswers: ['Пятачок', 'Винни Пух', 'Тигра', 'Сова'],
         };
@@ -347,7 +347,7 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should update question with AUTH and correct input data', async () => {
-        const data: QuestionUpdateDTO = {
+        const data: inputQuestionUpdateDTO = {
             body: 'Есть ли жизнь на Марсе ?',
             correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
         };
@@ -367,7 +367,7 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should not update question without AUTH and correct input data', async () => {
-        const data: QuestionUpdateDTO = {
+        const data: inputQuestionUpdateDTO = {
             body: 'Есть ли жизнь на Марсе ?',
             correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
         };
@@ -383,7 +383,7 @@ describe('/Testing quiz questions', () => {
     });
 
     it('should not update question with AUTH and nonexistent id ', async () => {
-        const data: QuestionUpdateDTO = {
+        const data: inputQuestionUpdateDTO = {
             body: 'Есть ли жизнь на Марсе ?',
             correctAnswers: ['ДА', 'Не знаю', 'Кто спрашивает ?'],
         };

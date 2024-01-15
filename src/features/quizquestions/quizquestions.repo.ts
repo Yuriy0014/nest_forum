@@ -45,4 +45,23 @@ export class QuestionQuizRepoSQL {
             return null;
         }
     }
+
+    async deleteQuestion(questionId: string) {
+        await this.questionRepository
+            .createQueryBuilder()
+            .delete()
+            .from(QuestionEntity)
+            .where("id = :id", {id: questionId})
+            .execute();
+
+
+        const deletedQuestion = await this.questionRepository
+            .createQueryBuilder("q")
+            .select("q.id")
+            .where("q.id = :id", {id: questionId})
+            .getOne();
+
+
+        return deletedQuestion === null;
+    }
 }

@@ -1,4 +1,16 @@
-import {Body, Controller, Get, HttpException, Post, Query, UseGuards} from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpException,
+    HttpStatus,
+    Param,
+    Post,
+    Query,
+    UseGuards
+} from '@nestjs/common';
 import {BasicAuthGuard} from "../auth/guards/basic-auth.guard";
 import {queryQuestionsPagination} from "./helpers/filter";
 import {QuestionQuizQueryRepoSQL} from "./quizquestions.query-repo";
@@ -7,12 +19,16 @@ import {CommandBus} from "@nestjs/cqrs";
 import {inputQuestionCreateDTO} from "./dto/question.dto";
 import {CreateQuestionCommand} from "./use-cases/CreateQuestionUseCase";
 import {QuestionsViewModel} from "./models/question.model";
+import {QuestionQuizRepoSQL} from "./quizquestions.repo";
+import {QuestionEntity} from "./entities/quiz-question.entities";
+import {DeleteQuestionCommand} from "./use-cases/DeleteQuestionUseCase";
 
 @UseGuards(BasicAuthGuard)
 @Controller('quiz/questions')
 export class QuizQuestionsController {
     constructor(
         private readonly questionsQueryRepo: QuestionQuizQueryRepoSQL,
+        private readonly questionsRepo: QuestionQuizRepoSQL,
         private commandBus: CommandBus,
     ) {
     }
@@ -48,5 +64,25 @@ export class QuizQuestionsController {
             );
         }
         return createdQuestion.data;
+    }
+
+    @Delete(':id')
+    @HttpCode(204)
+    async deleteQuestion(@Param('id') questionId: string) {
+        const foundQuestion: QuestionEntity | null =
+            await this.questionsRepo.findQuestionById(questionId);
+        if (!foundQuestion) {
+            throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        }
+        const deletionResult = await this.commandBus.execute(
+            new DeleteQuestionCommand(questionId),
+        );
+
+        if (!deletionResult) {
+            throw new HttpException(
+                'Не удалось удалить вопрос',
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 }
